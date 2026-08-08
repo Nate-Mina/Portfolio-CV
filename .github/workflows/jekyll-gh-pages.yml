@@ -1,12 +1,10 @@
-# Workflow for building and deploying a Jekyll site to GitHub Pages
-name: Deploy Jekyll site to Pages
+# Workflow for building and deploying a Vite / React site to GitHub Pages
+name: Deploy Vite React site to Pages
 
 on:
-  # Runs on pushes targeting the default branch
   push:
-    branches: ["main"]
+    branches: ["main", "master"]
 
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
@@ -15,33 +13,37 @@ permissions:
   pages: write
   id-token: write
 
-# Allow only one concurrent deployment, skipping runs in-progress between run queued and in-progress runs.
+# Allow only one concurrent deployment, skipping runs in-progress
 concurrency:
   group: "pages"
   cancel-in-progress: false
 
 jobs:
-  # Build job
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Pages
-        id: pages
-        uses: actions/configure-pages@v5
-
-      - name: Build with Jekyll
-        uses: actions/jekyll-build-pages@v1
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
-          source: ./
-          destination: ./_site
+          node-version: 20
 
-      - name: Upload artifact
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build with Vite
+        run: npm run build
+
+      - name: Prevent Jekyll processing on GitHub Pages
+        run: touch dist/.nojekyll
+
+      - name: Upload dist artifact
         uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
 
-  # Deployment job
   deploy:
     environment:
       name: github-pages
