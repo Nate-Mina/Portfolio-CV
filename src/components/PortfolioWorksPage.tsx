@@ -91,6 +91,27 @@ export const portfolioProjects: PortfolioProject[] = [
     },
   },
   {
+    id: 'clarkandwolcott-net',
+    title: 'Clark & Wolcott Masonry and Construction (clarkandwolcott.net)',
+    category: 'web',
+    categoryLabel: 'Websites Created',
+    description: 'Official web platform created for Clark & Wolcott Masonry and Construction, a Rochester & Finger Lakes contractor with 35+ years of craftsmanship specializing in commercial and residential masonry, historic restoration, remodeling, chimney repair, and custom stonework.',
+    detailedSpecs: [
+      'Designed and launched custom web presence highlighting 35+ years of masonry craftsmanship and historic restoration expertise.',
+      'Showcases commercial & residential masonry portfolios, chimney repair, basement waterproofing, and decorative stone/brickwork.',
+      'Optimized responsive mobile-friendly layout with direct customer contact routing and project quote requests.',
+      'Features comprehensive service breakdowns and local Rochester/Lima, NY regional business details.',
+    ],
+    technologies: ['React', 'TypeScript', 'Tailwind CSS', 'Responsive UI', 'SEO Optimization'],
+    url: 'https://www.clarkandwolcott.net',
+    featured: true,
+    badge: 'Website Created',
+    metrics: {
+      label: 'Craftsmanship',
+      value: '35+ Yrs Experience',
+    },
+  },
+  {
     id: 'purecomp-net',
     title: 'Pure Computers Official Portal (PureComp.Net)',
     category: 'web',

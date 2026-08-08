@@ -22,7 +22,7 @@ export interface LinkItem {
   subtitle: string;
   url: string;
   displayUrl: string;
-  category: 'primary' | 'social' | 'developer' | 'community';
+  category: 'primary' | 'social' | 'developer' | 'community' | 'credentials';
   iconName: string;
   badge?: string;
   featured?: boolean;

@@ -23,6 +23,7 @@ import {
   CheckCircle2,
   Maximize2,
   Camera,
+  Award,
 } from 'lucide-react';
 import { JekyllTheme, LinkItem } from '../types';
 import { profileData } from '../data/profileData';
@@ -70,6 +71,7 @@ export const BioLinks: React.FC<BioLinksProps> = ({
       case 'AtSign': return <AtSign {...props} />;
       case 'Image': return <Image {...props} />;
       case 'Compass': return <Compass {...props} />;
+      case 'Award': return <Award {...props} />;
       default: return <Globe {...props} />;
     }
   };
@@ -217,6 +219,7 @@ export const BioLinks: React.FC<BioLinksProps> = ({
             {[
               { id: 'all', label: 'All Links' },
               { id: 'primary', label: 'Primary Work' },
+              { id: 'credentials', label: 'Certifications' },
               { id: 'developer', label: 'Developer' },
               { id: 'social', label: 'Social' },
               { id: 'community', label: 'Community' },
