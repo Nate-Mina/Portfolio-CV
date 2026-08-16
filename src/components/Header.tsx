@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Terminal, QrCode, Download, Sparkles, Code2, ExternalLink, ShieldCheck, Mail, Check } from 'lucide-react';
 import { JekyllTheme } from '../types';
 import { jekyllThemes, profileData } from '../data/profileData';
+import { handleImageError } from '../utils/imageUtils';
 
 interface HeaderProps {
   currentTheme: JekyllTheme;
@@ -94,8 +95,10 @@ ${profileData.researchAreas.map((r) => `- **${r.title}**: ${r.description}`).joi
             <img
               src={profileData.avatarUrl}
               alt={profileData.name}
+              data-filename="MAIN.jpg"
               className="w-full h-full object-cover rounded-[10px]"
               referrerPolicy="no-referrer"
+              onError={(e) => handleImageError(e, 'MAIN.jpg')}
             />
             <div className="absolute inset-0 rounded-[10px] bg-slate-950/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
               <Sparkles className="w-4 h-4 text-emerald-400" />

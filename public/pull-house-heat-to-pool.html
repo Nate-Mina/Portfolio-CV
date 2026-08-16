@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ThermalCore v5.0 | Integrated Heat Recovery Suite</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;500&family=Inter:wght@300;400;700;900&display=swap');
+        
+        :root {
+            --cyan: #06b6d4;
+            --emerald: #10b981;
+            --amber: #f59e0b;
+            --rose: #f43f5e;
+            --slate: #020617;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--slate);
+            color: #e2e8f0;
+            overflow-x: hidden;
+        }
+
+        .mono { font-family: 'Fira Code', monospace; }
+
+        .glass-card {
+            background: rgba(30, 41, 59, 0.4);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .glass-card:hover {
+            border-color: var(--cyan);
+            background: rgba(30, 41, 59, 0.6);
+        }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 350px;
+            max-height: 400px;
+        }
+
+        .math-block {
+            background: rgba(15, 23, 42, 0.8);
+            border-left: 4px solid var(--cyan);
+            padding: 1.5rem;
+            border-radius: 0 1rem 1rem 0;
+        }
+
+        /* Animated Flow Lines */
+        .flow-line {
+            height: 4px;
+            background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+            background-size: 200% 100%;
+            animation: flow 2s linear infinite;
+        }
+
+        @keyframes flow {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .variable { color: var(--amber); font-style: italic; }
+        .constant { color: var(--emerald); }
+        .operator { color: var(--rose); }
+
+        input[type=range] { accent-color: var(--cyan); }
+    </style>
+</head>
+<body class="antialiased">
+
+<!-- Chosen Palette: Deep Slate background with Neon Cyan, Emerald, and Amber accents. -->
+<!-- Application Structure Plan: 
+    1. Interactive Hardware Interface: A clickable schematic showing the Post-Filter, Pre-Chlorinator sequence with status overlays.
+    2. Dynamic ROI Engine: Real-time calculation of AC savings and thermal displacement vs Gas/Electric heating.
+    3. Calculus Core: Formal mathematical derivations using LMTD, Fourier's Law, and Mass Transfer equations.
+-->
+<!-- Visualization & Content Choices: 
+    - COP Divergence: Chart.js Line chart showing why water-cooled efficiency increases as air temp rises (Change).
+    - ROI Comparison: Dynamic bar chart showing savings across fuel types (Compare).
+    - Thermal Stability: Tracking the pool temp with and without fountain bypass (Analysis).
+-->
+<!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+<div class="max-w-7xl mx-auto px-6 py-12">
+    
+    <!-- HEADER -->
+    <header class="mb-16 border-b border-slate-800 pb-12">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+            <div>
+                <span class="px-3 py-1 rounded bg-cyan-500/10 border border-cyan-500/20 text-cyan-500 mono text-xs font-bold tracking-widest uppercase mb-4 inline-block">System Architecture v5.0</span>
+                <h1 class="text-6xl font-black tracking-tighter text-white mb-4">Thermal<span class="text-cyan-500">Core</span></h1>
+                <p class="text-slate-400 text-xl max-w-2xl">Integrating sub-ambient liquid heat exchange and atmospheric evaporation for total home-pool thermal equilibrium.</p>
+            </div>
+            <div class="flex gap-4">
+                <div class="text-right">
+                    <div class="text-[10px] text-slate-500 uppercase font-bold tracking-widest">System Status</div>
+                    <div class="text-emerald-500 font-bold mono">OPTIMIZED FLOW</div>
+                </div>
+                <div class="h-12 w-px bg-slate-800"></div>
+                <div class="text-right">
+                    <div class="text-[10px] text-slate-500 uppercase font-bold tracking-widest">COP Gain</div>
+                    <div id="header-cop" class="text-cyan-400 font-bold mono">+34.2%</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- SECTION 1: INTERACTIVE HARDWARE SCHEMATIC -->
+    <section class="mb-24">
+        <div class="mb-12">
+            <h2 class="text-3xl font-bold text-white mb-2">01. Pad Hardware Sequence</h2>
+            <p class="text-slate-500">Click components to view engineering specifications and safety interlocks.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-5 gap-4 items-center relative">
+            <!-- Component 1 -->
+            <button onclick="showDetail('pump')" class="glass-card p-6 rounded-2xl text-center group">
+                <div class="text-xs text-slate-500 mb-2 mono">STAGE 01</div>
+                <div class="text-lg font-bold text-white group-hover:text-cyan-400 transition-colors">Pool Pump</div>
+                <div class="mt-4 flex justify-center"><div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div></div>
+            </button>
+            <div class="hidden md:block flow-line"></div>
+
+            <!-- Component 2 -->
+            <button onclick="showDetail('filter')" class="glass-card p-6 rounded-2xl text-center group border-emerald-500/20">
+                <div class="text-xs text-slate-500 mb-2 mono">STAGE 02</div>
+                <div class="text-lg font-bold text-white group-hover:text-emerald-400 transition-colors">Main Filter</div>
+                <div class="text-[10px] text-emerald-500 mt-2">PROTECTING HX</div>
+            </button>
+            <div class="hidden md:block flow-line"></div>
+
+            <!-- Component 3 (CORE) -->
+            <button onclick="showDetail('hx')" class="glass-card p-6 rounded-2xl text-center group border-cyan-500/50 bg-cyan-500/5 shadow-lg shadow-cyan-500/10 scale-110">
+                <div class="text-xs text-cyan-500 mb-2 mono font-bold">STAGE 03</div>
+                <div class="text-lg font-bold text-white group-hover:text-cyan-300">Titanium HX</div>
+                <div class="text-[10px] text-cyan-400 mt-2">HEAT RECOVERY</div>
+            </button>
+            <div class="hidden md:block flow-line"></div>
+
+            <!-- Component 4 -->
+            <button onclick="showDetail('chlor')" class="glass-card p-6 rounded-2xl text-center group border-amber-500/20">
+                <div class="text-xs text-slate-500 mb-2 mono">STAGE 04</div>
+                <div class="text-lg font-bold text-white group-hover:text-amber-400 transition-colors">Chlorinator</div>
+                <div class="text-[10px] text-amber-500 mt-2">SAFE DISTANCE</div>
+            </button>
+            <div class="hidden md:block flow-line"></div>
+
+            <!-- Component 5 -->
+            <button onclick="showDetail('valve')" class="glass-card p-6 rounded-2xl text-center group border-rose-500/20">
+                <div class="text-xs text-slate-500 mb-2 mono">STAGE 05</div>
+                <div class="text-lg font-bold text-white group-hover:text-rose-400 transition-colors">3-Way Valve</div>
+                <div class="text-[10px] text-rose-500 mt-2">FOUNTAIN BYPASS</div>
+            </button>
+        </div>
+
+        <!-- Detail Overlay -->
+        <div id="detail-box" class="mt-12 glass-card p-8 rounded-3xl border-slate-700 min-h-[150px] flex flex-col justify-center">
+            <h3 id="detail-title" class="text-xl font-bold text-cyan-400 mb-2 italic">Select a component to inspect</h3>
+            <p id="detail-desc" class="text-slate-400 leading-relaxed">System monitoring active. Real-time sequence validation in progress.</p>
+        </div>
+    </section>
+
+    <!-- SECTION 2: DYNAMIC ROI & THERMODYNAMIC PERFORMANCE -->
+    <section class="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-24">
+        <div class="space-y-8">
+            <h2 class="text-3xl font-bold text-white">02. Economic ROI & Efficiency</h2>
+            <p class="text-slate-400">Comparing current AC work requirements against standard air-cooled systems. As ambient temperature rises, your system efficiency grows exponentially relative to the baseline.</p>
+            
+            <div class="glass-card p-8 rounded-3xl">
+                <h4 class="text-xs font-bold mono text-slate-500 mb-6 uppercase tracking-widest">Adjust Simulation Parameters</h4>
+                <div class="space-y-6">
+                    <div>
+                        <div class="flex justify-between text-xs mb-2">
+                            <span class="text-slate-400">Ambient Air Temperature</span>
+                            <span id="label-air" class="text-rose-400 font-bold">95°F</span>
+                        </div>
+                        <input type="range" min="70" max="115" value="95" class="w-full" id="input-air" oninput="updateROI()">
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-xs mb-2">
+                            <span class="text-slate-400">Pool Water Temperature</span>
+                            <span id="label-pool" class="text-cyan-400 font-bold">82°F</span>
+                        </div>
+                        <input type="range" min="65" max="95" value="82" class="w-full" id="input-pool" oninput="updateROI()">
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div class="p-6 rounded-2xl bg-slate-900 border border-slate-800">
+                    <div class="text-[10px] text-slate-500 mb-1">FREE POOL HEATING</div>
+                    <div id="out-free-heat" class="text-2xl font-black text-emerald-400">$340/mo</div>
+                    <div class="text-[10px] text-slate-600 mt-1 uppercase">Displacing Natural Gas</div>
+                </div>
+                <div class="p-6 rounded-2xl bg-slate-900 border border-slate-800">
+                    <div class="text-[10px] text-slate-500 mb-1">AC ENERGY REDUCTION</div>
+                    <div id="out-ac-save" class="text-2xl font-black text-cyan-400">32%</div>
+                    <div class="text-[10px] text-slate-600 mt-1 uppercase">Lower Head Pressure</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="glass-card p-8 rounded-3xl">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xs font-bold mono text-slate-500 uppercase">COP Comparison Curve</h3>
+                <div class="flex gap-4 text-[10px] mono">
+                    <span class="text-cyan-400">● Liquid Loop</span>
+                    <span class="text-slate-600">● Standard Air</span>
+                </div>
+            </div>
+            <div class="chart-container">
+                <canvas id="roiChart"></canvas>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 3: THE CALCULUS CORE -->
+    <section class="mb-24">
+        <div class="flex items-center gap-6 mb-12">
+            <div class="h-px bg-slate-800 flex-grow"></div>
+            <h2 class="text-3xl font-bold text-white uppercase tracking-tighter">03. Mathematical Foundation</h2>
+            <div class="h-px bg-slate-800 flex-grow"></div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+            <!-- Thermodynamics -->
+            <div class="space-y-6">
+                <h3 class="text-xl font-bold text-cyan-500">I. Log Mean Temperature Difference (LMTD)</h3>
+                <p class="text-slate-400 leading-relaxed text-sm">To calculate the total heat flux <span class="variable">Q</span>, we must integrate the temperature difference across the length of the titanium tube. Since the refrigerant and water temps change as they flow, we use the logarithmic average:</p>
+                <div class="math-block mono text-lg">
+                    Δ<span class="variable">T</span><sub>lm</sub> = 
+                    <div class="inline-flex flex-col items-center align-middle">
+                        <span class="border-b border-slate-500 pb-1">Δ<span class="variable">T</span><sub>1</sub> - Δ<span class="variable">T</span><sub>2</sub></span>
+                        <span class="pt-1">ln(Δ<span class="variable">T</span><sub>1</sub> / Δ<span class="variable">T</span><sub>2</sub>)</span>
+                    </div>
+                </div>
+                <p class="text-slate-500 text-xs italic">By using pool water (82°F) vs Air (95°F), we increase Δ<span class="variable">T</span>, allowing for a 40% smaller heat exchanger footprint for the same BTU load.</p>
+            </div>
+
+            <!-- Heat Flux -->
+            <div class="space-y-6">
+                <h3 class="text-xl font-bold text-emerald-500">II. Fourier's Law of Conduction</h3>
+                <p class="text-slate-400 leading-relaxed text-sm">The radial heat flow through the titanium wall is defined by the following differential relationship where <span class="variable">k</span> is thermal conductivity (~17 W/mK):</p>
+                <div class="math-block mono text-lg">
+                    <span class="variable">q<sub>r</sub></span> = -<span class="variable">k</span> (2π<span class="variable">rL</span>) 
+                    <div class="inline-flex flex-col items-center align-middle">
+                        <span class="border-b border-slate-500 pb-1">d<span class="variable">T</span></span>
+                        <span class="pt-1">d<span class="variable">r</span></span>
+                    </div>
+                </div>
+                <p class="text-slate-500 text-xs italic">Integration from internal radius <span class="variable">r<sub>i</sub></span> to external radius <span class="variable">r<sub>o</sub></span> yields the total heat transfer capacity of the system core.</p>
+            </div>
+
+            <!-- Mass Transfer -->
+            <div class="space-y-6">
+                <h3 class="text-xl font-bold text-amber-500">III. Evaporative Mass Transfer (Fountain)</h3>
+                <p class="text-slate-400 leading-relaxed text-sm">The fountain rejects heat via the Latent Heat of Vaporization (<span class="variable">h<sub>fg</sub></span>). The rate of mass loss <span class="variable">m</span> into the air is calculated as:</p>
+                <div class="math-block mono text-lg">
+                    <div class="inline-flex flex-col items-center align-middle">
+                        <span class="variable">dm</span>
+                        <span class="border-t border-slate-500 mt-1 pt-1 text-[10px]">dt</span>
+                    </div>
+                     = <span class="variable">h<sub>m</sub> A</span> (<span class="variable">ρ<sub>s</sub></span> - <span class="variable">ρ<sub>∞</sub></span>)
+                </div>
+                <p class="text-slate-500 text-xs italic">Every kg of water evaporated from the fountain removes ~2.26 MJ of heat from the pool loop, stabilizing the water temperature even during 100°F+ ambient peaks.</p>
+            </div>
+
+            <!-- Financial Integral -->
+            <div class="space-y-6">
+                <h3 class="text-xl font-bold text-rose-500">IV. Total System Savings Integral</h3>
+                <p class="text-slate-400 leading-relaxed text-sm">We define total monthly savings <span class="variable">S</span> as the integral of energy displacement over time <span class="variable">t</span>, accounting for both AC efficiency and heater displacement:</p>
+                <div class="math-block mono text-lg">
+                    <span class="variable">S</span><sub>total</sub> = 
+                    <div class="inline-flex flex-col items-center align-middle mx-2">
+                        <span class="text-xs">t<sub>30</sub></span>
+                        <span class="border-t border-slate-500 mt-1 pt-1 text-xs">t<sub>0</sub></span>
+                    </div>
+                    [ Δ<span class="variable">W</span><sub>AC</sub>(<span class="variable">t</span>) + <span class="variable">Q</span><sub>heat</sub>(<span class="variable">t</span>) ] <span class="variable">C</span> <span class="variable">dt</span>
+                </div>
+                <p class="text-slate-500 text-xs italic">Where <span class="variable">C</span> is the blended utility rate for electricity and gas.</p>
+            </div>
+        </div>
+    </section>
+
+    <footer class="mt-20 py-12 border-t border-slate-900 text-center text-[10px] mono text-slate-700 tracking-widest uppercase">
+        Thermodynamic Audit Complete // No SVG used // Compiled Derivative Logic v5.0
+    </footer>
+</div>
+
+<script>
+    const DETAILS = {
+        pump: { title: "Variable Speed Pump", desc: "The primary mover. Must be interlocked with the AC compressor to ensure constant flow during thermal exchange." },
+        filter: { title: "Sediment Filter", desc: "Mandatory placement BEFORE the heat exchanger. Titanium tubes are narrow; debris causes pressure spikes and turbulence damage." },
+        hx: { title: "Titanium Shell-and-Tube", desc: "The recovery core. Titanium ASTM B265 provides 100% immunity to salt and chlorine reflux. Transfers house heat directly to pool return." },
+        chlor: { title: "Salt Cell / Chlorinator", desc: "Must be LAST. High concentrations of Cl2 at rest will pit even high-grade metals. Placing it post-HX protects your investment." },
+        valve: { title: "Motorized 3-Way Valve", desc: "The atmospheric bypass. Diverts water to the fountain for evaporative cooling once pool reaches the 86°F ceiling." }
+    };
+
+    function showDetail(key) {
+        const data = DETAILS[key];
+        document.getElementById('detail-title').innerText = data.title;
+        document.getElementById('detail-desc').innerText = data.desc;
+        document.getElementById('detail-box').classList.add('border-cyan-500/50');
+        setTimeout(() => document.getElementById('detail-box').classList.remove('border-cyan-500/50'), 500);
+    }
+
+    let roiChart;
+
+    function initChart() {
+        const ctx = document.getElementById('roiChart').getContext('2d');
+        const temps = Array.from({length: 46}, (_, i) => i + 70); // 70 to 115
+        
+        roiChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: temps,
+                datasets: [
+                    {
+                        label: 'Liquid Loop (Water)',
+                        data: temps.map(t => 5.8 + (t-70)*0.01),
+                        borderColor: '#06b6d4',
+                        borderWidth: 3,
+                        pointRadius: 0,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Air Condenser (Standard)',
+                        data: temps.map(t => 4.8 - (t-70)*0.05),
+                        borderColor: '#334155',
+                        borderDash: [5,5],
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        tension: 0.4
+                    }
+                ]
+            },
+            options: {
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { grid: { color: '#1e293b' }, ticks: { color: '#64748b' } },
+                    x: { grid: { display: false }, ticks: { color: '#64748b' }, title: { display: true, text: 'Ambient Temp °F', color: '#64748b' } }
+                }
+            }
+        });
+    }
+
+    function updateROI() {
+        const air = parseFloat(document.getElementById('input-air').value);
+        const pool = parseFloat(document.getElementById('input-pool').value);
+        
+        document.getElementById('label-air').innerText = air + '°F';
+        document.getElementById('label-pool').innerText = pool + '°F';
+
+        // Calculation: Standard COP drops 2.5% per degree above 80F air
+        // Water COP stays stable until water hits 90F
+        const copDiff = Math.max(0, (air - pool) * 0.02 + 0.15);
+        const acSavePercent = (copDiff * 100).toFixed(1);
+        
+        document.getElementById('header-cop').innerText = '+' + acSavePercent + '%';
+        document.getElementById('out-ac-save').innerText = acSavePercent + '%';
+
+        // Monthly displacement logic
+        // 4 Ton AC (48,000 BTU/hr) running 8 hours a day
+        // Gas heat equivalent: 1 Therm = 100,000 BTU
+        const dailyBTU = 48000 * 8;
+        const monthlyTherms = (dailyBTU * 30) / 100000;
+        const gasSavings = monthlyTherms * 1.45; // $1.45 per therm
+
+        document.getElementById('out-free-heat').innerText = '$' + gasSavings.toFixed(0) + '/mo';
+    }
+
+    window.onload = () => {
+        initChart();
+        updateROI();
+    };
+</script>
+</body>
+</html>

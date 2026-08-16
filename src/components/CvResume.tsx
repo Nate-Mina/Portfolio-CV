@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { handleImageError } from '../utils/imageUtils';
 import {
   Cpu,
   Zap,
@@ -62,8 +63,10 @@ export const CvResume: React.FC<CvResumeProps> = ({ currentTheme, onOpenTerminal
               <img
                 src={profileData.avatarUrl}
                 alt={profileData.name}
+                data-filename="MAIN.jpg"
                 className="w-full h-full object-cover rounded-[14px]"
                 referrerPolicy="no-referrer"
+                onError={(e) => handleImageError(e, 'MAIN.jpg')}
               />
               <div className="absolute inset-0 rounded-[14px] bg-slate-950/50 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center transition-opacity">
                 <Maximize2 className="w-5 h-5 text-emerald-400" />

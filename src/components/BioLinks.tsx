@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { handleImageError } from '../utils/imageUtils';
 import {
   Globe,
   Github,
@@ -24,6 +25,11 @@ import {
   Maximize2,
   Camera,
   Award,
+  Flame,
+  Activity,
+  Cpu,
+  Layers,
+  Code2,
 } from 'lucide-react';
 import { JekyllTheme, LinkItem } from '../types';
 import { profileData } from '../data/profileData';
@@ -72,6 +78,11 @@ export const BioLinks: React.FC<BioLinksProps> = ({
       case 'Image': return <Image {...props} />;
       case 'Compass': return <Compass {...props} />;
       case 'Award': return <Award {...props} />;
+      case 'Flame': return <Flame {...props} />;
+      case 'Activity': return <Activity {...props} />;
+      case 'Cpu': return <Cpu {...props} />;
+      case 'Layers': return <Layers {...props} />;
+      case 'Code2': return <Code2 {...props} />;
       default: return <Globe {...props} />;
     }
   };
@@ -102,8 +113,10 @@ export const BioLinks: React.FC<BioLinksProps> = ({
           <img
             src={profileData.bannerUrl}
             alt="Hardware Banner"
+            data-filename="jekyll_banner_header_1786134616127.jpg"
             className="w-full h-full object-cover opacity-80"
             referrerPolicy="no-referrer"
+            onError={(e) => handleImageError(e, 'jekyll_banner_header_1786134616127.jpg')}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
           
@@ -137,8 +150,10 @@ export const BioLinks: React.FC<BioLinksProps> = ({
               <img
                 src={profileData.avatarUrl}
                 alt={profileData.name}
+                data-filename="MAIN.jpg"
                 className="w-full h-full object-cover rounded-xl"
                 referrerPolicy="no-referrer"
+                onError={(e) => handleImageError(e, 'MAIN.jpg')}
               />
               <div className="absolute inset-0 rounded-xl bg-slate-950/50 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center transition-opacity duration-200">
                 <Maximize2 className="w-6 h-6 text-emerald-400" />
@@ -219,7 +234,6 @@ export const BioLinks: React.FC<BioLinksProps> = ({
             {[
               { id: 'all', label: 'All Links' },
               { id: 'primary', label: 'Primary Work' },
-              { id: 'credentials', label: 'Certifications' },
               { id: 'developer', label: 'Developer' },
               { id: 'social', label: 'Social' },
               { id: 'community', label: 'Community' },

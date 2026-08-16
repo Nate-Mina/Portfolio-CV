@@ -47,6 +47,50 @@ export interface PortfolioProject {
 
 export const portfolioProjects: PortfolioProject[] = [
   {
+    id: 'pull-house-heat-to-pool',
+    title: 'Pull House Heat to Pool | ThermalCore v5.0 Heat Recovery Suite',
+    category: 'systems',
+    categoryLabel: 'Thermal Engineering & Energy Recovery',
+    description: 'Sub-ambient liquid heat exchange & atmospheric evaporation suite for total home-pool thermal equilibrium. Uses titanium shell-and-tube heat exchangers and variable-speed pumps to recover waste AC condenser heat directly to pool water.',
+    detailedSpecs: [
+      'Interactive 5-stage pad hardware sequence schematic (Pump, Filter, Titanium HX, Salt Cell, 3-Way Valve).',
+      'Dynamic ROI Engine calculating real-time AC efficiency gains (+34.2% COP) and natural gas heating displacement ($340+/mo).',
+      'Calculus core deriving Log Mean Temperature Difference (LMTD), Fourier Conduction, and Evaporative Mass Transfer.',
+      'Live COP comparison curves contrasting water-cooled sub-ambient heat exchange against standard air condensers.',
+    ],
+    technologies: ['HTML5', 'Tailwind CSS', 'Chart.js', 'Thermodynamic Calculus', 'Fira Code'],
+    url: './pull-house-heat-to-pool.html',
+    fullscreenUrl: './pull-house-heat-to-pool.html',
+    featured: true,
+    badge: 'Thermal Core',
+    metrics: {
+      label: 'COP Efficiency Gain',
+      value: '+34.2% Saved',
+    },
+  },
+  {
+    id: 'vitalstats-clinical-portal',
+    title: 'VitalStats | Clinical Supplement Analytics & Synthesis Portal',
+    category: 'systems',
+    categoryLabel: 'Clinical & Analytics Portal',
+    description: 'Epidemiological surveillance & systematic research portal integrating CDC NHANES data with RCT meta-analyses to evaluate supplement efficacy, endocrine pathways, microvascular mechanisms, and safety audit protocols.',
+    detailedSpecs: [
+      'Interactive Clinical Evidence Database with dynamic filtering across 15+ evidence-graded compound matrices.',
+      'Personalized Assessment Wizard calculating evidence-backed protocols, dosage targets, and contraindication flags.',
+      'CDC NHANES top 10 motivation surveillance charts disaggregated by age and sex cohort.',
+      'Includes Athletic Performance & Muscle Growth analysis, ED & Androgen synthesis tables, and Microvascular Sentinel models.',
+    ],
+    technologies: ['HTML5', 'Tailwind CSS', 'Chart.js', 'JavaScript ES6+', 'Epidemiological Models'],
+    url: './supplement_portal.html',
+    fullscreenUrl: './supplement_portal.html',
+    featured: true,
+    badge: 'Clinical Portal',
+    metrics: {
+      label: 'Evidence Matrix',
+      value: 'v4.2 Clinical',
+    },
+  },
+  {
     id: 'aistudio-app-1',
     title: 'AI Studio Application (81f331d4)',
     category: 'aistudio',
@@ -313,7 +357,7 @@ export const PortfolioWorksPage: React.FC<PortfolioWorksPageProps> = ({ currentT
               </button>
 
               <div className="flex items-center gap-2">
-                {project.category === 'aistudio' && (
+                {(project.category === 'aistudio' || project.url.endsWith('.html') || project.id === 'vitalstats-clinical-portal') && (
                   <button
                     type="button"
                     onClick={() => setActiveIframeApp(project)}

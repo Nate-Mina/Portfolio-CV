@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { handleImageError } from '../utils/imageUtils';
 import {
   X,
   ChevronLeft,
@@ -172,10 +173,13 @@ export const PhotoCarouselModal: React.FC<PhotoCarouselModalProps> = ({
         {/* Center Display Image */}
         <div className="relative max-w-4xl max-h-[65vh] md:max-h-[70vh] flex flex-col items-center justify-center p-2">
           <img
+            key={currentPhoto.id}
             src={currentPhoto.url}
             alt={currentPhoto.title}
+            data-filename={currentPhoto.filename}
             referrerPolicy="no-referrer"
             className="max-w-full max-h-[58vh] md:max-h-[62vh] object-contain rounded-2xl shadow-2xl border border-slate-800 transition-all duration-300 transform scale-100"
+            onError={(e) => handleImageError(e, currentPhoto.filename || 'MAIN.jpg')}
           />
 
           {/* Caption Box */}
@@ -223,8 +227,10 @@ export const PhotoCarouselModal: React.FC<PhotoCarouselModalProps> = ({
               <img
                 src={photo.url}
                 alt={photo.title}
+                data-filename={photo.filename}
                 referrerPolicy="no-referrer"
                 className="w-14 h-14 md:w-16 md:h-16 object-cover"
+                onError={(e) => handleImageError(e, photo.filename || 'MAIN.jpg')}
               />
               {isActive && (
                 <div className="absolute inset-0 bg-emerald-500/10 border-2 border-emerald-400 rounded-xl pointer-events-none" />

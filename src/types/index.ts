@@ -77,6 +77,7 @@ export interface AwardItem {
 export interface GalleryPhoto {
   id: string;
   url: string;
+  filename?: string;
   title: string;
   category: string;
   description: string;
