@@ -225,6 +225,7 @@ export const PhotoCarouselModal: React.FC<PhotoCarouselModalProps> = ({
               }`}
             >
               <img
+                key={`thumb-img-${photo.id}`}
                 src={photo.url}
                 alt={photo.title}
                 data-filename={photo.filename}
