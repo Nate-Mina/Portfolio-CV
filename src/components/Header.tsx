@@ -7,8 +7,8 @@ import { handleImageError } from '../utils/imageUtils';
 interface HeaderProps {
   currentTheme: JekyllTheme;
   onSelectTheme: (theme: JekyllTheme) => void;
-  activeTab: 'links' | 'purecomp' | 'portfolio' | 'resume' | 'cases' | 'calculator';
-  setActiveTab: (tab: 'links' | 'purecomp' | 'portfolio' | 'resume' | 'cases' | 'calculator') => void;
+  activeTab: 'links' | 'purecomp' | 'portfolio' | 'resume' | 'music' | 'cases' | 'calculator';
+  setActiveTab: (tab: 'links' | 'purecomp' | 'portfolio' | 'resume' | 'music' | 'cases' | 'calculator') => void;
   onOpenTerminal: () => void;
   onOpenQr: () => void;
   onOpenGallery?: () => void;
@@ -147,6 +147,16 @@ ${profileData.researchAreas.map((r) => `- **${r.title}**: ${r.description}`).joi
             }`}
           >
             Portfolio / Works
+          </button>
+          <button
+            onClick={() => setActiveTab('music')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-mono font-medium transition-all ${
+              activeTab === 'music'
+                ? 'bg-red-600 text-white shadow-md font-bold'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+            }`}
+          >
+            Music &amp; Podcasts
           </button>
           <button
             onClick={() => setActiveTab('resume')}

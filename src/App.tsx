@@ -6,6 +6,7 @@ import { BioLinks } from './components/BioLinks';
 import { CvResume } from './components/CvResume';
 import { PureComputersPage } from './components/PureComputersPage';
 import { PortfolioWorksPage } from './components/PortfolioWorksPage';
+import { MusicPage } from './components/MusicPage';
 import { SystemCalculator } from './components/SystemCalculator';
 import { TerminalModal } from './components/TerminalModal';
 import { QrCodeModal } from './components/QrCodeModal';
@@ -14,7 +15,7 @@ import { Footer } from './components/Footer';
 
 export default function App() {
   const [currentTheme, setCurrentTheme] = useState<JekyllTheme>(jekyllThemes[0]);
-  const [activeTab, setActiveTab] = useState<'links' | 'purecomp' | 'portfolio' | 'resume' | 'cases' | 'calculator'>('links');
+  const [activeTab, setActiveTab] = useState<'links' | 'purecomp' | 'portfolio' | 'resume' | 'music' | 'cases' | 'calculator'>('links');
   const [isTerminalOpen, setIsTerminalOpen] = useState(false);
   const [qrModalData, setQrModalData] = useState<{ isOpen: boolean; url?: string; title?: string }>({
     isOpen: false,
@@ -65,6 +66,14 @@ export default function App() {
           <PortfolioWorksPage
             currentTheme={currentTheme}
             onOpenTerminal={() => setIsTerminalOpen(true)}
+          />
+        )}
+
+        {activeTab === 'music' && (
+          <MusicPage
+            currentTheme={currentTheme}
+            onOpenTerminal={() => setIsTerminalOpen(true)}
+            onOpenCustomQr={(url, title) => handleOpenQr(url, title)}
           />
         )}
 

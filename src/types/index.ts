@@ -22,9 +22,12 @@ export interface LinkItem {
   subtitle: string;
   url: string;
   displayUrl: string;
+  handle?: string;
   category: 'primary' | 'social' | 'developer' | 'community' | 'credentials';
   iconName: string;
+  iconText?: string;
   badge?: string;
+  badgeVariant?: 'purple' | 'blue' | 'rose' | 'pink' | 'orange' | 'amber' | 'emerald' | 'slate';
   featured?: boolean;
   color?: string;
 }
