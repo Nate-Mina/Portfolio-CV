@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Terminal, QrCode, Download, Sparkles, Code2, ExternalLink, ShieldCheck, Mail, Check } from 'lucide-react';
+import { Terminal, QrCode, Download, Sparkles, Code2, ExternalLink, Mail, Check } from 'lucide-react';
 import { JekyllTheme } from '../types';
 import { jekyllThemes, profileData } from '../data/profileData';
 import { handleImageError } from '../utils/imageUtils';
@@ -109,9 +109,6 @@ ${profileData.researchAreas.map((r) => `- **${r.title}**: ${r.description}`).joi
               <h1 className="text-base font-mono font-bold text-slate-100 tracking-tight">
                 {profileData.name}
               </h1>
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1">
-                <ShieldCheck className="w-3 h-3" /> CEO
-              </span>
             </div>
             <p className="text-xs text-slate-400 font-mono">
               Pure Computers | Mechanical Engineer &amp; Systems Architect
