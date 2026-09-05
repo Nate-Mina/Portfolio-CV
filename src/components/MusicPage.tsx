@@ -160,12 +160,12 @@ export const MusicPage: React.FC<MusicPageProps> = ({
                 </a>
                 ) and TikTok (
                 <a
-                  href="https://tiktok.com/@dom_i_nater"
+                  href="https://www.tiktok.com/@dominnately"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-rose-400 font-semibold underline hover:text-rose-300 transition-colors"
                 >
-                  @dom_i_nater
+                  @dominnately
                 </a>
                 ).
               </p>
@@ -344,13 +344,13 @@ export const MusicPage: React.FC<MusicPageProps> = ({
               </a>
 
               <a
-                href="https://tiktok.com/@dom_i_nater"
+                href="https://www.tiktok.com/@dominnately"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full flex items-center justify-center gap-2 py-2 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-800 font-sans text-xs font-semibold transition-colors"
               >
                 <Video className="w-3.5 h-3.5 text-rose-400" />
-                <span>TikTok Audio Clips (@dom_i_nater)</span>
+                <span>TikTok Audio Clips (@dominnately)</span>
               </a>
             </div>
           </div>

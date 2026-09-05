@@ -339,10 +339,10 @@ export const profileData: ProfileData = {
     {
       id: 'tiktok',
       title: 'TikTok',
-      handle: '@dom_i_nater',
+      handle: '@dominnately',
       subtitle: 'Short-form AI tech, engineering breakdowns, and music snippets',
-      url: 'https://tiktok.com/@dom_i_nater',
-      displayUrl: 'tiktok.com/@dom_i_nater',
+      url: 'https://www.tiktok.com/@dominnately',
+      displayUrl: 'tiktok.com/@dominnately',
       category: 'social',
       iconName: 'Video',
       badge: 'Content Creation',
