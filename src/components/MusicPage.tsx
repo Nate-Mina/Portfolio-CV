@@ -10,7 +10,7 @@ interface MusicPageProps {
 
 export const MusicPage: React.FC<MusicPageProps> = () => {
   return (
-    <div className="w-full -mt-2">
+    <div className="w-full music-gallery-wrapper">
       <DomInNATElyApp />
     </div>
   );

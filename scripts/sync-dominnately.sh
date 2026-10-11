@@ -18,6 +18,10 @@ echo "==> Updating TikTok handle references if needed..."
 find src/music-gallery -type f -exec sed -i 's|https://tiktok\.com/@domInNATEly|https://www.tiktok.com/@dominnately|g' {} + 2>/dev/null || true
 find src/music-gallery -type f -exec sed -i 's|@domInNATEly|@dominnately|g' {} + 2>/dev/null || true
 
+echo "==> Preserving header sticky offset under main portfolio header..."
+sed -i 's|sticky top-0 z-40|sticky z-30|g' src/music-gallery/components/Header.tsx 2>/dev/null || true
+sed -i 's|sticky top-24|sticky|g' src/music-gallery/App.tsx 2>/dev/null || true
+
 echo "==> Syncing public assets/images..."
 mkdir -p public/assets/images
 if [ -d "$TMP_DIR/src/assets/images" ]; then

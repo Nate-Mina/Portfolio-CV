@@ -68,3 +68,24 @@
 .animate-eq-5 {
   animation: eqBar5 0.75s ease-in-out infinite;
 }
+
+/* Ensure the main portfolio header stays frozen above all sub-headers */
+header#portfolio-main-header {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 40 !important;
+}
+
+/* Ensure the DomInNATEly music sub-header stays frozen directly UNDER the main portfolio header */
+header#main-header,
+.music-gallery-wrapper header#main-header {
+  position: sticky !important;
+  top: var(--portfolio-header-height, 65px) !important;
+  z-index: 30 !important;
+}
+
+/* Ensure sticky desktop player in music gallery sticks below both frozen headers */
+#immersive-now-playing-stage-container {
+  position: sticky !important;
+  top: calc(var(--portfolio-header-height, 65px) + 5.5rem) !important;
+}

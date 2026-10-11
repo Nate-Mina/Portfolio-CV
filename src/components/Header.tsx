@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Terminal, QrCode, Download, Sparkles, Code2, ExternalLink, Mail, Check } from 'lucide-react';
 import { JekyllTheme } from '../types';
 import { jekyllThemes, profileData } from '../data/profileData';
@@ -25,6 +25,32 @@ export const Header: React.FC<HeaderProps> = ({
 }) => {
   const [showThemePicker, setShowThemePicker] = useState(false);
   const [downloaded, setDownloaded] = useState(false);
+  const headerRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const updateHeaderHeight = () => {
+      if (headerRef.current) {
+        const height = headerRef.current.offsetHeight;
+        document.documentElement.style.setProperty('--portfolio-header-height', `${height}px`);
+      }
+    };
+
+    updateHeaderHeight();
+
+    let resizeObserver: ResizeObserver | null = null;
+    if (typeof ResizeObserver !== 'undefined' && headerRef.current) {
+      resizeObserver = new ResizeObserver(() => {
+        updateHeaderHeight();
+      });
+      resizeObserver.observe(headerRef.current);
+    }
+
+    window.addEventListener('resize', updateHeaderHeight);
+    return () => {
+      if (resizeObserver) resizeObserver.disconnect();
+      window.removeEventListener('resize', updateHeaderHeight);
+    };
+  }, []);
 
   const exportCvMarkdown = () => {
     const mdContent = `# ${profileData.name}
@@ -83,7 +109,11 @@ ${profileData.researchAreas.map((r) => `- **${r.title}**: ${r.description}`).joi
   };
 
   return (
-    <header className="relative w-full border-b border-slate-800 bg-slate-950/90 backdrop-blur-md sticky top-0 z-40">
+    <header
+      id="portfolio-main-header"
+      ref={headerRef}
+      className="relative w-full border-b border-slate-800 bg-slate-950/95 backdrop-blur-md sticky top-0 z-40"
+    >
       {/* Primary Navigation & Brand Header Bar */}
       <div className="max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
