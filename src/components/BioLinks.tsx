@@ -7,6 +7,8 @@ import {
   Facebook,
   Instagram,
   Youtube,
+  Music,
+  Headphones,
   Video,
   MessageSquare,
   AtSign,
@@ -90,6 +92,8 @@ export const BioLinks: React.FC<BioLinksProps> = ({
       boxBg = 'bg-sky-950/70 border-sky-800/60 text-sky-400';
     } else if (link.id === 'youtube' || link.iconName === 'Youtube') {
       boxBg = 'bg-red-950/70 border-red-800/60 text-red-500';
+    } else if (link.id === 'music-portfolio' || link.iconName === 'Music') {
+      boxBg = 'bg-purple-950/70 border-purple-800/60 text-purple-400';
     } else if (link.id === 'facebook' || link.iconName === 'Facebook') {
       boxBg = 'bg-blue-950/70 border-blue-800/60 text-blue-400';
     } else if (link.id === 'tiktok' || link.iconName === 'Video') {
@@ -114,6 +118,8 @@ export const BioLinks: React.FC<BioLinksProps> = ({
     switch (link.iconName) {
       case 'Linkedin': iconEl = <Linkedin {...iconProps} />; break;
       case 'Youtube': iconEl = <Youtube {...iconProps} />; break;
+      case 'Music': iconEl = <Music {...iconProps} />; break;
+      case 'Headphones': iconEl = <Headphones {...iconProps} />; break;
       case 'Facebook': iconEl = <Facebook {...iconProps} />; break;
       case 'Instagram': iconEl = <Instagram {...iconProps} />; break;
       case 'Video': iconEl = <Video {...iconProps} />; break;

@@ -176,6 +176,26 @@ export const portfolioProjects: PortfolioProject[] = [
     },
   },
   {
+    id: 'dominnately-music-site',
+    title: 'DomInNATEly Music & Audio Portfolio (nate-mina.github.io/DomInNATEly)',
+    category: 'web',
+    categoryLabel: 'Music & Audio Portfolio',
+    description: 'Official music and sound design portfolio for Nathaniel Mina (@DomInNATEly). Features original electronic compositions, drift phonk releases, ambient soundscapes, synthesizer sound lab, and continuous streaming discography.',
+    detailedSpecs: [
+      'Interactive discography showcase presenting original releases, productions, and audio streams.',
+      'Hosted on GitHub Pages with responsive dark aesthetic and sound lab aesthetics.',
+      'Integrated links to YouTube channel podcasts, TikTok sound bites, and complete continuous mixes.',
+    ],
+    technologies: ['GitHub Pages', 'Web Audio', 'HTML5/CSS3', 'Sound Design', 'Responsive UI'],
+    url: 'https://nate-mina.github.io/DomInNATEly/',
+    featured: true,
+    badge: 'Music Portfolio',
+    metrics: {
+      label: 'Audio Discography',
+      value: 'Original Works',
+    },
+  },
+  {
     id: 'efficiency-calc-app',
     title: 'Systemic Efficiency (η) Calculator',
     category: 'systems',

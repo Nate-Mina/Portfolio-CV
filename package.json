@@ -8,6 +8,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "clean": "rm -rf dist server.js",
+    "sync:music": "./scripts/sync-dominnately.sh",
     "lint": "tsc --noEmit"
   },
   "dependencies": {
