@@ -22,13 +22,10 @@ export const Header: React.FC<HeaderProps> = ({
   return (
     <header
       id="main-header"
-      style={{
-        top: 'var(--portfolio-header-height, 65px)',
-      }}
       className={`sticky z-30 backdrop-blur-md border-b transition-colors duration-200 ${
         isDarkMode
-          ? 'bg-black/90 sm:bg-black/85 border-white/10 text-white'
-          : 'bg-white/95 sm:bg-white/90 border-neutral-200 text-neutral-900'
+          ? 'bg-black/40 border-white/10 text-white'
+          : 'bg-white/80 border-neutral-200 text-neutral-900'
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">

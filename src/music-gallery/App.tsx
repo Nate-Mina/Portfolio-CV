@@ -720,7 +720,6 @@ export default function App() {
         if (!showcaseTrack) return null;
         return (
           <aside
-            id="immersive-now-playing-stage-container"
             className={`hidden xl:block ${
               stagePlayerSize === 'sm'
                 ? 'xl:col-span-4 2xl:col-span-3'
@@ -728,9 +727,6 @@ export default function App() {
                 ? 'xl:col-span-5 2xl:col-span-4'
                 : 'xl:col-span-6'
             } sticky transition-all duration-300 flex justify-end`}
-            style={{
-              top: 'calc(var(--portfolio-header-height, 65px) + 5.5rem)',
-            }}
           >
             <div
               id="immersive-now-playing-stage"
