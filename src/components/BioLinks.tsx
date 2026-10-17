@@ -308,7 +308,7 @@ export const BioLinks: React.FC<BioLinksProps> = ({
           {/* Eyebrow badge */}
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-purple-950/60 border border-purple-800/50 text-purple-300 text-xs font-mono shadow-sm">
             <Sparkles className="w-3.5 h-3.5 text-purple-400" />
-            <span>Featured Subsection &bull; Beacons Creator Hub &amp; Social Networks</span>
+            <span>Featured Directory &bull; Social Networks &amp; Media Endpoints</span>
           </div>
 
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 pb-6 border-b border-slate-800/80">
@@ -317,28 +317,9 @@ export const BioLinks: React.FC<BioLinksProps> = ({
                 Social Profiles, Content Channels &amp; Media Hub
               </h2>
               <p className="text-sm sm:text-base text-slate-300 font-sans max-w-3xl leading-relaxed">
-                Connect with Nathaniel Mina across social media networks, video channels, business pages, and the official Beacons creator profile hub at{' '}
-                <a
-                  href="https://beacons.ai/p_c/aboutme"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-purple-400 font-semibold underline hover:text-purple-300 transition-colors"
-                >
-                  beacons.ai/p_c/aboutme
-                </a>.
+                Connect with Nathaniel Mina across official social media networks, video channels, business pages, and engineering projects.
               </p>
             </div>
-
-            {/* Visit Beacons CTA button */}
-            <a
-              href="https://beacons.ai/p_c/aboutme"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="shrink-0 inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-2xl bg-[#8b5cf6] hover:bg-[#7c3aed] text-white font-sans font-semibold text-sm shadow-xl shadow-purple-600/25 hover:shadow-purple-600/40 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
-            >
-              <span>Visit Beacons.ai/p_c/aboutme</span>
-              <ExternalLink className="w-4 h-4" />
-            </a>
           </div>
 
           {/* Quick Search & Category Filters */}

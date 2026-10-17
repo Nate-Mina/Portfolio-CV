@@ -25,8 +25,8 @@ export default function App() {
   const handleOpenQr = (url?: string, title?: string) => {
     setQrModalData({
       isOpen: true,
-      url: url || 'https://beacons.ai/p_c/aboutme',
-      title: title || 'Beacons Profile Hub',
+      url: url || 'https://www.PureComp.Net',
+      title: title || 'Pure Computers Official Hub',
     });
   };
 
@@ -39,7 +39,7 @@ export default function App() {
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         onOpenTerminal={() => setIsTerminalOpen(true)}
-        onOpenQr={() => handleOpenQr('https://beacons.ai/p_c/aboutme', 'Beacons Profile Hub')}
+        onOpenQr={() => handleOpenQr('https://www.PureComp.Net', 'Pure Computers Official Hub')}
         onOpenGallery={() => setIsGalleryOpen(true)}
       />
 

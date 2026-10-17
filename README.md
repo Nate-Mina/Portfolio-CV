@@ -175,8 +175,7 @@ All personal information, social links, case studies, and projects are centraliz
 ## 👤 Author
 
 **Nathaniel (Nate) K. Mina**
-- **Company**: [Pure Computers](https://www.PureComp.Net)
-- **Profile Hub**: [beacons.ai/p_c/aboutme](https://beacons.ai/p_c/aboutme)
+- **Company & Web**: [Pure Computers](https://www.PureComp.Net)
 - **GitHub**: [@Nate-Mina](https://github.com/Nate-Mina)
 - **LinkedIn**: [linkedin.com/in/dom-i-nate](https://linkedin.com/in/dom-i-nate)
 - **Email**: `Furtheraptitudes@gmail.com`

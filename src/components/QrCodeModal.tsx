@@ -17,13 +17,6 @@ export const QrCodeModal: React.FC<QrCodeModalProps> = ({
 }) => {
   const defaultPresets = [
     {
-      id: 'beacons',
-      title: 'Beacons Profile Hub',
-      url: 'https://beacons.ai/p_c/aboutme',
-      icon: Compass,
-      badge: 'Profile Hub',
-    },
-    {
       id: 'purecomp',
       title: 'Pure Computers Official',
       url: 'https://www.PureComp.Net',
@@ -32,10 +25,17 @@ export const QrCodeModal: React.FC<QrCodeModalProps> = ({
     },
     {
       id: 'app',
-      title: 'Current Site Page',
+      title: 'Bio Link Hub',
       url: typeof window !== 'undefined' ? window.location.href : 'https://www.PureComp.Net',
       icon: Share2,
-      badge: 'Live App',
+      badge: 'Current App',
+    },
+    {
+      id: 'music',
+      title: 'Music Portfolio',
+      url: 'https://nate-mina.github.io/DomInNATEly/',
+      icon: Compass,
+      badge: 'Music Hub',
     },
   ];
 
