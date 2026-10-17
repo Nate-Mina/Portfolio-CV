@@ -93,6 +93,20 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
   const pendingTrackIdRef = useRef<string | null>(null);
   const containerId = 'youtube-player-container';
 
+  // Refs to avoid stale closures and prevent setState calls during render
+  const currentTimeRef = useRef<number>(0);
+  const durationRef = useRef<number>(0);
+  const isRepeatRef = useRef<boolean>(isRepeat);
+  isRepeatRef.current = isRepeat;
+  const isShuffleRef = useRef<boolean>(isShuffle);
+  isShuffleRef.current = isShuffle;
+  const setIsPlayingRef = useRef(setIsPlaying);
+  setIsPlayingRef.current = setIsPlaying;
+  const onTrackChangeRef = useRef(onTrackChange);
+  onTrackChangeRef.current = onTrackChange;
+  const playlistRef = useRef(playlist);
+  playlistRef.current = playlist;
+
   // Check if current track is a Suno AI track (plays through HTML5 audio stream or MP4 video)
   const isSunoTrack = Boolean(currentTrack?.audioUrl || currentTrack?.isSuno);
 
@@ -106,29 +120,36 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
 
   // Next Track
   const handleNext = useCallback(() => {
-    if (!currentTrack || playlist.length === 0) return;
-    if (isShuffle) {
-      const randomIndex = Math.floor(Math.random() * playlist.length);
-      onTrackChange(playlist[randomIndex]);
+    const pl = playlistRef.current;
+    if (!currentTrack || pl.length === 0) return;
+    if (isShuffleRef.current) {
+      const randomIndex = Math.floor(Math.random() * pl.length);
+      onTrackChangeRef.current(pl[randomIndex]);
       return;
     }
-    const currentIndex = playlist.findIndex((t) => t.id === currentTrack.id);
-    const nextIndex = (currentIndex + 1) % playlist.length;
-    onTrackChange(playlist[nextIndex]);
-  }, [currentTrack, playlist, isShuffle, onTrackChange]);
+    const currentIndex = pl.findIndex((t) => t.id === currentTrack.id);
+    const nextIndex = (currentIndex + 1) % pl.length;
+    onTrackChangeRef.current(pl[nextIndex]);
+  }, [currentTrack?.id]);
+
+  const handleNextRef = useRef(handleNext);
+  handleNextRef.current = handleNext;
 
   // Previous Track
   const handlePrevious = useCallback(() => {
-    if (!currentTrack || playlist.length === 0) return;
-    if (currentTime > 4) {
+    const pl = playlistRef.current;
+    if (!currentTrack || pl.length === 0) return;
+    if (currentTimeRef.current > 4) {
       if (isSunoTrack && audioRef.current) {
         audioRef.current.currentTime = 0;
+        currentTimeRef.current = 0;
         setCurrentTime(0);
         return;
       }
       if (playerRef.current && typeof playerRef.current.seekTo === 'function') {
         try {
           playerRef.current.seekTo(0, true);
+          currentTimeRef.current = 0;
           setCurrentTime(0);
           return;
         } catch (err) {
@@ -136,10 +157,10 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
         }
       }
     }
-    const currentIndex = playlist.findIndex((t) => t.id === currentTrack.id);
-    const prevIndex = (currentIndex - 1 + playlist.length) % playlist.length;
-    onTrackChange(playlist[prevIndex]);
-  }, [currentTrack, playlist, currentTime, isSunoTrack, onTrackChange]);
+    const currentIndex = pl.findIndex((t) => t.id === currentTrack.id);
+    const prevIndex = (currentIndex - 1 + pl.length) % pl.length;
+    onTrackChangeRef.current(pl[prevIndex]);
+  }, [currentTrack?.id, isSunoTrack]);
 
   // Handle Suno Track Audio loading & synchronization
   useEffect(() => {
@@ -304,7 +325,9 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
                   if (typeof event.target?.loadVideoById === 'function') {
                     try {
                       event.target.loadVideoById(targetId);
-                      setIsPlaying(true);
+                      setTimeout(() => {
+                        setIsPlayingRef.current(true);
+                      }, 0);
                     } catch (e) {}
                   }
                 } else if (isPlaying) {
@@ -318,17 +341,24 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
               onStateChange: (event: any) => {
                 // 1 = playing, 2 = paused, 0 = ended
                 if (event.data === 1) {
-                  setIsPlaying(true);
+                  setTimeout(() => {
+                    setIsPlayingRef.current(true);
+                  }, 0);
                   if (playerRef.current && typeof playerRef.current.getDuration === 'function') {
                     try {
                       const dur = playerRef.current.getDuration();
-                      if (dur && dur > 0) setDuration(dur);
+                      if (dur && dur > 0) {
+                        durationRef.current = dur;
+                        setDuration(dur);
+                      }
                     } catch (e) {}
                   }
                 } else if (event.data === 2) {
-                  setIsPlaying(false);
+                  setTimeout(() => {
+                    setIsPlayingRef.current(false);
+                  }, 0);
                 } else if (event.data === 0) {
-                  if (isRepeat) {
+                  if (isRepeatRef.current) {
                     if (playerRef.current && typeof playerRef.current.seekTo === 'function') {
                       try {
                         playerRef.current.seekTo(0);
@@ -340,7 +370,9 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
                       } catch (e) {}
                     }
                   } else {
-                    handleNext();
+                    setTimeout(() => {
+                      handleNextRef.current();
+                    }, 0);
                   }
                 }
               },
@@ -409,24 +441,39 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
         if (isSunoTrack) {
           if (videoRef.current && !videoRef.current.paused) {
             const curr = videoRef.current.currentTime;
-            if (curr !== undefined && !isNaN(curr)) setCurrentTime(curr);
+            if (curr !== undefined && !isNaN(curr)) {
+              currentTimeRef.current = curr;
+              setCurrentTime(curr);
+            }
             const dur = videoRef.current.duration;
-            if (dur && !isNaN(dur) && dur > 0) setDuration(dur);
+            if (dur && !isNaN(dur) && dur > 0) {
+              durationRef.current = dur;
+              setDuration(dur);
+            }
           } else if (audioRef.current && !audioRef.current.paused) {
             const curr = audioRef.current.currentTime;
-            if (curr !== undefined && !isNaN(curr)) setCurrentTime(curr);
+            if (curr !== undefined && !isNaN(curr)) {
+              currentTimeRef.current = curr;
+              setCurrentTime(curr);
+            }
             const dur = audioRef.current.duration;
-            if (dur && !isNaN(dur) && dur > 0) setDuration(dur);
+            if (dur && !isNaN(dur) && dur > 0) {
+              durationRef.current = dur;
+              setDuration(dur);
+            }
           } else {
             // Smooth simulated fallback if audio stream is restricted
-            setCurrentTime((prev) => {
-              const maxDur = duration || currentTrack?.durationSeconds || 180;
-              if (prev >= maxDur) {
-                handleNext();
-                return 0;
-              }
-              return prev + 1;
-            });
+            const maxDur = durationRef.current || currentTrack?.durationSeconds || 180;
+            if (currentTimeRef.current >= maxDur) {
+              currentTimeRef.current = 0;
+              setCurrentTime(0);
+              setTimeout(() => {
+                handleNextRef.current();
+              }, 0);
+            } else {
+              currentTimeRef.current += 1;
+              setCurrentTime(currentTimeRef.current);
+            }
           }
           return;
         }
@@ -434,10 +481,16 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
         if (playerRef.current && typeof playerRef.current.getCurrentTime === 'function') {
           try {
             const curr = playerRef.current.getCurrentTime();
-            if (curr !== undefined && !isNaN(curr)) setCurrentTime(curr);
+            if (curr !== undefined && !isNaN(curr)) {
+              currentTimeRef.current = curr;
+              setCurrentTime(curr);
+            }
             if (typeof playerRef.current.getDuration === 'function') {
               const dur = playerRef.current.getDuration();
-              if (dur && dur > 0) setDuration(dur);
+              if (dur && dur > 0) {
+                durationRef.current = dur;
+                setDuration(dur);
+              }
             }
           } catch (e) {
             // ignore polling error
@@ -448,7 +501,7 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
       clearInterval(timerRef.current);
     }
     return () => clearInterval(timerRef.current);
-  }, [isPlaying, isSunoTrack, duration, currentTrack?.durationSeconds, handleNext]);
+  }, [isPlaying, isSunoTrack, currentTrack?.id]);
 
   // Clean up player on unmount
   useEffect(() => {
@@ -735,13 +788,15 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
               if (d && !isNaN(d) && d > 0) setDuration(d);
             }}
             onEnded={() => {
-              if (isRepeat) {
+              if (isRepeatRef.current) {
                 if (videoRef.current) {
                   videoRef.current.currentTime = 0;
                   videoRef.current.play().catch(() => {});
                 }
               } else {
-                handleNext();
+                setTimeout(() => {
+                  handleNextRef.current();
+                }, 0);
               }
             }}
           />
@@ -816,13 +871,15 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
           if (d && !isNaN(d) && d > 0) setDuration(d);
         }}
         onEnded={() => {
-          if (isRepeat) {
+          if (isRepeatRef.current) {
             if (audioRef.current) {
               audioRef.current.currentTime = 0;
               audioRef.current.play().catch(() => {});
             }
           } else {
-            handleNext();
+            setTimeout(() => {
+              handleNextRef.current();
+            }, 0);
           }
         }}
         preload="auto"

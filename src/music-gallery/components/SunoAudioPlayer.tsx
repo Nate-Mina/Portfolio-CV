@@ -116,10 +116,12 @@ export const SunoAudioPlayer: React.FC<SunoAudioPlayerProps> = ({
 
     if (isPlaying) {
       timerIntervalRef.current = setInterval(() => {
+        const maxDur = duration || currentTrack?.duration || 180;
         setCurrentTime((prev) => {
-          const maxDur = duration || currentTrack?.duration || 180;
           if (prev >= maxDur) {
-            handleNext();
+            setTimeout(() => {
+              handleNext();
+            }, 0);
             return 0;
           }
           return prev + 1;
