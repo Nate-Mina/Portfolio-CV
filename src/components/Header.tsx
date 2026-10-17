@@ -3,6 +3,7 @@ import { Terminal, QrCode, Download, Sparkles, Code2, ExternalLink, Mail, Check 
 import { JekyllTheme } from '../types';
 import { jekyllThemes, profileData } from '../data/profileData';
 import { handleImageError } from '../utils/imageUtils';
+import { exportCvPdf } from '../utils/exportPdfCv';
 
 interface HeaderProps {
   currentTheme: JekyllTheme;
@@ -52,60 +53,14 @@ export const Header: React.FC<HeaderProps> = ({
     };
   }, []);
 
-  const exportCvMarkdown = () => {
-    const mdContent = `# ${profileData.name}
-## ${profileData.title}
-Location: ${profileData.location}
-Emails: ${profileData.emails.join(', ')}
-Website: ${profileData.website}
-
----
-
-## Mission & Systems Philosophy
-${profileData.missionStatement}
-
-Formula:
-$$${profileData.efficiencyFormulaLatex}$$
-
----
-
-## Proven Metrics & Case Studies
-${profileData.caseStudies
-  .map(
-    (cs) => `### ${cs.title} (${cs.category})
-- Description: ${cs.description}
-- Metric: ${cs.metricValue} (${cs.metricLabel})
-- Formula: $${cs.formula}$
-- Impact: ${cs.impactText}
-`
-  )
-  .join('\n')}
-
----
-
-## Technical Stack & Tooling
-${profileData.techStack
-  .map((ts) => `- **${ts.domain}**: ${ts.technologies.join(', ')}`)
-  .join('\n')}
-
----
-
-## Active Research & Focus Areas
-${profileData.researchAreas.map((r) => `- **${r.title}**: ${r.description}`).join('\n')}
-`;
-
-    const blob = new Blob([mdContent], { type: 'text/markdown' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `Nathaniel_Mina_CV_Resume.md`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-
-    setDownloaded(true);
-    setTimeout(() => setDownloaded(false), 2500);
+  const handleExportCvPdf = () => {
+    try {
+      exportCvPdf();
+      setDownloaded(true);
+      setTimeout(() => setDownloaded(false), 2500);
+    } catch (err) {
+      console.error('Failed to export PDF CV:', err);
+    }
   };
 
   return (
@@ -115,42 +70,42 @@ ${profileData.researchAreas.map((r) => `- **${r.title}**: ${r.description}`).joi
       className="relative w-full border-b border-slate-800 bg-slate-950/95 backdrop-blur-md sticky top-0 z-40"
     >
       {/* Primary Navigation & Brand Header Bar */}
-      <div className="max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
+      <div className="max-w-6xl mx-auto px-3 sm:px-4 py-2 sm:py-3 flex flex-wrap items-center justify-between gap-2 sm:gap-3">
+        <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
           <div
             onClick={onOpenGallery}
-            className="w-11 h-11 rounded-xl bg-gradient-to-tr from-emerald-500 to-sky-500 p-0.5 shadow-lg shadow-emerald-950/40 cursor-pointer group hover:scale-105 transition-all relative"
+            className="w-9 h-9 sm:w-11 sm:h-11 rounded-lg sm:rounded-xl bg-gradient-to-tr from-emerald-500 to-sky-500 p-0.5 shadow-lg shadow-emerald-950/40 cursor-pointer group hover:scale-105 transition-all relative shrink-0"
             title={`Click to view photo gallery (${profileData.galleryPhotos?.length || 0} photos)`}
           >
             <img
               src={profileData.avatarUrl}
               alt={profileData.name}
               data-filename="MAIN.jpg"
-              className="w-full h-full object-cover rounded-[10px]"
+              className="w-full h-full object-cover rounded-[7px] sm:rounded-[10px]"
               referrerPolicy="no-referrer"
               onError={(e) => handleImageError(e, 'MAIN.jpg')}
             />
-            <div className="absolute inset-0 rounded-[10px] bg-slate-950/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-              <Sparkles className="w-4 h-4 text-emerald-400" />
+            <div className="absolute inset-0 rounded-[7px] sm:rounded-[10px] bg-slate-950/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+              <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
             </div>
           </div>
-          <div>
+          <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <h1 className="text-base font-mono font-bold text-slate-100 tracking-tight">
+              <h1 className="text-sm sm:text-base font-mono font-bold text-slate-100 tracking-tight truncate">
                 {profileData.name}
               </h1>
             </div>
-            <p className="text-xs text-slate-400 font-mono">
+            <p className="text-[11px] sm:text-xs text-slate-400 font-mono truncate max-w-[200px] sm:max-w-none">
               Pure Computers | Mechanical Engineer &amp; Systems Architect
             </p>
           </div>
         </div>
 
         {/* View Tabs */}
-        <div className="flex flex-wrap items-center gap-1 bg-slate-900/90 p-1 rounded-xl border border-slate-800">
+        <div className="flex items-center gap-1 bg-slate-900/90 p-1 rounded-xl border border-slate-800 overflow-x-auto no-scrollbar scroll-smooth max-w-full flex-nowrap sm:flex-wrap">
           <button
             onClick={() => setActiveTab('links')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-mono font-medium transition-all ${
+            className={`px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg text-[11px] sm:text-xs font-mono font-medium whitespace-nowrap shrink-0 transition-all ${
               activeTab === 'links'
                 ? 'bg-emerald-600 text-white shadow-md'
                 : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
@@ -160,7 +115,7 @@ ${profileData.researchAreas.map((r) => `- **${r.title}**: ${r.description}`).joi
           </button>
           <button
             onClick={() => setActiveTab('purecomp')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-mono font-medium transition-all ${
+            className={`px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg text-[11px] sm:text-xs font-mono font-medium whitespace-nowrap shrink-0 transition-all ${
               activeTab === 'purecomp'
                 ? 'bg-emerald-600 text-white shadow-md font-bold'
                 : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
@@ -170,7 +125,7 @@ ${profileData.researchAreas.map((r) => `- **${r.title}**: ${r.description}`).joi
           </button>
           <button
             onClick={() => setActiveTab('portfolio')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-mono font-medium transition-all ${
+            className={`px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg text-[11px] sm:text-xs font-mono font-medium whitespace-nowrap shrink-0 transition-all ${
               activeTab === 'portfolio'
                 ? 'bg-emerald-600 text-white shadow-md font-bold'
                 : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
@@ -180,7 +135,7 @@ ${profileData.researchAreas.map((r) => `- **${r.title}**: ${r.description}`).joi
           </button>
           <button
             onClick={() => setActiveTab('music')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-mono font-medium transition-all ${
+            className={`px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg text-[11px] sm:text-xs font-mono font-medium whitespace-nowrap shrink-0 transition-all ${
               activeTab === 'music'
                 ? 'bg-red-600 text-white shadow-md font-bold'
                 : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
@@ -190,7 +145,7 @@ ${profileData.researchAreas.map((r) => `- **${r.title}**: ${r.description}`).joi
           </button>
           <button
             onClick={() => setActiveTab('resume')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-mono font-medium transition-all ${
+            className={`px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg text-[11px] sm:text-xs font-mono font-medium whitespace-nowrap shrink-0 transition-all ${
               activeTab === 'resume'
                 ? 'bg-emerald-600 text-white shadow-md'
                 : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
@@ -200,7 +155,7 @@ ${profileData.researchAreas.map((r) => `- **${r.title}**: ${r.description}`).joi
           </button>
           <button
             onClick={() => setActiveTab('cases')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-mono font-medium transition-all ${
+            className={`px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg text-[11px] sm:text-xs font-mono font-medium whitespace-nowrap shrink-0 transition-all ${
               activeTab === 'cases'
                 ? 'bg-emerald-600 text-white shadow-md'
                 : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
@@ -210,7 +165,7 @@ ${profileData.researchAreas.map((r) => `- **${r.title}**: ${r.description}`).joi
           </button>
           <button
             onClick={() => setActiveTab('calculator')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-mono font-medium transition-all ${
+            className={`px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg text-[11px] sm:text-xs font-mono font-medium whitespace-nowrap shrink-0 transition-all ${
               activeTab === 'calculator'
                 ? 'bg-emerald-600 text-white shadow-md'
                 : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
@@ -221,11 +176,11 @@ ${profileData.researchAreas.map((r) => `- **${r.title}**: ${r.description}`).joi
         </div>
 
         {/* Right Tools & Actions Toolbar */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2">
           {/* CLI Terminal Button */}
           <button
             onClick={onOpenTerminal}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-emerald-400 border border-slate-800 hover:border-emerald-500/40 text-xs font-mono font-medium transition-all shadow-sm"
+            className="flex items-center gap-1.5 p-2 sm:px-3 sm:py-1.5 rounded-lg sm:rounded-xl bg-slate-900 hover:bg-slate-800 text-emerald-400 border border-slate-800 hover:border-emerald-500/40 text-xs font-mono font-medium transition-all shadow-sm"
             title="Open Terminal"
           >
             <Terminal className="w-3.5 h-3.5 text-emerald-400" />
@@ -235,7 +190,7 @@ ${profileData.researchAreas.map((r) => `- **${r.title}**: ${r.description}`).joi
           {/* QR Share Button */}
           <button
             onClick={onOpenQr}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-sky-400 border border-slate-800 hover:border-sky-500/40 text-xs font-mono font-medium transition-all shadow-sm"
+            className="flex items-center gap-1.5 p-2 sm:px-3 sm:py-1.5 rounded-lg sm:rounded-xl bg-slate-900 hover:bg-slate-800 text-sky-400 border border-slate-800 hover:border-sky-500/40 text-xs font-mono font-medium transition-all shadow-sm"
             title="Share via QR Code"
           >
             <QrCode className="w-3.5 h-3.5 text-sky-400" />
@@ -246,7 +201,7 @@ ${profileData.researchAreas.map((r) => `- **${r.title}**: ${r.description}`).joi
           <div className="relative">
             <button
               onClick={() => setShowThemePicker(!showThemePicker)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 text-xs font-mono transition-all"
+              className="flex items-center gap-1.5 p-2 sm:px-3 sm:py-1.5 rounded-lg sm:rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 text-xs font-mono transition-all"
               title="Change Jekyll Theme"
             >
               <Sparkles className="w-3.5 h-3.5 text-amber-400" />
@@ -289,16 +244,17 @@ ${profileData.researchAreas.map((r) => `- **${r.title}**: ${r.description}`).joi
 
           {/* Export CV */}
           <button
-            onClick={exportCvMarkdown}
-            className="hidden xl:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-mono font-medium transition-colors"
-            title="Export Markdown CV"
+            onClick={handleExportCvPdf}
+            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-mono font-medium transition-colors shrink-0"
+            title="Export Official CV (PDF format)"
           >
             {downloaded ? (
               <Check className="w-3.5 h-3.5 text-emerald-400" />
             ) : (
               <Download className="w-3.5 h-3.5 text-emerald-400" />
             )}
-            <span>{downloaded ? 'Exported' : 'Export CV'}</span>
+            <span className="hidden sm:inline">{downloaded ? 'Exported PDF' : 'Export CV (PDF)'}</span>
+            <span className="sm:hidden">{downloaded ? 'PDF' : 'CV (PDF)'}</span>
           </button>
         </div>
       </div>

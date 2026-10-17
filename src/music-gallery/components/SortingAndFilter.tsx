@@ -50,17 +50,17 @@ export const SortingAndFilter: React.FC<SortingAndFilterProps> = ({
   return (
     <div
       id="sorting-filter-panel"
-      className={`rounded-2xl border p-4 sm:p-5 mb-6 backdrop-blur-md transition-all ${
+      className={`rounded-xl sm:rounded-2xl border p-3 sm:p-5 mb-4 sm:mb-6 backdrop-blur-md transition-all ${
         isDarkMode
           ? 'bg-white/5 border-white/10 shadow-xl shadow-black/40'
           : 'bg-white/90 border-neutral-200 shadow-sm'
       }`}
     >
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3.5">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-2.5 sm:gap-3.5">
         {/* Search Input */}
         <div className="relative flex-1">
           <Search
-            className={`w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 ${
+            className={`w-3.5 h-3.5 sm:w-4 sm:h-4 absolute left-3 top-1/2 -translate-y-1/2 ${
               isDarkMode ? 'text-white/40' : 'text-neutral-400'
             }`}
           />
@@ -70,7 +70,7 @@ export const SortingAndFilter: React.FC<SortingAndFilterProps> = ({
             placeholder="Search tracks, lyrics, or styles..."
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
-            className={`w-full pl-9 pr-9 py-2 rounded-xl text-xs sm:text-sm border focus:outline-hidden transition-all ${
+            className={`w-full pl-8 sm:pl-9 pr-8 sm:pr-9 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-xs sm:text-sm border focus:outline-hidden transition-all ${
               isDarkMode
                 ? 'bg-black/50 border-white/10 text-white placeholder-white/40 focus:border-cyan-400/80 focus:ring-1 focus:ring-cyan-400/40'
                 : 'bg-neutral-50 border-neutral-300 text-neutral-900 placeholder-neutral-400 focus:border-cyan-600 focus:ring-1 focus:ring-cyan-600/30'
@@ -79,7 +79,7 @@ export const SortingAndFilter: React.FC<SortingAndFilterProps> = ({
           {searchQuery && (
             <button
               onClick={() => onSearchChange('')}
-              className={`absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-md ${
+              className={`absolute right-2.5 top-1/2 -translate-y-1/2 p-1 rounded-md ${
                 isDarkMode ? 'text-white/40 hover:text-white' : 'text-neutral-500 hover:text-neutral-900'
               }`}
               title="Clear search"
@@ -91,14 +91,14 @@ export const SortingAndFilter: React.FC<SortingAndFilterProps> = ({
 
         {/* Sorting Dropdown matching Immersive UI pill style */}
         <div
-          className={`flex items-center px-3 py-1.5 rounded-full border transition-all ${
+          className={`flex items-center px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full border transition-all ${
             isDarkMode
               ? 'bg-white/5 border-white/10 text-white'
               : 'bg-neutral-100 border-neutral-300 text-neutral-800'
           }`}
         >
           <span
-            className={`text-[10px] sm:text-xs font-bold mr-2 uppercase tracking-wider ${
+            className={`text-[9px] sm:text-xs font-bold mr-1.5 sm:mr-2 uppercase tracking-wider ${
               isDarkMode ? 'text-white/50' : 'text-neutral-500'
             }`}
           >
@@ -108,7 +108,7 @@ export const SortingAndFilter: React.FC<SortingAndFilterProps> = ({
             id="track-sort-select"
             value={sortField}
             onChange={(e) => onSortChange(e.target.value as SortField)}
-            className={`bg-transparent text-xs outline-hidden cursor-pointer font-bold uppercase tracking-wider ${
+            className={`bg-transparent text-[11px] sm:text-xs outline-hidden cursor-pointer font-bold uppercase tracking-wider ${
               isDarkMode ? 'text-cyan-400' : 'text-cyan-700'
             }`}
           >
@@ -127,11 +127,11 @@ export const SortingAndFilter: React.FC<SortingAndFilterProps> = ({
 
       {/* Category Pills & Filter Indicator */}
       <div
-        className={`mt-4 pt-3.5 border-t flex flex-wrap items-center justify-between gap-2.5 ${
+        className={`mt-3 pt-2.5 sm:mt-4 sm:pt-3.5 border-t flex flex-wrap items-center justify-between gap-2 sm:gap-2.5 ${
           isDarkMode ? 'border-white/10' : 'border-neutral-200'
         }`}
       >
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 max-w-full no-scrollbar">
+        <div className="flex items-center gap-1 sm:gap-1.5 overflow-x-auto pb-1 max-w-full no-scrollbar">
           {categories.map((cat) => {
             const isActive = selectedCategory === cat.id;
             return (
@@ -139,7 +139,7 @@ export const SortingAndFilter: React.FC<SortingAndFilterProps> = ({
                 key={cat.id}
                 id={`filter-pill-${cat.id}`}
                 onClick={() => onCategoryChange(cat.id)}
-                className={`px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider whitespace-nowrap transition-all ${
+                className={`px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full text-[11px] sm:text-xs font-bold uppercase tracking-wider whitespace-nowrap transition-all ${
                   isActive
                     ? 'bg-cyan-500 text-black shadow-md shadow-cyan-500/20'
                     : isDarkMode

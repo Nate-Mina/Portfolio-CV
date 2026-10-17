@@ -10,7 +10,7 @@ export const SocialSubscribeBanner: React.FC<SocialSubscribeBannerProps> = ({ is
   return (
     <div
       id="social-subscribe-banner"
-      className={`relative overflow-hidden rounded-2xl border p-4 sm:p-5 mb-7 transition-all ${
+      className={`relative overflow-hidden rounded-xl sm:rounded-2xl border p-3 sm:p-5 mb-4 sm:mb-7 transition-all ${
         isDarkMode
           ? 'bg-gradient-to-r from-neutral-900/90 via-black to-neutral-900/90 border-cyan-500/20 shadow-xl'
           : 'bg-gradient-to-r from-cyan-50/80 via-white to-pink-50/80 border-cyan-200/80 shadow-md'
@@ -20,33 +20,33 @@ export const SocialSubscribeBanner: React.FC<SocialSubscribeBannerProps> = ({ is
       <div className="absolute top-0 right-1/4 w-72 h-36 bg-pink-500/10 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-0 left-1/4 w-72 h-36 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
 
-      <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+      <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-3 sm:gap-4">
         {/* Call to action message */}
-        <div className="flex items-start sm:items-center gap-3">
+        <div className="flex items-start sm:items-center gap-2.5 sm:gap-3">
           <div
-            className={`w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 border shadow-inner ${
+            className={`w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl flex items-center justify-center shrink-0 border shadow-inner ${
               isDarkMode
                 ? 'bg-gradient-to-br from-pink-500/20 to-cyan-500/20 border-white/10 text-cyan-400'
                 : 'bg-cyan-100 border-cyan-200 text-cyan-600'
             }`}
           >
-            <Heart className="w-5 h-5 text-red-500 fill-red-500 animate-pulse" />
+            <Heart className="w-4 h-4 sm:w-5 sm:h-5 text-red-500 fill-red-500 animate-pulse" />
           </div>
           <div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-mono font-bold uppercase tracking-wider text-cyan-400 flex items-center gap-1">
-                <Sparkles className="w-3.5 h-3.5" />
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <span className="text-[11px] sm:text-xs font-mono font-bold uppercase tracking-wider text-cyan-400 flex items-center gap-1">
+                <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                 Support the Music
               </span>
               <span
-                className={`text-[10px] font-mono px-2 py-0.5 rounded-full border ${
+                className={`text-[9px] sm:text-[10px] font-mono px-1.5 sm:px-2 py-0.5 rounded-full border ${
                   isDarkMode ? 'bg-white/5 border-white/10 text-white/60' : 'bg-neutral-100 border-neutral-200 text-neutral-600'
                 }`}
               >
                 Official Channels
               </span>
             </div>
-            <h3 className="text-base sm:text-lg font-black tracking-tight leading-snug mt-0.5">
+            <h3 className="text-sm sm:text-lg font-black tracking-tight leading-snug mt-0.5">
               Please Like &amp; Subscribe to my{' '}
               <a
                 href="https://www.youtube.com/@DomInNATEly"
@@ -67,26 +67,26 @@ export const SocialSubscribeBanner: React.FC<SocialSubscribeBannerProps> = ({ is
               </a>{' '}
               channel!
             </h3>
-            <p className={`text-xs mt-0.5 ${isDarkMode ? 'text-white/65' : 'text-neutral-600'}`}>
+            <p className={`text-[11px] sm:text-xs mt-0.5 ${isDarkMode ? 'text-white/65' : 'text-neutral-600'}`}>
               Stream music, drop a like on videos, follow for upcoming track drops &amp; connect across socials!
             </p>
           </div>
         </div>
 
         {/* Action badges / links */}
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
           {/* Primary YouTube Subscribe Button */}
           <a
             id="cta-youtube-subscribe"
             href="https://www.youtube.com/@DomInNATEly?sub_confirmation=1"
             target="_blank"
             rel="noopener noreferrer"
-            className="group px-3.5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider bg-red-600 hover:bg-red-500 text-white flex items-center gap-1.5 shadow-md shadow-red-600/25 transition-transform active:scale-95 shrink-0"
+            className="group px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-lg sm:rounded-xl text-[11px] sm:text-xs font-bold uppercase tracking-wider bg-red-600 hover:bg-red-500 text-white flex items-center gap-1 sm:gap-1.5 shadow-md shadow-red-600/25 transition-transform active:scale-95 shrink-0"
             title="Subscribe to DomInNATEly on YouTube"
           >
-            <Bell className="w-3.5 h-3.5 fill-current group-hover:rotate-12 transition-transform" />
+            <Bell className="w-3 h-3 sm:w-3.5 sm:h-3.5 fill-current group-hover:rotate-12 transition-transform" />
             <span>Subscribe YT</span>
-            <ExternalLink className="w-3 h-3 opacity-70" />
+            <ExternalLink className="w-2.5 h-2.5 sm:w-3 sm:h-3 opacity-70" />
           </a>
 
           {/* Primary TikTok Follow Button */}
@@ -95,12 +95,12 @@ export const SocialSubscribeBanner: React.FC<SocialSubscribeBannerProps> = ({ is
             href="https://www.tiktok.com/@dominnately"
             target="_blank"
             rel="noopener noreferrer"
-            className="group px-3.5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white flex items-center gap-1.5 shadow-md shadow-pink-600/25 transition-transform active:scale-95 shrink-0"
+            className="group px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-lg sm:rounded-xl text-[11px] sm:text-xs font-bold uppercase tracking-wider bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white flex items-center gap-1 sm:gap-1.5 shadow-md shadow-pink-600/25 transition-transform active:scale-95 shrink-0"
             title="Follow DomInNATEly on TikTok"
           >
-            <span className="text-sm">🎵</span>
+            <span className="text-xs sm:text-sm">🎵</span>
             <span>Follow TikTok</span>
-            <ExternalLink className="w-3 h-3 opacity-70" />
+            <ExternalLink className="w-2.5 h-2.5 sm:w-3 sm:h-3 opacity-70" />
           </a>
 
           {/* All 4 Social Quick Links pill row */}

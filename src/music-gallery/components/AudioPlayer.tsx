@@ -859,11 +859,11 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
         </div>
 
         {/* Player Bar Content */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-8 py-3">
-          <div className="flex items-center justify-between gap-4 sm:gap-8">
+        <div className="max-w-7xl mx-auto px-3 sm:px-8 py-1.5 sm:py-3">
+          <div className="flex items-center justify-between gap-2.5 sm:gap-8">
             {/* Left: Track Info & Thumbnail */}
-            <div className="flex items-center gap-3.5 min-w-0 max-w-[40%] sm:max-w-[28%]">
-              <div className="relative w-11 h-11 sm:w-12 sm:h-12 rounded-xl overflow-hidden shrink-0 border border-white/10 shadow-md bg-black">
+            <div className="flex items-center gap-2.5 sm:gap-3.5 min-w-0 max-w-[42%] sm:max-w-[28%]">
+              <div className="relative w-9 h-9 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl overflow-hidden shrink-0 border border-white/10 shadow-md bg-black">
                 <img
                   src={currentTrack.thumbnail}
                   alt={currentTrack.title}
@@ -872,7 +872,7 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
                 />
                 {isPlaying && (
                   <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                    <div className="flex items-end gap-0.5 h-3">
+                    <div className="flex items-end gap-0.5 h-2.5 sm:h-3">
                       <span className="w-0.5 bg-cyan-400 animate-eq-1" />
                       <span className="w-0.5 bg-cyan-300 animate-eq-2" />
                       <span className="w-0.5 bg-purple-400 animate-eq-3" />
@@ -885,15 +885,15 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
                 <h4 className="text-xs sm:text-sm font-bold truncate leading-tight hover:text-cyan-400 transition-colors">
                   {currentTrack.title}
                 </h4>
-                <p className={`text-[11px] sm:text-xs truncate ${isDarkMode ? 'text-white/50' : 'text-neutral-500'}`}>
+                <p className={`text-[10px] sm:text-xs truncate ${isDarkMode ? 'text-white/50' : 'text-neutral-500'}`}>
                   {currentTrack.artist} • <span className="font-mono text-cyan-400">#{currentTrack.index.toString().padStart(2, '0')}</span>
                 </p>
               </div>
             </div>
 
             {/* Center: Playback Controls & Scrubber Times */}
-            <div className="flex flex-col items-center justify-center gap-1.5 flex-1 max-w-md">
-              <div className="flex items-center gap-4 sm:gap-6">
+            <div className="flex flex-col items-center justify-center gap-0.5 sm:gap-1.5 flex-1 max-w-md">
+              <div className="flex items-center gap-2.5 sm:gap-6">
                 {/* Shuffle */}
                 <button
                   id="player-shuffle-btn"
@@ -915,27 +915,27 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
                 <button
                   id="player-prev-btn"
                   onClick={goToPreviousTrack}
-                  className={`p-1.5 rounded-full transition-colors opacity-70 hover:opacity-100 ${
+                  className={`p-1 sm:p-1.5 rounded-full transition-colors opacity-70 hover:opacity-100 ${
                     isDarkMode ? 'text-white hover:text-cyan-400' : 'text-neutral-700 hover:text-black'
                   }`}
                   title="Previous Track (←)"
                   aria-label="Previous Track"
                 >
-                  <SkipBack className="w-5 h-5 fill-current" />
+                  <SkipBack className="w-4 h-4 sm:w-5 sm:h-5 fill-current" />
                 </button>
 
                 {/* High Contrast Circular Play / Pause Toggle matching Immersive UI */}
                 <button
                   id="player-play-pause-btn"
                   onClick={togglePlayPause}
-                  className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-white text-black hover:bg-cyan-300 flex items-center justify-center font-bold text-xl shadow-xl hover:scale-105 active:scale-95 transition-all"
+                  className="w-9 h-9 sm:w-12 sm:h-12 rounded-full bg-white text-black hover:bg-cyan-300 flex items-center justify-center font-bold text-lg sm:text-xl shadow-xl hover:scale-105 active:scale-95 transition-all"
                   title={isPlaying ? 'Pause (Space)' : 'Play (Space)'}
                   aria-label={isPlaying ? 'Pause' : 'Play'}
                 >
                   {isPlaying ? (
-                    <Pause className="w-5 h-5 fill-current" />
+                    <Pause className="w-4 h-4 sm:w-5 sm:h-5 fill-current" />
                   ) : (
-                    <Play className="w-5 h-5 fill-current translate-x-0.5" />
+                    <Play className="w-4 h-4 sm:w-5 sm:h-5 fill-current translate-x-0.5" />
                   )}
                 </button>
 
@@ -943,13 +943,13 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
                 <button
                   id="player-next-btn"
                   onClick={goToNextTrack}
-                  className={`p-1.5 rounded-full transition-colors opacity-70 hover:opacity-100 ${
+                  className={`p-1 sm:p-1.5 rounded-full transition-colors opacity-70 hover:opacity-100 ${
                     isDarkMode ? 'text-white hover:text-cyan-400' : 'text-neutral-700 hover:text-black'
                   }`}
                   title="Next Track (→)"
                   aria-label="Next Track"
                 >
-                  <SkipForward className="w-5 h-5 fill-current" />
+                  <SkipForward className="w-4 h-4 sm:w-5 sm:h-5 fill-current" />
                 </button>
 
                 {/* Repeat */}
@@ -971,7 +971,7 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
               </div>
 
               {/* Time display & keyboard shortcuts hint */}
-              <div className="flex items-center gap-2 text-[10px] sm:text-xs font-mono font-bold">
+              <div className="flex items-center gap-1.5 sm:gap-2 text-[9px] sm:text-xs font-mono font-bold">
                 <span className="text-cyan-400">{formatTime(currentTime)}</span>
                 <span className="text-white/30">/</span>
                 <span className={isDarkMode ? 'text-white/40' : 'text-neutral-400'}>{formatTime(currentDuration)}</span>
@@ -993,7 +993,7 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
             </div>
 
             {/* Right: Volume, Share, & Video popup */}
-            <div className="flex items-center gap-2 sm:gap-4">
+            <div className="flex items-center gap-1.5 sm:gap-4">
               {/* Volume Slider matching Immersive UI VOL label */}
               <div className="hidden md:flex items-center gap-2.5 w-36 lg:w-48">
                 <span className={`text-[10px] font-bold tracking-wider ${isDarkMode ? 'text-white/40' : 'text-neutral-400'}`}>
@@ -1030,7 +1030,7 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
               <button
                 id="player-queue-modal-btn"
                 onClick={() => setShowQueueModal(!showQueueModal)}
-                className={`p-2 rounded-full border text-xs font-semibold inline-flex items-center gap-1.5 transition-all ${
+                className={`p-1.5 sm:p-2 rounded-full border text-xs font-semibold inline-flex items-center gap-1 sm:gap-1.5 transition-all ${
                   showQueueModal
                     ? 'bg-cyan-500 border-cyan-400 text-black font-bold shadow-lg shadow-cyan-500/25'
                     : isDarkMode
@@ -1040,9 +1040,9 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
                 title="Playlist Queue & Up Next"
                 aria-label="Toggle Playlist Queue"
               >
-                <ListMusic className="w-3.5 h-3.5 text-cyan-400" />
+                <ListMusic className="w-3 sm:w-3.5 h-3 sm:h-3.5 text-cyan-400" />
                 <span className="hidden sm:inline text-[11px] uppercase tracking-wider">Queue</span>
-                <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-cyan-400/20 text-cyan-300 font-mono">
+                <span className="text-[9px] sm:text-[10px] px-1 sm:px-1.5 py-0.2 rounded-full bg-cyan-400/20 text-cyan-300 font-mono">
                   {displayedQueueTracks.length}
                 </span>
               </button>
@@ -1051,7 +1051,7 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
               <button
                 id="player-video-modal-btn"
                 onClick={() => setShowVideoModal(!showVideoModal)}
-                className={`p-2 rounded-full border text-xs font-semibold inline-flex items-center gap-1.5 transition-all ${
+                className={`p-1.5 sm:p-2 rounded-full border text-xs font-semibold inline-flex items-center gap-1 sm:gap-1.5 transition-all ${
                   showVideoModal
                     ? 'bg-cyan-500 border-cyan-400 text-black font-bold'
                     : isDarkMode
@@ -1061,7 +1061,7 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
                 title="Open Video View"
                 aria-label="Toggle Video Mode"
               >
-                <Tv className="w-3.5 h-3.5 text-cyan-400" />
+                <Tv className="w-3 sm:w-3.5 h-3 sm:h-3.5 text-cyan-400" />
                 <span className="hidden lg:inline text-[11px] uppercase tracking-wider">Video</span>
               </button>
 
@@ -1070,7 +1070,7 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
                 <button
                   id="player-lyrics-btn"
                   onClick={() => onOpenLyrics(currentTrack)}
-                  className={`p-2 rounded-full border text-xs font-semibold inline-flex items-center gap-1.5 transition-all ${
+                  className={`p-1.5 sm:p-2 rounded-full border text-xs font-semibold inline-flex items-center gap-1 sm:gap-1.5 transition-all ${
                     isDarkMode
                       ? 'bg-white/5 border-white/10 text-white/80 hover:text-cyan-400 hover:bg-white/10'
                       : 'bg-neutral-100 border-neutral-300 text-neutral-700 hover:bg-neutral-200'
@@ -1078,7 +1078,7 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
                   title="View Full Lyrics"
                   aria-label="View Full Song Lyrics"
                 >
-                  <FileText className="w-3.5 h-3.5 text-cyan-400" />
+                  <FileText className="w-3 sm:w-3.5 h-3 sm:h-3.5 text-cyan-400" />
                   <span className="hidden lg:inline text-[11px] uppercase tracking-wider">Lyrics</span>
                 </button>
               )}
@@ -1087,7 +1087,7 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
               <button
                 id="player-share-current-btn"
                 onClick={() => onOpenShare(currentTrack)}
-                className={`p-2 rounded-full border text-xs font-semibold inline-flex items-center gap-1.5 transition-all ${
+                className={`p-1.5 sm:p-2 rounded-full border text-xs font-semibold inline-flex items-center gap-1 sm:gap-1.5 transition-all ${
                   isDarkMode
                     ? 'bg-white/5 border-white/10 text-white/80 hover:text-cyan-400 hover:bg-white/10'
                     : 'bg-neutral-100 border-neutral-300 text-neutral-700 hover:text-black hover:bg-neutral-200'
@@ -1095,7 +1095,7 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
                 title="Share Song"
                 aria-label="Share current song"
               >
-                <Share2 className="w-3.5 h-3.5 text-cyan-400" />
+                <Share2 className="w-3 sm:w-3.5 h-3 sm:h-3.5 text-cyan-400" />
                 <span className="hidden sm:inline text-[11px] uppercase tracking-wider">Share</span>
               </button>
             </div>

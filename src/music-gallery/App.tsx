@@ -226,15 +226,15 @@ export default function App() {
       />
 
       {/* Main Container */}
-      <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-6 pb-36">
+      <main className="flex-1 max-w-7xl mx-auto w-full px-3 sm:px-6 lg:px-8 pt-3 sm:pt-6 pb-28 sm:pb-36">
         {/* Page Switcher Tabs */}
-        <div className="flex flex-wrap items-center justify-center gap-3 mb-6">
+        <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 mb-4 sm:mb-6">
           <button
             id="tab-youtube-gallery"
             onClick={() => {
               setActivePage('youtube');
             }}
-            className={`px-5 py-2.5 rounded-full font-bold text-xs sm:text-sm flex items-center gap-2 transition-all border shadow-sm ${
+            className={`px-3.5 py-1.5 sm:px-5 sm:py-2.5 rounded-full font-bold text-xs sm:text-sm flex items-center gap-1.5 sm:gap-2 transition-all border shadow-sm ${
               activePage === 'youtube'
                 ? 'bg-cyan-500 text-black border-cyan-400 shadow-cyan-500/25 ring-2 ring-cyan-400/40'
                 : isDarkMode
@@ -242,7 +242,7 @@ export default function App() {
                 : 'bg-white border-neutral-300 text-neutral-800 hover:bg-neutral-100'
             }`}
           >
-            <Disc className="w-4 h-4" />
+            <Disc className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             <span>YouTube Audio Gallery ({TRACKS.length} Tracks)</span>
           </button>
 
@@ -251,7 +251,7 @@ export default function App() {
             onClick={() => {
               setActivePage('suno');
             }}
-            className={`px-5 py-2.5 rounded-full font-bold text-xs sm:text-sm flex items-center gap-2 transition-all border shadow-sm ${
+            className={`px-3.5 py-1.5 sm:px-5 sm:py-2.5 rounded-full font-bold text-xs sm:text-sm flex items-center gap-1.5 sm:gap-2 transition-all border shadow-sm ${
               activePage === 'suno'
                 ? 'bg-cyan-500 text-black border-cyan-400 shadow-cyan-500/25 ring-2 ring-cyan-400/40'
                 : isDarkMode
@@ -259,7 +259,7 @@ export default function App() {
                 : 'bg-white border-neutral-300 text-neutral-800 hover:bg-neutral-100'
             }`}
           >
-            <Sparkles className="w-4 h-4 text-cyan-400" />
+            <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-400" />
             <span>Suno AI Playlist ({SUNO_TRACKS.length} Tracks)</span>
           </button>
         </div>
@@ -294,7 +294,7 @@ export default function App() {
             {/* YouTube Playlist Hero Banner */}
             <section
               id="youtube-hero-banner"
-              className={`relative overflow-hidden rounded-3xl border mb-8 p-6 sm:p-8 md:p-10 transition-colors ${
+              className={`relative overflow-hidden rounded-2xl sm:rounded-3xl border mb-4 sm:mb-8 p-3.5 sm:p-8 md:p-10 transition-colors ${
                 isDarkMode
                   ? 'bg-gradient-to-br from-neutral-900/90 via-black to-neutral-950 border-white/10 shadow-2xl'
                   : 'bg-gradient-to-br from-red-50/70 via-white to-neutral-100 border-neutral-200 shadow-lg'
@@ -303,18 +303,18 @@ export default function App() {
               <div className="absolute -top-24 -right-24 w-96 h-96 bg-red-500/10 rounded-full blur-3xl pointer-events-none" />
               <div className="absolute -bottom-24 -left-24 w-80 h-80 bg-cyan-600/10 rounded-full blur-3xl pointer-events-none" />
 
-              <div className="relative z-10 flex flex-col md:flex-row items-center md:items-start gap-6 sm:gap-8">
+              <div className="relative z-10 flex flex-col md:flex-row items-center md:items-start gap-4 sm:gap-8">
                 {/* Playlist Artwork */}
                 <div className="relative flex-shrink-0 group">
-                  <div className="w-44 h-44 sm:w-52 sm:h-52 md:w-60 md:h-60 rounded-2xl overflow-hidden shadow-2xl border-2 border-white/10 bg-neutral-900">
+                  <div className="w-28 h-28 sm:w-52 sm:h-52 md:w-60 md:h-60 rounded-xl sm:rounded-2xl overflow-hidden shadow-2xl border-2 border-white/10 bg-neutral-900">
                     <img
                       src={YOUTUBE_PLAYLIST_INFO.cover}
                       alt={YOUTUBE_PLAYLIST_INFO.name}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                   </div>
-                  <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-red-600 text-white font-mono font-bold text-[10px] tracking-wider uppercase shadow-lg shadow-red-600/30 flex items-center gap-1.5 whitespace-nowrap">
-                    <Flame className="w-3 h-3 fill-current" />
+                  <div className="absolute -bottom-2.5 sm:-bottom-3 left-1/2 -translate-x-1/2 px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full bg-red-600 text-white font-mono font-bold text-[9px] sm:text-[10px] tracking-wider uppercase shadow-lg shadow-red-600/30 flex items-center gap-1 sm:gap-1.5 whitespace-nowrap">
+                    <Flame className="w-2.5 h-2.5 sm:w-3 sm:h-3 fill-current" />
                     <span>YouTube Top Hits</span>
                   </div>
                 </div>
@@ -322,20 +322,20 @@ export default function App() {
                 {/* Playlist Info & Meta */}
                 <div className="flex-1 text-center md:text-left flex flex-col justify-between">
                   <div>
-                    <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 mb-3">
-                      <span className="px-3 py-1 rounded-full text-xs font-mono font-bold tracking-wider uppercase bg-red-500/15 text-red-400 border border-red-500/30 flex items-center gap-1.5">
-                        <Disc className="w-3.5 h-3.5" />
+                    <div className="flex flex-wrap items-center justify-center md:justify-start gap-1.5 sm:gap-2 mb-2 sm:mb-3">
+                      <span className="px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-mono font-bold tracking-wider uppercase bg-red-500/15 text-red-400 border border-red-500/30 flex items-center gap-1 sm:gap-1.5">
+                        <Disc className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                         <span>Official YouTube Playlist</span>
                       </span>
                       <span
-                        className={`px-3 py-1 rounded-full text-xs font-mono border ${
+                        className={`px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-mono border ${
                           isDarkMode ? 'bg-white/5 border-white/10 text-white/70' : 'bg-neutral-100 border-neutral-300 text-neutral-700'
                         }`}
                       >
                         {TRACKS.length} Recorded Tracks
                       </span>
                       <span
-                        className={`px-3 py-1 rounded-full text-xs font-mono border ${
+                        className={`px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-mono border ${
                           isDarkMode ? 'bg-white/5 border-white/10 text-white/70' : 'bg-neutral-100 border-neutral-300 text-neutral-700'
                         }`}
                       >
@@ -343,57 +343,57 @@ export default function App() {
                       </span>
                     </div>
 
-                    <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight leading-tight">
+                    <h1 className="text-2xl sm:text-4xl md:text-5xl font-black tracking-tight leading-tight">
                       {YOUTUBE_PLAYLIST_INFO.name}
                     </h1>
 
-                    <div className="mt-2 flex flex-wrap items-center justify-center md:justify-start gap-2 sm:gap-3 text-xs sm:text-sm font-medium">
+                    <div className="mt-1.5 sm:mt-2 flex flex-wrap items-center justify-center md:justify-start gap-1.5 sm:gap-3 text-xs sm:text-sm font-medium">
                       <span className="text-cyan-400 font-bold">{YOUTUBE_PLAYLIST_INFO.channel}</span>
                       <span className="opacity-40">•</span>
                       <a
                         href={YOUTUBE_PLAYLIST_INFO.channelUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-red-400 hover:underline flex items-center gap-1 font-mono text-xs"
+                        className="text-red-400 hover:underline flex items-center gap-1 font-mono text-[11px] sm:text-xs"
                       >
                         <span>▶️ YouTube: @DomInNATEly</span>
-                        <ExternalLink className="w-3 h-3" />
+                        <ExternalLink className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                       </a>
                       <span className="opacity-40">•</span>
                       <a
                         href="https://www.tiktok.com/@dominnately"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-pink-400 hover:underline flex items-center gap-1 font-mono text-xs"
+                        className="text-pink-400 hover:underline flex items-center gap-1 font-mono text-[11px] sm:text-xs"
                       >
                         <span>🎵 TikTok: @dominnately</span>
-                        <ExternalLink className="w-3 h-3" />
+                        <ExternalLink className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                       </a>
                       <span className="opacity-40">•</span>
                       <a
                         href="https://nate-mina.github.io/Portfolio-CV/"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-cyan-300 hover:underline flex items-center gap-1 font-mono text-xs"
+                        className="text-cyan-300 hover:underline flex items-center gap-1 font-mono text-[11px] sm:text-xs"
                         title="About Nate Mina - Portfolio & CV"
                       >
                         <span>👤 About Me</span>
-                        <ExternalLink className="w-3 h-3" />
+                        <ExternalLink className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                       </a>
                       <span className="opacity-40">•</span>
                       <a
                         href={YOUTUBE_PLAYLIST_INFO.playlistUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-cyan-400 hover:underline flex items-center gap-1 font-mono text-xs"
+                        className="text-cyan-400 hover:underline flex items-center gap-1 font-mono text-[11px] sm:text-xs"
                       >
                         <span>Open Playlist on YouTube</span>
-                        <ExternalLink className="w-3 h-3" />
+                        <ExternalLink className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                       </a>
                     </div>
 
                     <p
-                      className={`mt-3 text-sm max-w-2xl leading-relaxed ${
+                      className={`mt-2 sm:mt-3 text-xs sm:text-sm max-w-2xl leading-relaxed ${
                         isDarkMode ? 'text-white/70' : 'text-neutral-600'
                       }`}
                     >
@@ -401,26 +401,26 @@ export default function App() {
                     </p>
                   </div>
 
-                  <div className="mt-6 flex flex-wrap items-center justify-center md:justify-start gap-3">
+                  <div className="mt-4 sm:mt-6 flex flex-wrap items-center justify-center md:justify-start gap-2 sm:gap-3">
                     <button
                       id="youtube-hero-play-all-btn"
                       onClick={handlePlayAll}
-                      className="px-5 py-2.5 rounded-full bg-cyan-400 hover:bg-cyan-300 text-black font-bold text-sm flex items-center gap-2 shadow-lg shadow-cyan-400/25 transition-transform active:scale-95"
+                      className="px-3.5 py-2 sm:px-5 sm:py-2.5 rounded-full bg-cyan-400 hover:bg-cyan-300 text-black font-bold text-xs sm:text-sm flex items-center gap-1.5 sm:gap-2 shadow-lg shadow-cyan-400/25 transition-transform active:scale-95"
                     >
-                      <Play className="w-4 h-4 fill-current" />
+                      <Play className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-current" />
                       <span>Play All ({TRACKS.length})</span>
                     </button>
 
                     <button
                       id="youtube-hero-shuffle-btn"
                       onClick={handleShufflePlayAll}
-                      className={`px-4 py-2.5 rounded-full border text-sm font-bold flex items-center gap-2 transition-all active:scale-95 ${
+                      className={`px-3 py-2 sm:px-4 sm:py-2.5 rounded-full border text-xs sm:text-sm font-bold flex items-center gap-1.5 sm:gap-2 transition-all active:scale-95 ${
                         isDarkMode
                           ? 'bg-white/5 border-white/10 text-white hover:text-cyan-400 hover:border-cyan-400/40 hover:bg-white/10'
                           : 'bg-white border-neutral-300 text-neutral-800 hover:bg-neutral-100'
                       }`}
                     >
-                      <Shuffle className="w-4 h-4 text-cyan-400" />
+                      <Shuffle className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-400" />
                       <span>Shuffle</span>
                     </button>
 
@@ -429,27 +429,27 @@ export default function App() {
                       href={YOUTUBE_PLAYLIST_INFO.playlistUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className={`px-4 py-2.5 rounded-full border text-sm font-semibold flex items-center gap-1.5 transition-all ${
+                      className={`px-3 py-2 sm:px-4 sm:py-2.5 rounded-full border text-xs sm:text-sm font-semibold flex items-center gap-1.5 transition-all ${
                         isDarkMode
                           ? 'bg-white/5 border-white/10 text-white/80 hover:text-red-400 hover:border-red-400/40 hover:bg-white/10'
                           : 'bg-white border-neutral-300 text-neutral-700 hover:bg-neutral-100'
                       }`}
                     >
-                      <Disc className="w-4 h-4 text-red-500" />
+                      <Disc className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-red-500" />
                       <span>Open YouTube Playlist</span>
-                      <ExternalLink className="w-3.5 h-3.5 opacity-60" />
+                      <ExternalLink className="w-3 h-3 sm:w-3.5 sm:h-3.5 opacity-60" />
                     </a>
 
                     <button
                       id="switch-to-suno-hero-btn"
                       onClick={() => setActivePage('suno')}
-                      className={`px-4 py-2.5 rounded-full border text-sm font-semibold flex items-center gap-1.5 transition-all ${
+                      className={`px-3 py-2 sm:px-4 sm:py-2.5 rounded-full border text-xs sm:text-sm font-semibold flex items-center gap-1.5 transition-all ${
                         isDarkMode
                           ? 'bg-white/5 border-white/10 text-cyan-400 hover:bg-white/10'
                           : 'bg-neutral-100 border-neutral-300 text-cyan-700 hover:bg-neutral-200'
                       }`}
                     >
-                      <Sparkles className="w-4 h-4" />
+                      <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                       <span>Switch to Suno Playlist ({SUNO_TRACKS.length})</span>
                     </button>
                   </div>
@@ -461,12 +461,12 @@ export default function App() {
             <SocialSubscribeBanner isDarkMode={isDarkMode} />
 
         {/* Quick Actions Bar */}
-        <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
-          <div className="flex items-center gap-2.5">
+        <div className="flex flex-wrap items-center justify-between gap-2.5 sm:gap-3 mb-3.5 sm:mb-5">
+          <div className="flex items-center gap-2 sm:gap-2.5">
             <button
               id="play-all-tracks-btn"
               onClick={handlePlayAll}
-              className="px-4 py-2 rounded-full bg-cyan-500 hover:bg-cyan-400 text-black font-bold text-xs sm:text-sm flex items-center gap-2 shadow-lg shadow-cyan-500/25 transition-all active:scale-95"
+              className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-cyan-500 hover:bg-cyan-400 text-black font-bold text-xs sm:text-sm flex items-center gap-1.5 sm:gap-2 shadow-lg shadow-cyan-500/25 transition-all active:scale-95"
             >
               <Play className="w-3.5 h-3.5 fill-current" />
               <span>Play All</span>
@@ -475,7 +475,7 @@ export default function App() {
             <button
               id="shuffle-all-tracks-btn"
               onClick={handleShufflePlayAll}
-              className={`px-3.5 py-2 rounded-full border text-xs sm:text-sm font-bold flex items-center gap-2 transition-all active:scale-95 ${
+              className={`px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-full border text-xs sm:text-sm font-bold flex items-center gap-1.5 sm:gap-2 transition-all active:scale-95 ${
                 isDarkMode
                   ? 'bg-white/5 border-white/10 text-white hover:text-cyan-400 hover:border-cyan-400/40'
                   : 'bg-white border-neutral-300 text-neutral-800 hover:bg-neutral-100'
@@ -488,14 +488,14 @@ export default function App() {
 
           {/* View mode toggle (Grid / List) */}
           <div
-            className={`flex items-center gap-1.5 p-1 rounded-full border ${
+            className={`flex items-center gap-1 sm:gap-1.5 p-0.5 sm:p-1 rounded-full border ${
               isDarkMode ? 'border-white/10 bg-white/5' : 'border-neutral-300 bg-neutral-100'
             }`}
           >
             <button
               id="view-mode-grid"
               onClick={() => setViewMode('grid')}
-              className={`p-1.5 px-2.5 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 ${
+              className={`p-1 sm:p-1.5 px-2 sm:px-2.5 rounded-full text-xs font-bold transition-all flex items-center gap-1 sm:gap-1.5 ${
                 viewMode === 'grid'
                   ? 'bg-cyan-500 text-black shadow-md shadow-cyan-500/20'
                   : isDarkMode
@@ -511,7 +511,7 @@ export default function App() {
             <button
               id="view-mode-list"
               onClick={() => setViewMode('list')}
-              className={`p-1.5 px-2.5 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 ${
+              className={`p-1 sm:p-1.5 px-2 sm:px-2.5 rounded-full text-xs font-bold transition-all flex items-center gap-1 sm:gap-1.5 ${
                 viewMode === 'list'
                   ? 'bg-cyan-500 text-black shadow-md shadow-cyan-500/20'
                   : isDarkMode
@@ -544,7 +544,7 @@ export default function App() {
               viewMode === 'grid' ? (
                 <div
                   id="tracks-grid-container"
-                  className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"
+                  className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-5"
                 >
                   {filteredAndSortedTracks.map((track) => (
                     <TrackCard
@@ -562,10 +562,10 @@ export default function App() {
                 </div>
               ) : (
                 /* Compact Immersive List View */
-                <div id="tracks-list-container" className="flex flex-col gap-2.5">
+                <div id="tracks-list-container" className="flex flex-col gap-2 sm:gap-2.5">
                   {/* Table Column Header matching Immersive UI */}
                   <div
-                    className={`grid grid-cols-12 text-[10px] uppercase tracking-[0.2em] font-bold px-4 py-2 ${
+                    className={`grid grid-cols-12 text-[10px] uppercase tracking-[0.2em] font-bold px-3 sm:px-4 py-1.5 sm:py-2 ${
                       isDarkMode ? 'text-white/40' : 'text-neutral-500'
                     }`}
                   >
@@ -582,7 +582,7 @@ export default function App() {
                         key={`${track.id}-${track.index}`}
                         id={`track-list-item-${track.id}`}
                         onClick={() => handlePlayTrack(track)}
-                        className={`group p-3 sm:p-3.5 rounded-xl border transition-all flex items-center justify-between cursor-pointer ${
+                        className={`group p-2.5 sm:p-3.5 rounded-xl border transition-all flex items-center justify-between cursor-pointer ${
                           isCurrent
                             ? isDarkMode
                               ? 'bg-white/10 border-cyan-400/80 shadow-lg shadow-cyan-950/30 ring-1 ring-cyan-400/30'
@@ -720,6 +720,7 @@ export default function App() {
         if (!showcaseTrack) return null;
         return (
           <aside
+            id="immersive-now-playing-stage-container"
             className={`hidden xl:block ${
               stagePlayerSize === 'sm'
                 ? 'xl:col-span-4 2xl:col-span-3'

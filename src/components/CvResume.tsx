@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { handleImageError } from '../utils/imageUtils';
+import { exportCvPdf } from '../utils/exportPdfCv';
 import {
   Cpu,
   Zap,
@@ -39,11 +40,23 @@ interface CvResumeProps {
 
 export const CvResume: React.FC<CvResumeProps> = ({ currentTheme, onOpenTerminal, onOpenGallery }) => {
   const [copiedEmail, setCopiedEmail] = useState<string | null>(null);
+  const [pdfExporting, setPdfExporting] = useState(false);
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
     setCopiedEmail(text);
     setTimeout(() => setCopiedEmail(null), 2000);
+  };
+
+  const handleExportPdf = () => {
+    try {
+      setPdfExporting(true);
+      exportCvPdf();
+      setTimeout(() => setPdfExporting(false), 2500);
+    } catch (err) {
+      console.error('Failed to export PDF:', err);
+      setPdfExporting(false);
+    }
   };
 
   return (
@@ -82,8 +95,8 @@ export const CvResume: React.FC<CvResumeProps> = ({ currentTheme, onOpenTerminal
                 <span>Mechanical Engineering, Marine IT Network Infrastructure &amp; Fiber Networks</span>
               </div>
               
-              <div className="flex flex-wrap items-center gap-3">
-                <h1 className="text-3xl md:text-4xl font-mono font-bold text-slate-100 tracking-tight">
+              <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
+                <h1 className="text-2xl sm:text-3xl md:text-4xl font-mono font-bold text-slate-100 tracking-tight">
                   {profileData.name}
                 </h1>
 
@@ -98,6 +111,21 @@ export const CvResume: React.FC<CvResumeProps> = ({ currentTheme, onOpenTerminal
                     <span>Photo Gallery</span>
                   </button>
                 )}
+
+                {/* PDF Export Button */}
+                <button
+                  type="button"
+                  onClick={handleExportPdf}
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 text-xs font-mono font-bold transition-all shadow-sm active:scale-95"
+                  title="Export official Nathaniel Mina CV in PDF format"
+                >
+                  {pdfExporting ? (
+                    <Check className="w-3.5 h-3.5 text-emerald-300" />
+                  ) : (
+                    <Download className="w-3.5 h-3.5 text-emerald-300" />
+                  )}
+                  <span>{pdfExporting ? 'Exported PDF' : 'Export CV (PDF)'}</span>
+                </button>
               </div>
 
               <p className="text-base font-mono text-emerald-400 font-semibold">

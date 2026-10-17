@@ -46,12 +46,12 @@ export const SunoTrackCard: React.FC<SunoTrackCardProps> = ({
         />
 
         {/* Index Badge */}
-        <div className="absolute top-3 left-3 px-2 py-0.5 rounded-md bg-black/70 backdrop-blur-md text-white font-mono text-[11px] font-bold border border-white/10">
+        <div className="absolute top-2 sm:top-3 left-2 sm:left-3 px-1.5 sm:px-2 py-0.5 rounded-md bg-black/70 backdrop-blur-md text-white font-mono text-[10px] sm:text-[11px] font-bold border border-white/10">
           #{track.index}
         </div>
 
         {/* Duration Badge */}
-        <div className="absolute top-3 right-3 px-2 py-0.5 rounded-md bg-black/70 backdrop-blur-md text-cyan-300 font-mono text-[11px] font-bold border border-white/10">
+        <div className="absolute top-2 sm:top-3 right-2 sm:right-3 px-1.5 sm:px-2 py-0.5 rounded-md bg-black/70 backdrop-blur-md text-cyan-300 font-mono text-[10px] sm:text-[11px] font-bold border border-white/10">
           {track.durationFormatted}
         </div>
 
@@ -67,27 +67,27 @@ export const SunoTrackCard: React.FC<SunoTrackCardProps> = ({
               onPlay(track);
             }}
             aria-label={isCurrentTrack && isPlaying ? 'Pause track' : 'Play track'}
-            className={`w-14 h-14 rounded-full flex items-center justify-center shadow-xl transition-all transform duration-300 active:scale-95 ${
+            className={`w-10 h-10 sm:w-14 sm:h-14 rounded-full flex items-center justify-center shadow-xl transition-all transform duration-300 active:scale-95 ${
               isCurrentTrack && isPlaying
                 ? 'bg-cyan-400 text-black shadow-cyan-500/50 scale-105 ring-4 ring-cyan-400/40'
                 : 'bg-white/90 text-black hover:bg-cyan-400 opacity-90 group-hover:opacity-100 group-hover:scale-110 shadow-lg'
             }`}
           >
             {isCurrentTrack && isPlaying ? (
-              <Pause className="w-6 h-6 fill-current" />
+              <Pause className="w-4 h-4 sm:w-6 sm:h-6 fill-current" />
             ) : (
-              <Play className="w-6 h-6 fill-current translate-x-0.5" />
+              <Play className="w-4 h-4 sm:w-6 sm:h-6 fill-current translate-x-0.5" />
             )}
           </button>
         </div>
 
         {/* Equalizer Waveform indicator when playing */}
         {isCurrentTrack && isPlaying && (
-          <div className="absolute bottom-3 left-3 px-2.5 py-1 rounded-full bg-black/80 backdrop-blur-md border border-cyan-400/40 flex items-center gap-1">
-            <div className="w-1 h-3 bg-cyan-400 animate-pulse" />
-            <div className="w-1 h-4 bg-cyan-400 animate-pulse delay-75" />
-            <div className="w-1 h-2 bg-cyan-400 animate-pulse delay-150" />
-            <span className="text-[10px] font-mono font-bold text-cyan-300 ml-1 uppercase">Playing</span>
+          <div className="absolute bottom-2 sm:bottom-3 left-2 sm:left-3 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full bg-black/80 backdrop-blur-md border border-cyan-400/40 flex items-center gap-1">
+            <div className="w-0.5 sm:w-1 h-2.5 sm:h-3 bg-cyan-400 animate-pulse" />
+            <div className="w-0.5 sm:w-1 h-3 sm:h-4 bg-cyan-400 animate-pulse delay-75" />
+            <div className="w-0.5 sm:w-1 h-1.5 sm:h-2 bg-cyan-400 animate-pulse delay-150" />
+            <span className="text-[9px] sm:text-[10px] font-mono font-bold text-cyan-300 ml-1 uppercase">Playing</span>
           </div>
         )}
       </div>
@@ -95,10 +95,10 @@ export const SunoTrackCard: React.FC<SunoTrackCardProps> = ({
       {/* Card Content Area - Just the Track Name */}
       <div 
         onClick={() => onPlay(track)}
-        className="p-3.5 sm:p-4 cursor-pointer"
+        className="p-2.5 sm:p-4 cursor-pointer"
       >
         <h3
-          className={`font-bold text-sm sm:text-base leading-snug line-clamp-1 transition-colors ${
+          className={`font-bold text-xs sm:text-base leading-snug line-clamp-1 transition-colors ${
             isCurrentTrack
               ? isDarkMode ? 'text-cyan-400' : 'text-cyan-600'
               : isDarkMode
