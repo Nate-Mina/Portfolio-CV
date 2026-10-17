@@ -33,6 +33,8 @@ import {
   Layers,
   Code2,
   Share2,
+  LayoutGrid,
+  List as ListIcon,
 } from 'lucide-react';
 import { JekyllTheme, LinkItem } from '../types';
 import { profileData } from '../data/profileData';
@@ -54,6 +56,7 @@ export const BioLinks: React.FC<BioLinksProps> = ({
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [copiedLinkId, setCopiedLinkId] = useState<string | null>(null);
 
   const handleQrClick纯 = (url: string, title: string, e: React.MouseEvent) => {
@@ -361,114 +364,177 @@ export const BioLinks: React.FC<BioLinksProps> = ({
           </div>
         </div>
 
-        {/* 4-Column Grid of Hub Cards */}
-        <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 pt-6">
+        {/* View Switcher Bar */}
+        <div className="relative z-10 pt-6 flex items-center justify-between">
+          <div className="text-xs font-mono text-slate-400">
+            Showing <span className="text-white font-bold">{filteredLinks.length}</span> channels
+          </div>
+          <div className="flex items-center gap-1.5 bg-slate-900/90 border border-slate-800 p-1 rounded-xl">
+            <button
+              type="button"
+              onClick={() => setViewMode('grid')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-mono transition-all ${
+                viewMode === 'grid' ? 'bg-purple-600 text-white font-bold shadow' : 'text-slate-400 hover:text-slate-200'
+              }`}
+              title="Grid View (Icons)"
+            >
+              <LayoutGrid className="w-3.5 h-3.5" />
+              <span>Grid</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewMode('list')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-mono transition-all ${
+                viewMode === 'list' ? 'bg-purple-600 text-white font-bold shadow' : 'text-slate-400 hover:text-slate-200'
+              }`}
+              title="List View"
+            >
+              <ListIcon className="w-3.5 h-3.5" />
+              <span>List</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Links Display (Grid or List) */}
+        <div className="relative z-10 pt-4">
           {filteredLinks.length === 0 ? (
-            <div className="col-span-full p-10 text-center rounded-2xl bg-slate-900/50 border border-slate-800 text-slate-400 font-mono text-xs">
+            <div className="p-10 text-center rounded-2xl bg-slate-900/50 border border-slate-800 text-slate-400 font-mono text-xs">
               No profiles matched &quot;{searchQuery}&quot;. Clear search to view all channels.
             </div>
+          ) : viewMode === 'grid' ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+              {filteredLinks.map((link) => {
+                const isCopied = copiedLinkId === link.id;
+                return (
+                  <div
+                    key={link.id}
+                    className="group relative flex flex-col justify-between p-5 rounded-2xl bg-[#0f152d]/90 hover:bg-[#141b38] border border-[#212b4d] hover:border-purple-500/50 hover:shadow-xl hover:shadow-purple-950/50 transition-all duration-200 transform hover:-translate-y-1"
+                  >
+                    {/* Top Bar: Icon + Category Badge */}
+                    <div className="flex items-center justify-between gap-2 mb-4">
+                      {renderCardIcon(link)}
+
+                      {link.badge && (
+                        <span className={`text-[10px] font-mono px-2.5 py-0.5 rounded-full border font-semibold whitespace-nowrap ${getBadgeStyle(link.badgeVariant, link.badge)}`}>
+                          {link.badge}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Body: Title, Handle, Description */}
+                    <div className="space-y-1 mb-5 flex-1">
+                      <h3 className="text-base sm:text-lg font-bold text-white group-hover:text-purple-300 transition-colors font-sans tracking-tight">
+                        {link.title}
+                      </h3>
+                      <p className="text-xs font-mono text-slate-400">
+                        {link.handle || link.displayUrl}
+                      </p>
+                      <p className="text-xs text-slate-300 font-sans leading-relaxed pt-1.5 line-clamp-3">
+                        {link.subtitle}
+                      </p>
+                    </div>
+
+                    {/* Footer Action Links */}
+                    <div className="pt-3 border-t border-slate-800/80 flex items-center justify-between mt-auto text-xs">
+                      <a
+                        href={link.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 font-mono font-semibold text-purple-400 hover:text-purple-300 group-hover:underline transition-all"
+                      >
+                        <span>Open Link</span>
+                        <ExternalLink className="w-3.5 h-3.5" />
+                      </a>
+
+                      <div className="flex items-center gap-1">
+                        <button
+                          type="button"
+                          onClick={(e) => handleQrClick纯(link.url, link.title, e)}
+                          className="p-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-sky-400 hover:text-sky-300 border border-slate-800 transition-colors"
+                          title="Show QR Code"
+                        >
+                          <QrCode className="w-3.5 h-3.5" />
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={(e) => handleCopy(link.url, link.id, e)}
+                          className="p-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-slate-100 border border-slate-800 transition-colors"
+                          title="Copy Link URL"
+                        >
+                          {isCopied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           ) : (
-            filteredLinks.map((link) => {
-              const isCopied = copiedLinkId === link.id;
-              return (
-                <div
-                  key={link.id}
-                  className="group relative flex flex-col justify-between p-5 rounded-2xl bg-[#0f152d]/90 hover:bg-[#141b38] border border-[#212b4d] hover:border-purple-500/50 hover:shadow-xl hover:shadow-purple-950/50 transition-all duration-200 transform hover:-translate-y-1"
-                >
-                  {/* Top Bar: Icon + Category Badge */}
-                  <div className="flex items-center justify-between gap-2 mb-4">
-                    {renderCardIcon(link)}
+            <div className="space-y-3">
+              {filteredLinks.map((link) => {
+                const isCopied = copiedLinkId === link.id;
+                return (
+                  <div
+                    key={link.id}
+                    className="group flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-2xl bg-[#0f152d]/90 hover:bg-[#141b38] border border-[#212b4d] hover:border-purple-500/50 transition-all shadow-md"
+                  >
+                    <div className="flex items-center gap-3.5 min-w-0">
+                      {renderCardIcon(link)}
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2">
+                          <h3 className="text-base font-bold text-white group-hover:text-purple-300 transition-colors font-sans truncate">
+                            {link.title}
+                          </h3>
+                          {link.badge && (
+                            <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full border font-semibold whitespace-nowrap ${getBadgeStyle(link.badgeVariant, link.badge)}`}>
+                              {link.badge}
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-xs font-mono text-slate-400 truncate">
+                          {link.handle || link.displayUrl} &bull; <span className="text-slate-300">{link.subtitle}</span>
+                        </p>
+                      </div>
+                    </div>
 
-                    {link.badge && (
-                      <span className={`text-[10px] font-mono px-2.5 py-0.5 rounded-full border font-semibold whitespace-nowrap ${getBadgeStyle(link.badgeVariant, link.badge)}`}>
-                        {link.badge}
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Body: Title, Handle, Description */}
-                  <div className="space-y-1 mb-5 flex-1">
-                    <h3 className="text-base sm:text-lg font-bold text-white group-hover:text-purple-300 transition-colors font-sans tracking-tight">
-                      {link.title}
-                    </h3>
-                    <p className="text-xs font-mono text-slate-400">
-                      {link.handle || link.displayUrl}
-                    </p>
-                    <p className="text-xs text-slate-300 font-sans leading-relaxed pt-1.5 line-clamp-3">
-                      {link.subtitle}
-                    </p>
-                  </div>
-
-                  {/* Footer Action Links */}
-                  <div className="pt-3 border-t border-slate-800/80 flex items-center justify-between mt-auto text-xs">
-                    <a
-                      href={link.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 font-mono font-semibold text-purple-400 hover:text-purple-300 group-hover:underline transition-all"
-                    >
-                      <span>Open Link</span>
-                      <ExternalLink className="w-3.5 h-3.5" />
-                    </a>
-
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-2 w-full sm:w-auto justify-end pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-800/80">
+                      <a
+                        href={link.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 border border-purple-500/30 text-xs font-mono font-semibold transition-all"
+                      >
+                        <span>Open</span>
+                        <ExternalLink className="w-3.5 h-3.5" />
+                      </a>
                       <button
                         type="button"
                         onClick={(e) => handleQrClick纯(link.url, link.title, e)}
-                        className="p-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-sky-400 hover:text-sky-300 border border-slate-800 transition-colors"
+                        className="p-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-sky-400 hover:text-sky-300 border border-slate-800 transition-colors"
                         title="Show QR Code"
                       >
                         <QrCode className="w-3.5 h-3.5" />
                       </button>
-
                       <button
                         type="button"
                         onClick={(e) => handleCopy(link.url, link.id, e)}
-                        className="p-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-slate-100 border border-slate-800 transition-colors"
+                        className="p-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-slate-100 border border-slate-800 transition-colors"
                         title="Copy Link URL"
                       >
                         {isCopied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
                       </button>
                     </div>
                   </div>
-                </div>
-              );
-            })
+                );
+              })}
+            </div>
           )}
         </div>
       </section>
-
-      {/* Direct Contact & Pure Computers Callout Card */}
-      <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-r from-emerald-950/60 via-slate-900 to-slate-950 border border-emerald-500/30 space-y-4 shadow-xl">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 text-emerald-400 font-mono text-xs font-bold uppercase tracking-wider">
-            <Zap className="w-4 h-4" /> Systems Optimization &amp; Engineering Consulting
-          </div>
-          <span className="text-xs font-mono text-slate-400">Pittsford &amp; Rochester, NY</span>
-        </div>
-
-        <p className="text-xs sm:text-sm text-slate-300 font-sans leading-relaxed max-w-4xl">
-          Need bespoke high-performance workstation architecture, liquid cooling thermal optimization, automated enterprise workflows, or marine network infrastructure? Reach out directly to initiate collaboration.
-        </p>
-
-        <div className="flex flex-wrap gap-3 pt-2">
-          <a
-            href="https://www.PureComp.Net"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex-1 min-w-[200px] flex items-center justify-center gap-2 py-3 px-5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-mono text-xs font-bold transition-all shadow-lg hover:shadow-emerald-600/30"
-          >
-            <Globe className="w-4 h-4" /> Visit PureComp.Net
-          </a>
-          <a
-            href={`mailto:${profileData.emails[0]}`}
-            className="flex-1 min-w-[200px] flex items-center justify-center gap-2 py-3 px-5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-mono text-xs font-bold transition-all"
-          >
-            <Mail className="w-4 h-4 text-sky-400" /> Email Nathaniel
-          </a>
-        </div>
-      </div>
     </div>
   );
 };
+
+
 
