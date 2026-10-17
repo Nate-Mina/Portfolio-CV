@@ -149,7 +149,7 @@ export const SunoPage: React.FC<SunoPageProps> = ({
       {/* Hero Banner Section */}
       <section
         id="suno-hero-banner"
-        className={`relative overflow-hidden rounded-2xl sm:rounded-3xl border mb-4 sm:mb-8 p-3.5 sm:p-8 md:p-10 transition-colors ${
+        className={`relative overflow-hidden rounded-3xl border mb-8 p-6 sm:p-8 md:p-10 transition-colors ${
           isDarkMode
             ? 'bg-gradient-to-br from-neutral-900/90 via-black to-neutral-950 border-white/10 shadow-2xl'
             : 'bg-gradient-to-br from-cyan-50/80 via-white to-neutral-100 border-neutral-200 shadow-lg'
@@ -159,18 +159,18 @@ export const SunoPage: React.FC<SunoPageProps> = ({
         <div className="absolute -top-24 -right-24 w-96 h-96 bg-cyan-500/15 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute -bottom-24 -left-24 w-80 h-80 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="relative z-10 flex flex-col md:flex-row items-center md:items-start gap-4 sm:gap-8">
+        <div className="relative z-10 flex flex-col md:flex-row items-center md:items-start gap-6 sm:gap-8">
           {/* Playlist Artwork with badge */}
           <div className="relative flex-shrink-0 group">
-            <div className="w-28 h-28 sm:w-52 sm:h-52 md:w-60 md:h-60 rounded-xl sm:rounded-2xl overflow-hidden shadow-2xl border-2 border-white/10 bg-neutral-900">
+            <div className="w-44 h-44 sm:w-52 sm:h-52 md:w-60 md:h-60 rounded-2xl overflow-hidden shadow-2xl border-2 border-white/10 bg-neutral-900">
               <img
                 src={SUNO_PLAYLIST_INFO.cover}
                 alt={SUNO_PLAYLIST_INFO.name}
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
               />
             </div>
-            <div className="absolute -bottom-2.5 sm:-bottom-3 left-1/2 -translate-x-1/2 px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full bg-cyan-500 text-black font-mono font-bold text-[9px] sm:text-[10px] tracking-wider uppercase shadow-lg shadow-cyan-500/30 flex items-center gap-1 sm:gap-1.5 whitespace-nowrap">
-              <Flame className="w-2.5 h-2.5 sm:w-3 sm:h-3 fill-current" />
+            <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-cyan-500 text-black font-mono font-bold text-[10px] tracking-wider uppercase shadow-lg shadow-cyan-500/30 flex items-center gap-1.5 whitespace-nowrap">
+              <Flame className="w-3 h-3 fill-current" />
               <span>Suno Top Hits</span>
             </div>
           </div>
@@ -179,20 +179,20 @@ export const SunoPage: React.FC<SunoPageProps> = ({
           <div className="flex-1 text-center md:text-left flex flex-col justify-between">
             <div>
               {/* Badges */}
-              <div className="flex flex-wrap items-center justify-center md:justify-start gap-1.5 sm:gap-2 mb-2 sm:mb-3">
-                <span className="px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-mono font-bold tracking-wider uppercase bg-cyan-400/15 text-cyan-400 border border-cyan-400/30 flex items-center gap-1 sm:gap-1.5">
-                  <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+              <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 mb-3">
+                <span className="px-3 py-1 rounded-full text-xs font-mono font-bold tracking-wider uppercase bg-cyan-400/15 text-cyan-400 border border-cyan-400/30 flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5" />
                   <span>Suno Playlist</span>
                 </span>
                 <span
-                  className={`px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-mono border ${
+                  className={`px-3 py-1 rounded-full text-xs font-mono border ${
                     isDarkMode ? 'bg-white/5 border-white/10 text-white/70' : 'bg-neutral-100 border-neutral-300 text-neutral-700'
                   }`}
                 >
                   {SUNO_TRACKS.length} Official Tracks
                 </span>
                 <span
-                  className={`px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-mono border ${
+                  className={`px-3 py-1 rounded-full text-xs font-mono border ${
                     isDarkMode ? 'bg-white/5 border-white/10 text-white/70' : 'bg-neutral-100 border-neutral-300 text-neutral-700'
                   }`}
                 >
@@ -201,49 +201,49 @@ export const SunoPage: React.FC<SunoPageProps> = ({
               </div>
 
               {/* Title */}
-              <h1 className="text-2xl sm:text-4xl md:text-5xl font-black tracking-tight leading-tight">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight leading-tight">
                 {SUNO_PLAYLIST_INFO.name}
               </h1>
 
               {/* Creator & Links */}
-              <div className="mt-1.5 sm:mt-2 flex flex-wrap items-center justify-center md:justify-start gap-1.5 sm:gap-3 text-xs sm:text-sm font-medium">
+              <div className="mt-2 flex flex-wrap items-center justify-center md:justify-start gap-2 sm:gap-3 text-xs sm:text-sm font-medium">
                 <span className="text-cyan-400 font-bold">{SUNO_PLAYLIST_INFO.user_display_name}</span>
                 <span className="opacity-40">•</span>
                 <a
                   href="https://www.tiktok.com/@dominnately"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-pink-400 hover:underline flex items-center gap-1 font-mono text-[11px] sm:text-xs"
+                  className="text-pink-400 hover:underline flex items-center gap-1 font-mono text-xs"
                 >
                   <span>🎵 TikTok: @dominnately</span>
-                  <ExternalLink className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+                  <ExternalLink className="w-3 h-3" />
                 </a>
                 <span className="opacity-40">•</span>
                 <a
                   href="https://www.youtube.com/@DomInNATEly"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-red-400 hover:underline flex items-center gap-1 font-mono text-[11px] sm:text-xs"
+                  className="text-red-400 hover:underline flex items-center gap-1 font-mono text-xs"
                 >
                   <span>▶️ YouTube: @DomInNATEly</span>
-                  <ExternalLink className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+                  <ExternalLink className="w-3 h-3" />
                 </a>
                 <span className="opacity-40">•</span>
                 <a
                   href="https://nate-mina.github.io/Portfolio-CV/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-cyan-300 hover:underline flex items-center gap-1 font-mono text-[11px] sm:text-xs"
+                  className="text-cyan-300 hover:underline flex items-center gap-1 font-mono text-xs"
                   title="About Nate Mina - Portfolio & CV"
                 >
                   <span>👤 About Me</span>
-                  <ExternalLink className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+                  <ExternalLink className="w-3 h-3" />
                 </a>
               </div>
 
               {/* Description */}
               <p
-                className={`mt-2 sm:mt-3 text-xs sm:text-sm max-w-2xl leading-relaxed ${
+                className={`mt-3 text-sm max-w-2xl leading-relaxed ${
                   isDarkMode ? 'text-white/70' : 'text-neutral-600'
                 }`}
               >
@@ -252,26 +252,26 @@ export const SunoPage: React.FC<SunoPageProps> = ({
             </div>
 
             {/* Action Buttons */}
-            <div className="mt-4 sm:mt-6 flex flex-wrap items-center justify-center md:justify-start gap-2 sm:gap-3">
+            <div className="mt-6 flex flex-wrap items-center justify-center md:justify-start gap-3">
               <button
                 id="suno-play-all-btn"
                 onClick={handlePlayAll}
-                className="px-3.5 py-2 sm:px-5 sm:py-2.5 rounded-full bg-cyan-400 hover:bg-cyan-300 text-black font-bold text-xs sm:text-sm flex items-center gap-1.5 sm:gap-2 shadow-lg shadow-cyan-400/25 transition-transform active:scale-95"
+                className="px-5 py-2.5 rounded-full bg-cyan-400 hover:bg-cyan-300 text-black font-bold text-sm flex items-center gap-2 shadow-lg shadow-cyan-400/25 transition-transform active:scale-95"
               >
-                <Play className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-current" />
+                <Play className="w-4 h-4 fill-current" />
                 <span>Play All</span>
               </button>
 
               <button
                 id="suno-shuffle-all-btn"
                 onClick={handleShufflePlayAll}
-                className={`px-3 py-2 sm:px-4 sm:py-2.5 rounded-full border text-xs sm:text-sm font-bold flex items-center gap-1.5 sm:gap-2 transition-all active:scale-95 ${
+                className={`px-4 py-2.5 rounded-full border text-sm font-bold flex items-center gap-2 transition-all active:scale-95 ${
                   isDarkMode
                     ? 'bg-white/5 border-white/10 text-white hover:text-cyan-400 hover:border-cyan-400/40 hover:bg-white/10'
                     : 'bg-white border-neutral-300 text-neutral-800 hover:bg-neutral-100'
                 }`}
               >
-                <Shuffle className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-400" />
+                <Shuffle className="w-4 h-4 text-cyan-400" />
                 <span>Shuffle</span>
               </button>
 
@@ -280,27 +280,27 @@ export const SunoPage: React.FC<SunoPageProps> = ({
                 href={SUNO_PLAYLIST_INFO.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`px-3 py-2 sm:px-4 sm:py-2.5 rounded-full border text-xs sm:text-sm font-semibold flex items-center gap-1.5 transition-all ${
+                className={`px-4 py-2.5 rounded-full border text-sm font-semibold flex items-center gap-1.5 transition-all ${
                   isDarkMode
                     ? 'bg-white/5 border-white/10 text-white/80 hover:text-cyan-400 hover:border-cyan-400/40 hover:bg-white/10'
                     : 'bg-white border-neutral-300 text-neutral-700 hover:bg-neutral-100'
                 }`}
               >
                 <span>Open on Suno</span>
-                <ExternalLink className="w-3 h-3 sm:w-3.5 sm:h-3.5 opacity-70" />
+                <ExternalLink className="w-3.5 h-3.5 opacity-70" />
               </a>
 
               {onSwitchToYouTube && (
                 <button
                   id="switch-to-youtube-hero-btn"
                   onClick={onSwitchToYouTube}
-                  className={`px-3 py-2 sm:px-4 sm:py-2.5 rounded-full border text-xs sm:text-sm font-semibold flex items-center gap-1.5 transition-all ${
+                  className={`px-4 py-2.5 rounded-full border text-sm font-semibold flex items-center gap-1.5 transition-all ${
                     isDarkMode
                       ? 'bg-white/5 border-white/10 text-red-400 hover:bg-white/10'
                       : 'bg-neutral-100 border-neutral-300 text-red-700 hover:bg-neutral-200'
                   }`}
                 >
-                  <Disc className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-red-500" />
+                  <Disc className="w-4 h-4 text-red-500" />
                   <span>Switch to YouTube Gallery ({TRACKS.length})</span>
                 </button>
               )}
