@@ -26,7 +26,14 @@ export const Header: React.FC<HeaderProps> = ({
 }) => {
   const [showThemePicker, setShowThemePicker] = useState(false);
   const [downloaded, setDownloaded] = useState(false);
+  const [isGlowing, setIsGlowing] = useState(false);
   const headerRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    setIsGlowing(true);
+    const timer = setTimeout(() => setIsGlowing(false), 800);
+    return () => clearTimeout(timer);
+  }, [currentTheme.id]);
 
   useEffect(() => {
     const updateHeaderHeight = () => {
@@ -96,7 +103,7 @@ export const Header: React.FC<HeaderProps> = ({
               </h1>
             </div>
             <p className="text-[11px] sm:text-xs text-slate-400 font-mono truncate max-w-[200px] sm:max-w-none">
-              Pure Computers | Mechanical Engineer &amp; Systems Architect
+              Mechanical Engineer, Entrapaneur &amp; Musician
             </p>
           </div>
         </div>
@@ -201,7 +208,11 @@ export const Header: React.FC<HeaderProps> = ({
           <div className="relative">
             <button
               onClick={() => setShowThemePicker(!showThemePicker)}
-              className="flex items-center gap-1.5 p-2 sm:px-3 sm:py-1.5 rounded-lg sm:rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 text-xs font-mono transition-all"
+              className={`flex items-center gap-1.5 p-2 sm:px-3 sm:py-1.5 rounded-lg sm:rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 border text-xs font-mono transition-all duration-300 ${
+                isGlowing
+                  ? 'ring-2 ring-emerald-400 border-emerald-400 shadow-[0_0_20px_rgba(52,211,153,0.7)] scale-105 bg-slate-800'
+                  : 'border-slate-800'
+              }`}
               title="Change Jekyll Theme"
             >
               <Sparkles className="w-3.5 h-3.5 text-amber-400" />

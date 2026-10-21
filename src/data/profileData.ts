@@ -90,11 +90,11 @@ export const jekyllThemes: JekyllTheme[] = [
 export const profileData: ProfileData = {
   name: 'Nathaniel (Nate) K. Mina',
   handle: '@Dom-I-Nate',
-  title: 'CEO & Mechanical Engineer, Marine IT Network infrastructure and fiber networks | Systems Architect',
+  title: 'Mechanical Engineer, Entrapaneur & Musician',
   company: 'Pure Computers',
   location: 'Pittsford & Rochester, NY',
   phone: '(585) 484-1764',
-  emails: ['nate@purecomp.onmicrosoft.com', 'Nate@PureComp.Net', 'NateMina@gmail.com'],
+  emails: ['nate@purecomp.onmicrosoft.com', 'nate@purecomp.onmicrosoft.com', 'NateMina@gmail.com'],
   website: 'https://www.PureComp.Net',
   avatarUrl: mainAvatar,
   bannerUrl: jekyllBanner,

@@ -12,6 +12,9 @@ import { TerminalModal } from './components/TerminalModal';
 import { QrCodeModal } from './components/QrCodeModal';
 import { PhotoCarouselModal } from './components/PhotoCarouselModal';
 import { Footer } from './components/Footer';
+import { ToastProvider } from './context/ToastContext';
+import { ToastContainer } from './components/Toast';
+import { AIAssistantWidget } from './components/assistant/AIAssistantWidget';
 
 export default function App() {
   const [currentTheme, setCurrentTheme] = useState<JekyllTheme>(jekyllThemes[0]);
@@ -31,7 +34,8 @@ export default function App() {
   };
 
   return (
-    <div className={`min-h-screen ${currentTheme.bgClass} ${currentTheme.textPrimary} flex flex-col font-sans transition-colors duration-300 selection:bg-emerald-500 selection:text-slate-950`}>
+    <ToastProvider>
+      <div className={`min-h-screen ${currentTheme.bgClass} ${currentTheme.textPrimary} flex flex-col font-sans transition-colors duration-300 selection:bg-emerald-500 selection:text-slate-950`}>
       {/* Top Header & Jekyll Theme Switcher */}
       <Header
         currentTheme={currentTheme}
@@ -165,11 +169,18 @@ export default function App() {
         photos={profileData.galleryPhotos || []}
       />
 
-      {/* Footer */}
-      <Footer
-        currentTheme={currentTheme}
-        onOpenTerminal={() => setIsTerminalOpen(true)}
-      />
-    </div>
+        {/* Nate Mina AI Voice & Chatbot Assistant */}
+        <AIAssistantWidget currentTheme={currentTheme} />
+
+        {/* Global Toast Container */}
+        <ToastContainer />
+
+        {/* Footer */}
+        <Footer
+          currentTheme={currentTheme}
+          onOpenTerminal={() => setIsTerminalOpen(true)}
+        />
+      </div>
+    </ToastProvider>
   );
 }

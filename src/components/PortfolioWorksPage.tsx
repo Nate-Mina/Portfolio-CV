@@ -20,6 +20,7 @@ import {
   Box,
 } from 'lucide-react';
 import { JekyllTheme } from '../types';
+import { GithubContributionsHeatmap } from './GithubContributionsHeatmap';
 
 interface PortfolioWorksPageProps {
   currentTheme: JekyllTheme;
@@ -401,6 +402,11 @@ export const PortfolioWorksPage: React.FC<PortfolioWorksPageProps> = ({ currentT
             </div>
           </div>
         ))}
+      </div>
+
+      {/* GitHub Contributions Heatmap */}
+      <div className="pt-6">
+        <GithubContributionsHeatmap currentTheme={currentTheme} />
       </div>
 
       {/* Embedded App Preview Modal */}
