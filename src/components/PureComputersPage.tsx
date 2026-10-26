@@ -43,6 +43,11 @@ import {
 import { User } from 'firebase/auth';
 import { useToast } from '../context/ToastContext';
 import { GoogleFormModal } from './GoogleFormModal';
+import {
+  saveConsultationRequest,
+  fetchUserConsultations,
+  ConsultationRequest,
+} from '../services/consultationStore';
 
 interface PureComputersPageProps {
   currentTheme: JekyllTheme;
@@ -77,21 +82,38 @@ export const PureComputersPage: React.FC<PureComputersPageProps> = ({ currentThe
   const [formResponderUri, setFormResponderUri] = useState<string | null>(null);
   const [taskCreatedNotification, setTaskCreatedNotification] = useState<string | null>(null);
 
+  const [userConsultations, setUserConsultations] = useState<ConsultationRequest[]>([]);
+  const [loadingConsultations, setLoadingConsultations] = useState(false);
+
   useEffect(() => {
     const unsubscribe = initAuth(
       (currentUser, token) => {
         setUser(currentUser);
         setAuthToken(token);
         fetchTasks(token);
+        fetchConsultations(currentUser.uid);
       },
       () => {
         setUser(null);
         setAuthToken(null);
         setTasks([]);
+        setUserConsultations([]);
       }
     );
     return () => unsubscribe();
   }, []);
+
+  const fetchConsultations = async (userId: string) => {
+    setLoadingConsultations(true);
+    try {
+      const list = await fetchUserConsultations(userId);
+      setUserConsultations(list);
+    } catch (err) {
+      console.error('Error fetching consultations:', err);
+    } finally {
+      setLoadingConsultations(false);
+    }
+  };
 
   const handleLogin = async () => {
     setIsLoggingIn(true);
@@ -190,6 +212,20 @@ export const PureComputersPage: React.FC<PureComputersPageProps> = ({ currentThe
       return;
     }
     
+    // Save to Firestore consultation requests
+    await saveConsultationRequest({
+      userId: user ? user.uid : 'anonymous',
+      userEmail: contactEmail,
+      userName: contactName,
+      serviceCategory,
+      remoteOnly,
+      details: contactMsg || 'Custom quote inquiry',
+      phone: contactPhone,
+    });
+    if (user) {
+      fetchConsultations(user.uid);
+    }
+
     const subject = encodeURIComponent(`Service Inquiry (${serviceCategory.toUpperCase()}) from ${contactName}`);
     const body = encodeURIComponent(`Hi Nate,\n\nI am submitting a service request/consultation through Pure Computers website.\n\nName: ${contactName}\nEmail: ${contactEmail}\nPhone: ${contactPhone}\nRemote Tech Support Only: ${remoteOnly ? 'Yes' : 'No'}\nService Type: ${serviceCategory}\n\nDetails:\n${contactMsg}`);
     
@@ -254,6 +290,19 @@ export const PureComputersPage: React.FC<PureComputersPageProps> = ({ currentThe
     category: string;
     details: string;
   }) => {
+    await saveConsultationRequest({
+      userId: user ? user.uid : 'anonymous',
+      userEmail: formData.email,
+      userName: formData.name,
+      serviceCategory: formData.category,
+      remoteOnly: formData.remoteOnly,
+      details: formData.details,
+      phone: formData.phone,
+    });
+    if (user) {
+      fetchConsultations(user.uid);
+    }
+
     let taskCreated = false;
     if (authToken) {
       const taskTitle = `Google Form Intake: ${formData.name} (${formData.category.toUpperCase()})`;
@@ -362,6 +411,71 @@ export const PureComputersPage: React.FC<PureComputersPageProps> = ({ currentThe
         <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs font-mono flex items-center gap-2">
           <CheckCircle2 className="w-4 h-4" />
           <span>{taskCreatedNotification}</span>
+        </div>
+      )}
+
+      {/* Pure Computers User Portal & Consultation Dashboard */}
+      {user && (
+        <div className={`p-6 rounded-3xl border ${currentTheme.borderClass} ${currentTheme.cardBgClass} shadow-xl space-y-6`}>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
+                <Laptop className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="text-lg font-mono font-bold text-slate-100">
+                  Pure Computers Client Portal &amp; Dashboard
+                </h3>
+                <p className="text-xs font-mono text-slate-400">
+                  Welcome back, {user.displayName || user.email} &bull; Manage your service requests and consultations.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => fetchConsultations(user.uid)}
+                className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-mono cursor-pointer"
+              >
+                Refresh Tickets
+              </button>
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <h4 className="text-xs font-mono uppercase tracking-wider text-slate-400 font-bold">
+              Your Submitted Consultation &amp; Service Tickets ({userConsultations.length})
+            </h4>
+
+            {loadingConsultations ? (
+              <div className="p-6 text-center text-xs font-mono text-slate-400">Loading your consultation tickets...</div>
+            ) : userConsultations.length === 0 ? (
+              <div className="p-6 rounded-2xl bg-slate-900/60 border border-slate-800 text-center space-y-2">
+                <p className="text-xs font-mono text-slate-400">You have no active consultation tickets submitted under this account yet.</p>
+                <p className="text-[11px] text-slate-500">Submit a quote or service request below to track it here in your dashboard.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {userConsultations.map((ticket) => (
+                  <div key={ticket.id} className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-mono uppercase px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold">
+                        {ticket.serviceCategory}
+                      </span>
+                      <span className="text-[11px] font-mono px-2 py-0.5 rounded-lg bg-blue-500/10 text-blue-300 border border-blue-500/20">
+                        {ticket.status}
+                      </span>
+                    </div>
+                    <p className="text-xs font-sans text-slate-200 line-clamp-2">{ticket.details}</p>
+                    <div className="flex items-center justify-between text-[11px] font-mono text-slate-400 pt-2 border-t border-slate-800/80">
+                      <span>Phone: {ticket.phone}</span>
+                      <span>{ticket.remoteOnly ? 'Remote Only' : 'On-Site / In-Shop'}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       )}
 

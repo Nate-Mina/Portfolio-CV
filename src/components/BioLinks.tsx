@@ -35,6 +35,8 @@ import {
   Share2,
   LayoutGrid,
   List as ListIcon,
+  Wrench,
+  Server,
 } from 'lucide-react';
 import { JekyllTheme, LinkItem } from '../types';
 import { profileData } from '../data/profileData';
@@ -58,6 +60,17 @@ export const BioLinks: React.FC<BioLinksProps> = ({
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [copiedLinkId, setCopiedLinkId] = useState<string | null>(null);
+  const [visitorCount, setVisitorCount] = useState<number>(() => {
+    try {
+      const stored = localStorage.getItem('nate_site_visitor_count');
+      const count = stored ? parseInt(stored, 10) : 14285;
+      const nextCount = count + 1;
+      localStorage.setItem('nate_site_visitor_count', nextCount.toString());
+      return nextCount;
+    } catch {
+      return 14285;
+    }
+  });
 
   const handleQrClick纯 = (url: string, title: string, e: React.MouseEvent) => {
     e.preventDefault();
@@ -532,6 +545,83 @@ export const BioLinks: React.FC<BioLinksProps> = ({
           )}
         </div>
       </section>
+
+      {/* About Me Section & Site Visitor Counter (Right under links) */}
+      <div className={`p-8 rounded-3xl border ${currentTheme.borderClass} ${currentTheme.cardBgClass} shadow-2xl backdrop-blur-md space-y-6 relative overflow-hidden`}>
+        <div className="absolute top-0 right-0 w-96 h-96 bg-purple-600/5 rounded-full blur-3xl pointer-events-none" />
+        
+        <div className="flex items-center justify-between flex-wrap gap-4 border-b border-slate-800 pb-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-2xl bg-purple-500/10 border border-purple-500/20 text-purple-400 shadow-inner">
+              <Cpu className="w-6 h-6" />
+            </div>
+            <div>
+              <h2 className="text-xl sm:text-2xl font-mono font-bold text-slate-100 flex items-center gap-2">
+                <span>About Nathaniel (Nate) Mina</span>
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              </h2>
+              <p className="text-xs font-mono text-slate-400">Mechanical Engineer &bull; Systems Architect &bull; Tech Entrepreneur</p>
+            </div>
+          </div>
+
+          {/* Site Traffic & Visitor Counter Badge */}
+          <div className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-slate-950/90 border border-slate-800 shadow-inner text-xs font-mono text-emerald-400">
+            <Activity className="w-4 h-4 animate-pulse text-emerald-400" />
+            <span>Site Visits: <strong className="text-white">{visitorCount.toLocaleString()}</strong></span>
+          </div>
+        </div>
+
+        {/* Narrative Paragraphs */}
+        <div className="space-y-4 text-slate-300 font-sans text-sm sm:text-base leading-relaxed">
+          <p>
+            I’m a mechanical engineer turned systems architect and tech entrepreneur who loves building things that actually work under pressure—whether that's custom multi-GPU workstations, rugged marine IT infrastructure, or thermodynamic heat-recovery systems that defy conventional utility bills.
+          </p>
+          <p>
+            As the CEO of Pure Computers, I lead a team dedicated to delivering high-performance hardware, enterprise IT, and intelligent automation solutions. My background blends rigorous engineering principles (B.S. in Mechanical Engineering from RIT) with modern software development, automation, and AI integration.
+          </p>
+          <p>
+            When I’m not architecting infrastructure or scripting Python pipelines, you’ll likely find me producing digital music and exploring creative media under the project title <a href="https://nate-mina.github.io/DomInNATEly/" target="_blank" rel="noopener noreferrer" className="text-purple-300 font-mono font-bold hover:underline inline-flex items-center gap-1">DomInNATEly <ExternalLink className="w-3.5 h-3.5 inline" /></a>. I believe the best technical solutions live at the intersection of robust hardware, clean software architecture, and a relentless curiosity for how the universe ticks.
+          </p>
+        </div>
+
+        {/* Core Expertise Grid */}
+        <div className="space-y-3 pt-2">
+          <h3 className="text-sm font-mono font-bold uppercase tracking-wider text-slate-400">
+            Core Expertise & Domains
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="p-5 rounded-2xl bg-slate-900/80 border border-slate-800/80 space-y-2 hover:border-purple-500/40 transition-colors">
+              <div className="flex items-center gap-2 text-purple-400 font-mono font-bold text-xs uppercase tracking-wider">
+                <Server className="w-4 h-4" />
+                <span>Systems Architecture & Hardware</span>
+              </div>
+              <p className="text-xs text-slate-300 leading-relaxed font-sans">
+                Bespoke multi-GPU compute nodes, component-level diagnostics, and marine/server-grade networking.
+              </p>
+            </div>
+
+            <div className="p-5 rounded-2xl bg-slate-900/80 border border-slate-800/80 space-y-2 hover:border-emerald-500/40 transition-colors">
+              <div className="flex items-center gap-2 text-emerald-400 font-mono font-bold text-xs uppercase tracking-wider">
+                <Code2 className="w-4 h-4" />
+                <span>Software & Automation</span>
+              </div>
+              <p className="text-xs text-slate-300 leading-relaxed font-sans">
+                Python, TypeScript, React, and enterprise workflow automation (Power Automate & local LLM pipelines).
+              </p>
+            </div>
+
+            <div className="p-5 rounded-2xl bg-slate-900/80 border border-slate-800/80 space-y-2 hover:border-sky-500/40 transition-colors">
+              <div className="flex items-center gap-2 text-sky-400 font-mono font-bold text-xs uppercase tracking-wider">
+                <Wrench className="w-4 h-4" />
+                <span>Engineering & Thermal Modeling</span>
+              </div>
+              <p className="text-xs text-slate-300 leading-relaxed font-sans">
+                FEA workflows, SolidWorks, AutoCAD, and applied thermodynamic systems (like my house-to-pool heat recovery project).
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
