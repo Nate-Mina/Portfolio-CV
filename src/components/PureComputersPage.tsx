@@ -102,10 +102,12 @@ export const PureComputersPage: React.FC<PureComputersPageProps> = ({ currentThe
         setAuthToken(res.accessToken);
         fetchTasks(res.accessToken);
         showSuccess('Connected to Google', `Signed in as ${res.user.displayName || res.user.email}. Tasks & Forms synchronized.`);
+      } else {
+        showWarning('Sign-In Cancelled', 'Google sign-in popup was closed before completion.');
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Google Sign-In failed:', err);
-      showError('Google Sign-In Failed', 'Unable to authenticate with Google. Please check popup blockers.');
+      showError('Google Sign-In Failed', err?.message || 'Unable to authenticate with Google. Please check popup blockers.');
     } finally {
       setIsLoggingIn(false);
     }
