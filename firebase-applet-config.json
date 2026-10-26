@@ -1,8 +1,12 @@
 {
-  "apiKey": "AIzaSyDummyKeyForPureComputers",
-  "authDomain": "pure-computers.firebaseapp.com",
   "projectId": "pure-computers",
-  "storageBucket": "pure-computers.appspot.com",
-  "messagingSenderId": "1234567890",
-  "appId": "1:1234567890:web:abcdef"
+  "appId": "1:798880443951:web:318d426afbaf24d8c0e0da",
+  "apiKey": "AIzaSyCY9doqwytrGF-XB0eao12bRfMqGxypQ5k",
+  "authDomain": "pure-computers.firebaseapp.com",
+  "firestoreDatabaseId": "ai-studio-nathanielminalin-4ddc3e10-71ec-4e9d-a061-f6073928ae3a",
+  "storageBucket": "pure-computers.firebasestorage.app",
+  "messagingSenderId": "798880443951",
+  "measurementId": "",
+  "oAuthClientId": "798880443951-mpq3gin08ksiev28otvbab5nfetd1mc2.apps.googleusercontent.com",
+  "recaptchaSiteKey": ""
 }

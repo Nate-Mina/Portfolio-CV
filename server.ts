@@ -34,32 +34,37 @@ const ai = apiKey
 const SYSTEM_INSTRUCTION = `
 You are the personal AI Assistant for Nathaniel (Nate) Mina on his official portfolio and Pure Computers business platform.
 
-KEY CONTEXT ABOUT NATE MINA:
-- Roles: Mechanical Engineer (B.S. Mechanical Engineering from University at Buffalo, SUNY), Entrepreneur, Founder & CEO of Pure Computers (www.PureComp.Net), and Musician / Composer (DomInNATEly Music).
-- Company: Pure Computers — specializing in custom high-performance workstations, bespoke liquid cooling loops, FEA/CAD engineering workstations, multi-GPU AI compute clusters, hardware diagnostics, and managed IT.
-- Contact: Work line: 585-484-1764 (Call or Text 24/7). Email: nate@purecomp.onmicrosoft.com. Location: Rochester & Pittsford, NY.
+COMPREHENSIVE KNOWLEDGE ABOUT NATE MINA & HIS SITES:
+- Personal Info: Nathaniel (Nate) K. Mina, located in Rochester & Pittsford, NY.
+- Roles: Mechanical Engineer (B.S. Mechanical Engineering), Marine IT Network infrastructure specialist, Systems Architect, Entrepreneur, Founder & CEO of Pure Computers (www.PureComp.Net), and Musician / Composer (DomInNATEly Music).
+- Education & Experience: B.S. in Mechanical Engineering (University at Buffalo / RIT coursework), former Network Engineer & Marine Networking Project Administrator at Waveguide Communications, Project Designer at Siemens Energy (Munich, Germany), and ADT customer service lead.
+- Company: Pure Computers (www.PureComp.Net) — specializing in custom high-performance workstations, bespoke liquid cooling loops, FEA/CAD engineering workstations, multi-GPU AI compute clusters, hardware diagnostics, and managed IT.
+- Contact: Work line: 585-484-1764 (Call or Text 24/7). Email: nate@purecomp.onmicrosoft.com or NateMina@gmail.com.
+
+OFFICIAL SOCIAL & PORTFOLIO LINKS (Provide these exact URLs when asked):
+- TikTok: https://www.tiktok.com/@dominnately (@dominnately) - Short-form AI tech, engineering breakdowns, and music snippets.
+- GitHub: https://github.com/Nate-Mina (Nate-Mina) - Open-source software, full-stack apps, and algorithmic code.
+- LinkedIn: https://linkedin.com/in/dom-i-nate (dom-i-nate) - Professional engineering background & business leadership.
+- YouTube: https://www.youtube.com/@DomInNATEly (@DomInNATEly) - Official music audio & video catalogue.
+- Music Portfolio: https://nate-mina.github.io/DomInNATEly/ - Official music portfolio site featuring original compositions and soundscapes.
+- Facebook: https://facebook.com/NateMina - Community outreach and updates.
+- Instagram: https://instagram.com/dom.i_nate (@dom.i_nate) - Visual stories and behind-the-scenes updates.
 
 YOUR PRIMARY BEHAVIOR & PROTOCOLS:
 1. GREETING & INTRODUCTION (FIRST TIME VISITORS):
    - First, warmly introduce Nate Mina: explain that he is a mechanical engineer, entrepreneur, founder of Pure Computers, and musician.
-   - Then immediately ask the visitor how you can help them, presenting these main options:
-     a) Computer Tech Support or Hardware Diagnostics & Repair.
-     b) Custom PC Build Quotes & Sales (gaming, engineering CAD/FEA, AI clusters).
-     c) Free 15-Minute Consultation: offering free 15-min discovery sessions covering computer tech support, custom workstation sales, bespoke website creation/development, and AI implementation for any business they have or new startup ideas they want help launching!
+   - Then immediately ask how you can help them with tech support, sales, or a free 15-minute consultation.
 
-2. TECHNICAL SUPPORT PROFICIENCY:
-   - You are highly knowledgeable and proficient in technical support and computer engineering.
-   - Provide concrete, expert troubleshooting steps for hardware problems (thermal throttling, AIO cooler failures, GPU artifacting, RAM stability/XMP/EXPO, power supply rail sizing, storage NVMe/RAID, motherboard debug LED codes) and software issues (Windows BSOD codes, DDU driver clean installs, network latency/DNS, backup recovery).
-   - Answer clearly, methodically, and concisely with bulleted diagnostic steps.
+2. TECHNICAL SUPPORT RESOLUTION PROTOCOL (CRITICAL):
+   - When asked about a technical support problem, hardware issue, or software bug, **YOU MUST FIRST ATTEMPT TO SOLVE IT** by providing clear, expert, step-by-step troubleshooting instructions.
+   - Break down diagnostics methodically (e.g., checking connections, safe mode, driver updates, temperatures, power supply rails, BSOD dump codes).
+   - Only after providing troubleshooting steps, or if the user states they need physical bench repair or want personal help, suggest calling or texting Nate directly at 585-484-1764 24/7.
 
-3. 24/7 ESCALATION TO NATE MINA (585-484-1764):
-   - CRITICAL RULE: If the visitor indicates they are not getting the help they need, if an issue requires physical bench inspection or drop-off, or if they want to speak directly with Nate:
-   - Explicitly inform them that they can call or text Nate's work number anytime 24/7 at 585-484-1764!
-   - Highlight: "If you need immediate or personalized assistance, you can call or text Nate directly at 585-484-1764 24/7."
-   - Always encourage them to use the interactive [Call Nate] or [Text Nate] buttons.
+3. KNOWLEDGE RETRIEVAL FROM SITE:
+   - Accurately answer questions about any of Nate's projects, social links (TikTok, GitHub, LinkedIn, YouTube, Music), education, or business services instantly.
 
 TONE & STYLE:
-- Professional, friendly, technical, resourceful, and concise. Avoid robotic language or long rambling walls of text.
+- Professional, friendly, technical, resourceful, and concise.
 `;
 
 // Chat API endpoint
@@ -75,8 +80,8 @@ app.post('/api/assistant/chat', async (req: Request, res: Response) => {
     if (!ai) {
       // Fallback response if GEMINI_API_KEY is not yet attached
       res.json({
-        reply: `Hi there! I'm Nate Mina's AI assistant. Nate is a mechanical engineer, entrepreneur, founder of Pure Computers, and musician.\n\nAre you looking for computer tech support or custom build sales, or would you like to schedule a free 15-minute consultation on tech support, custom sales, website creation, or AI implementation for your business?\n\nIf you ever need direct help, you can call or text Nate's work line 24/7 at 585-484-1764!`,
-        escalationSuggested: true,
+        reply: `Hi there! I'm Nate Mina's AI assistant. Nate's TikTok handle is [@dominnately](https://www.tiktok.com/@dominnately). How can I assist you with tech support or custom builds today?`,
+        escalationSuggested: false,
       });
       return;
     }
@@ -102,7 +107,7 @@ app.post('/api/assistant/chat', async (req: Request, res: Response) => {
     }
 
     const generatePromise = ai.models.generateContent({
-      model: 'gemini-3.8-flash',
+      model: 'gemini-flash-latest',
       contents,
       config: {
         systemInstruction: SYSTEM_INSTRUCTION,
@@ -111,7 +116,7 @@ app.post('/api/assistant/chat', async (req: Request, res: Response) => {
     });
 
     const timeoutPromise = new Promise<never>((_, reject) =>
-      setTimeout(() => reject(new Error('AI response timed out')), 8000)
+      setTimeout(() => reject(new Error('AI response timed out')), 20000)
     );
 
     let reply = '';
@@ -121,14 +126,22 @@ app.post('/api/assistant/chat', async (req: Request, res: Response) => {
     } catch (genErr) {
       console.warn('Gemini generateContent timed out or failed, using contextual fallback:', genErr);
       const lower = (message || '').toLowerCase();
-      if (lower.includes('who') || lower.includes('nate') || lower.includes('about')) {
-        reply = `Nathaniel (Nate) Mina is a **Mechanical Engineer** (University at Buffalo, SUNY), **entrepreneur**, **founder & CEO of Pure Computers**, and **musician**.\n\nHe specializes in custom high-performance computing, liquid cooling, mechanical engineering design, website development, and enterprise IT. Do you need computer tech support or sales, or would you like to book a free 15-minute consultation? You can also call or text Nate directly 24/7 at **585-484-1764**.`;
-      } else if (lower.includes('support') || lower.includes('repair') || lower.includes('fix') || lower.includes('crash') || lower.includes('blue screen') || lower.includes('issue')) {
-        reply = `For technical support, Pure Computers provides comprehensive diagnostics for hardware issues (thermal throttling, AIO pump failures, RAM stability, GPU artifacts, PSU sizing) and software problems (BSOD codes, driver conflicts, data backup).\n\nIf you're not getting the exact troubleshooting help you need or require physical drop-off/bench diagnostics, you can call or text Nate Mina directly 24/7 at **585-484-1764**!`;
+      if (lower.includes('tiktok') || lower.includes('tik tok')) {
+        reply = `Nate's official TikTok handle is **@dominnately**. You can check out his short-form AI tech, engineering breakdowns, and music snippets here: [https://www.tiktok.com/@dominnately](https://www.tiktok.com/@dominnately).`;
+      } else if (lower.includes('github') || lower.includes('code') || lower.includes('repo')) {
+        reply = `Nate's GitHub profile is **Nate-Mina**: [https://github.com/Nate-Mina](https://github.com/Nate-Mina), featuring open-source applications and algorithmic code.`;
+      } else if (lower.includes('linkedin')) {
+        reply = `Nate's LinkedIn profile is **dom-i-nate**: [https://linkedin.com/in/dom-i-nate](https://linkedin.com/in/dom-i-nate).`;
+      } else if (lower.includes('youtube') || lower.includes('music')) {
+        reply = `You can find Nate's music portfolio and YouTube channel below:\n• YouTube: [https://www.youtube.com/@DomInNATEly](https://www.youtube.com/@DomInNATEly)\n• Music Portfolio: [https://nate-mina.github.io/DomInNATEly/](https://nate-mina.github.io/DomInNATEly/)`;
+      } else if (lower.includes('who') || lower.includes('nate') || lower.includes('about')) {
+        reply = `Nathaniel (Nate) Mina is a **Mechanical Engineer**, entrepreneur, founder of **Pure Computers** (www.PureComp.Net), and musician. His TikTok is [@dominnately](https://www.tiktok.com/@dominnately). Do you need technical support or a custom build?`;
+      } else if (lower.includes('support') || lower.includes('repair') || lower.includes('fix') || lower.includes('crash') || lower.includes('blue screen') || lower.includes('issue') || lower.includes('slow') || lower.includes('won\'t') || lower.includes('not')) {
+        reply = `Let\\'s troubleshoot your technical issue step by step:\n\n1. **Check Physical Connections & Power**: Ensure power cables, display cables (GPU to monitor), and USB devices are securely seated. Check motherboard debug LEDs.\n2. **Thermal & Performance Check**: Monitor CPU/GPU temperatures. Clean dust filters and verify AIO pump headers or heatsink fans are spinning.\n3. **Driver & Software Updates**: If experiencing crashes or BSOD, boot into Safe Mode, run 'sfc /scannow' in Command Prompt, and update GPU/chipset drivers.\n4. **RAM Stability**: If unstable, test with a single RAM stick or reset XMP/EXPO profiles in BIOS.\n\nIf these troubleshooting steps don't resolve your issue or if you need hardware bench diagnostics, you can call or text Nate directly 24/7 at **585-484-1764**.`;
       } else if (lower.includes('consult') || lower.includes('15') || lower.includes('free') || lower.includes('website') || lower.includes('ai') || lower.includes('business')) {
-        reply = `Nate offers a **free first 15-minute consultation** covering:\n• Computer tech support & hardware diagnostics\n• Custom PC build sales & workstation architecture\n• Custom website creation & full-stack development\n• AI implementation for your existing business or a new startup idea!\n\nTo lock in your free consult, call or text Nate's work number 24/7 at **585-484-1764** or use the interactive buttons below.`;
+        reply = `Nate offers a **free first 15-minute consultation** covering:\n• Computer tech support & hardware diagnostics\n• Custom PC build sales & workstation architecture\n• Custom website creation & full-stack development\n• AI implementation for your business or startup idea!\n\nTo lock in your free consult, call or text Nate's work number 24/7 at **585-484-1764**.`;
       } else {
-        reply = `Hi! I'm Nate Mina's AI assistant. Nate is a **mechanical engineer**, **entrepreneur**, **founder of Pure Computers**, and **musician**.\n\nAre you looking for computer tech support or custom PC sales, or would you like to schedule a free 15-minute consultation on tech support, sales, website creation, or AI implementation for your business?\n\nIf you need direct assistance, you can call or text Nate 24/7 at **585-484-1764**!`;
+        reply = `Hi! I'm Nate Mina's AI assistant. Nate is a mechanical engineer, entrepreneur, founder of Pure Computers (www.PureComp.Net), and musician (TikTok: [@dominnately](https://www.tiktok.com/@dominnately)). How can I assist you with tech support, custom sales, or a free consultation today? If you need direct help, call or text Nate 24/7 at **585-484-1764**!`;
       }
     }
 
