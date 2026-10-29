@@ -110,6 +110,38 @@ export default function App() {
   // Suno Tracks converted to standard Track interface for AudioPlayer
   const sunoTracksAsStandard = useMemo(() => SUNO_TRACKS.map(sunoToTrack), []);
 
+  // Active Suno Track synced with currentTrack
+  const activeSunoTrack = useMemo(() => {
+    if (currentTrack?.isSuno) {
+      return SUNO_TRACKS.find((st) => st.id === currentTrack.id) || currentSunoTrack;
+    }
+    return currentSunoTrack;
+  }, [currentTrack, currentSunoTrack]);
+
+  // Shared Playback Progress & Scrubber State between Showcase and Sticky Player
+  const [playbackTime, setPlaybackTime] = useState<number>(0);
+  const [playbackDuration, setPlaybackDuration] = useState<number>(0);
+  const [seekTarget, setSeekTarget] = useState<number | null>(null);
+  const [masterVolume, setMasterVolume] = useState<number>(80);
+  const [isMasterMuted, setIsMasterMuted] = useState<boolean>(false);
+
+  const handleTimeUpdate = (time: number, dur: number) => {
+    setPlaybackTime(time);
+    if (dur > 0) {
+      setPlaybackDuration(dur);
+    }
+  };
+
+  const handleSeekTo = (time: number) => {
+    setPlaybackTime(time);
+    setSeekTarget(time);
+  };
+
+  const handleVolumeChange = (vol: number, muted: boolean) => {
+    setMasterVolume(vol);
+    setIsMasterMuted(muted);
+  };
+
   // Handle Play/Pause
   const handlePlayTrack = (track: Track) => {
     if (currentTrack?.id === track.id) {
@@ -117,6 +149,8 @@ export default function App() {
     } else {
       setCurrentTrack(track);
       setIsPlaying(true);
+      setPlaybackTime(0);
+      setPlaybackDuration(track.durationSeconds || 0);
     }
   };
 
@@ -131,16 +165,10 @@ export default function App() {
       setCurrentTrack(converted);
       setIsPlaying(true);
       setIsSunoPlaying(true);
+      setPlaybackTime(0);
+      setPlaybackDuration(converted.durationSeconds || 0);
     }
   };
-
-  // Active Suno Track synced with currentTrack
-  const activeSunoTrack = useMemo(() => {
-    if (currentTrack?.isSuno) {
-      return SUNO_TRACKS.find((st) => st.id === currentTrack.id) || currentSunoTrack;
-    }
-    return currentSunoTrack;
-  }, [currentTrack, currentSunoTrack]);
 
   // Filtered & Sorted Tracks
   const filteredAndSortedTracks = useMemo(() => {
@@ -867,6 +895,11 @@ export default function App() {
                     }}
                     isDarkMode={isDarkMode}
                     size={stagePlayerSize}
+                    volume={masterVolume}
+                    isMuted={isMasterMuted}
+                    onTimeUpdate={handleTimeUpdate}
+                    seekTarget={seekTarget}
+                    onSeekHandled={() => setSeekTarget(null)}
                   />
                 </div>
 
@@ -1008,6 +1041,8 @@ export default function App() {
         onTrackChange={(track) => {
           setCurrentTrack(track);
           setIsPlaying(true);
+          setPlaybackTime(0);
+          setPlaybackDuration(track.durationSeconds || 0);
           if (track.isSuno) {
             const st = SUNO_TRACKS.find((s) => s.id === track.id);
             if (st) {
@@ -1021,6 +1056,12 @@ export default function App() {
         onOpenShare={(track) => setSharingTrack(track)}
         onOpenLyrics={(track) => setLyricsTrack(track)}
         disableInternalPlayback={isDesktopXL}
+        externalCurrentTime={playbackTime}
+        externalDuration={playbackDuration}
+        onSeekTo={handleSeekTo}
+        onVolumeChange={handleVolumeChange}
+        externalVolume={masterVolume}
+        externalIsMuted={isMasterMuted}
         isDarkMode={isDarkMode}
         isPlaying={isPlaying}
         setIsPlaying={(playing) => {

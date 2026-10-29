@@ -37,7 +37,12 @@ interface AudioPlayerProps {
   onSwitchPlaylist?: (playlistType: 'youtube' | 'suno') => void;
   currentPlaylistType?: 'youtube' | 'suno';
   disableInternalPlayback?: boolean;
+  externalCurrentTime?: number;
+  externalDuration?: number;
+  onSeekTo?: (time: number) => void;
   onVolumeChange?: (volume: number, isMuted: boolean) => void;
+  externalVolume?: number;
+  externalIsMuted?: boolean;
 }
 
 declare global {
@@ -60,7 +65,12 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
   onSwitchPlaylist,
   currentPlaylistType = 'youtube',
   disableInternalPlayback = false,
+  externalCurrentTime,
+  externalDuration,
+  onSeekTo,
   onVolumeChange,
+  externalVolume,
+  externalIsMuted,
 }) => {
   const [currentTime, setCurrentTime] = useState<number>(0);
   const [duration, setDuration] = useState<number>(0);
@@ -102,10 +112,31 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
   isShuffleRef.current = isShuffle;
   const setIsPlayingRef = useRef(setIsPlaying);
   setIsPlayingRef.current = setIsPlaying;
+  const isPlayingRef = useRef(isPlaying);
+  isPlayingRef.current = isPlaying;
+  const volumeRef = useRef(volume);
+  volumeRef.current = volume;
+  const isMutedRef = useRef(isMuted);
+  isMutedRef.current = isMuted;
   const onTrackChangeRef = useRef(onTrackChange);
   onTrackChangeRef.current = onTrackChange;
   const playlistRef = useRef(playlist);
   playlistRef.current = playlist;
+
+  // Sync external volume & mute if provided
+  useEffect(() => {
+    if (externalVolume !== undefined) {
+      setVolume(externalVolume);
+      volumeRef.current = externalVolume;
+    }
+  }, [externalVolume]);
+
+  useEffect(() => {
+    if (externalIsMuted !== undefined) {
+      setIsMuted(externalIsMuted);
+      isMutedRef.current = externalIsMuted;
+    }
+  }, [externalIsMuted]);
 
   // Check if current track is a Suno AI track (plays through HTML5 audio stream or MP4 video)
   const isSunoTrack = Boolean(currentTrack?.audioUrl || currentTrack?.isSuno);
@@ -330,7 +361,7 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
                       }, 0);
                     } catch (e) {}
                   }
-                } else if (isPlaying) {
+                } else if (isPlayingRef.current) {
                   if (typeof event.target?.playVideo === 'function') {
                     try {
                       event.target.playVideo();
@@ -604,6 +635,10 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
   const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
     const targetTime = parseFloat(e.target.value);
     setCurrentTime(targetTime);
+    if (disableInternalPlayback) {
+      onSeekTo?.(targetTime);
+      return;
+    }
     if (isSunoTrack) {
       if (audioRef.current) audioRef.current.currentTime = targetTime;
       if (videoRef.current) videoRef.current.currentTime = targetTime;
@@ -622,19 +657,27 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
   const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newVol = parseInt(e.target.value, 10);
     setVolume(newVol);
+    const nextMuted = newVol === 0 ? true : isMuted;
+    if (newVol === 0 && !isMuted) {
+      setIsMuted(true);
+    } else if (newVol > 0 && isMuted) {
+      setIsMuted(false);
+    }
+    onVolumeChange?.(newVol, nextMuted);
+
+    if (disableInternalPlayback) return;
+
     if (isSunoTrack) {
-      if (audioRef.current) audioRef.current.volume = isMuted ? 0 : newVol / 100;
-      if (videoRef.current) videoRef.current.volume = isMuted ? 0 : newVol / 100;
+      if (audioRef.current) audioRef.current.volume = nextMuted ? 0 : newVol / 100;
+      if (videoRef.current) videoRef.current.volume = nextMuted ? 0 : newVol / 100;
       return;
     }
     if (playerRef.current && typeof playerRef.current.setVolume === 'function') {
       try {
         playerRef.current.setVolume(newVol);
         if (newVol === 0) {
-          setIsMuted(true);
           if (typeof playerRef.current.mute === 'function') playerRef.current.mute();
         } else if (isMuted) {
-          setIsMuted(false);
           if (typeof playerRef.current.unMute === 'function') playerRef.current.unMute();
         }
       } catch (err) {
@@ -645,22 +688,24 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
 
   // Toggle Mute
   const toggleMute = () => {
+    const nextMuted = !isMuted;
+    setIsMuted(nextMuted);
+    onVolumeChange?.(volume, nextMuted);
+
+    if (disableInternalPlayback) return;
+
     if (isSunoTrack) {
-      const nextMuted = !isMuted;
-      setIsMuted(nextMuted);
       if (audioRef.current) audioRef.current.muted = nextMuted;
       if (videoRef.current) videoRef.current.muted = nextMuted;
       return;
     }
     if (!playerRef.current) return;
     try {
-      if (isMuted) {
-        if (typeof playerRef.current.unMute === 'function') playerRef.current.unMute();
-        setIsMuted(false);
-        if (typeof playerRef.current.setVolume === 'function') playerRef.current.setVolume(volume || 50);
-      } else {
+      if (nextMuted) {
         if (typeof playerRef.current.mute === 'function') playerRef.current.mute();
-        setIsMuted(true);
+      } else {
+        if (typeof playerRef.current.unMute === 'function') playerRef.current.unMute();
+        if (typeof playerRef.current.setVolume === 'function') playerRef.current.setVolume(volume || 50);
       }
     } catch (err) {
       console.warn('Error toggling mute:', err);
@@ -764,8 +809,20 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
 
   if (!currentTrack) return null;
 
-  const currentDuration = duration || currentTrack.durationSeconds || 180;
-  const progressPercent = currentDuration > 0 ? (currentTime / currentDuration) * 100 : 0;
+  const effectiveCurrentTime =
+    disableInternalPlayback && externalCurrentTime !== undefined
+      ? externalCurrentTime
+      : currentTime;
+
+  const effectiveDuration =
+    disableInternalPlayback && externalDuration && externalDuration > 0
+      ? externalDuration
+      : (duration || currentTrack.durationSeconds || 180);
+
+  const progressPercent =
+    effectiveDuration > 0
+      ? Math.min(100, Math.max(0, (effectiveCurrentTime / effectiveDuration) * 100))
+      : 0;
 
   const videoViewportContent = (
     <div className="w-full h-full relative bg-black flex items-center justify-center overflow-hidden rounded-2xl">
@@ -906,9 +963,9 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
             id="audio-progress-bar"
             type="range"
             min="0"
-            max={currentDuration}
-            step="1"
-            value={currentTime}
+            max={effectiveDuration}
+            step="0.1"
+            value={effectiveCurrentTime}
             onChange={handleSeek}
             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
             aria-label="Seek track"
@@ -1029,9 +1086,9 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
 
               {/* Time display & keyboard shortcuts hint */}
               <div className="flex items-center gap-2 text-[10px] sm:text-xs font-mono font-bold">
-                <span className="text-cyan-400">{formatTime(currentTime)}</span>
+                <span className="text-cyan-400">{formatTime(effectiveCurrentTime)}</span>
                 <span className="text-white/30">/</span>
-                <span className={isDarkMode ? 'text-white/40' : 'text-neutral-400'}>{formatTime(currentDuration)}</span>
+                <span className={isDarkMode ? 'text-white/40' : 'text-neutral-400'}>{formatTime(effectiveDuration)}</span>
                 <span className="hidden lg:inline-flex items-center gap-1 text-[10px] text-white/40 font-normal ml-2">
                   <kbd className="px-1 py-0.5 rounded bg-white/10 text-white/70 border border-white/10 text-[9px] font-mono">
                     Space
