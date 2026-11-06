@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { jekyllThemes, profileData } from './data/profileData';
-import { JekyllTheme } from './types';
+import { JekyllTheme, PortfolioTabId } from './types';
 import { Header } from './components/Header';
 import { BioLinks } from './components/BioLinks';
+import { AboutMePage } from './components/AboutMePage';
 import { CvResume } from './components/CvResume';
 import { PureComputersPage } from './components/PureComputersPage';
 import { PortfolioWorksPage } from './components/PortfolioWorksPage';
@@ -18,7 +19,7 @@ import { AIAssistantWidget } from './components/assistant/AIAssistantWidget';
 
 export default function App() {
   const [currentTheme, setCurrentTheme] = useState<JekyllTheme>(jekyllThemes[0]);
-  const [activeTab, setActiveTab] = useState<'links' | 'purecomp' | 'portfolio' | 'resume' | 'music' | 'cases' | 'calculator'>('links');
+  const [activeTab, setActiveTab] = useState<PortfolioTabId>('links');
   const [isTerminalOpen, setIsTerminalOpen] = useState(false);
   const [qrModalData, setQrModalData] = useState<{ isOpen: boolean; url?: string; title?: string }>({
     isOpen: false,
@@ -56,6 +57,15 @@ export default function App() {
             onOpenTerminal={() => setIsTerminalOpen(true)}
             onOpenGallery={() => setIsGalleryOpen(true)}
             onOpenCustomQr={(url, title) => handleOpenQr(url, title)}
+          />
+        )}
+
+        {activeTab === 'about' && (
+          <AboutMePage
+            currentTheme={currentTheme}
+            onOpenTerminal={() => setIsTerminalOpen(true)}
+            onOpenQr={() => handleOpenQr()}
+            onOpenGallery={() => setIsGalleryOpen(true)}
           />
         )}
 
@@ -170,7 +180,7 @@ export default function App() {
       />
 
         {/* Nate Mina AI Voice & Chatbot Assistant */}
-        <AIAssistantWidget currentTheme={currentTheme} />
+        <AIAssistantWidget currentTheme={currentTheme} activeTab={activeTab} />
 
         {/* Global Toast Container */}
         <ToastContainer />

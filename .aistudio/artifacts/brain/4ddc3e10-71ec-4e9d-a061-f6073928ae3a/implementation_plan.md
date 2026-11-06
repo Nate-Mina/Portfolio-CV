@@ -1,125 +1,64 @@
-# Nate Mina AI Assistant (Live Voice & Chatbot)
+# Implementation Plan - "About Me" Polymath Memoir, Assistant Auto-Popup, and Site Knowledge Updates
 
-An intelligent, multi-modal portfolio assistant that greets visitors, introduces Nathaniel Mina (Mechanical Engineer, Entrepreneur, Founder of Pure Computers, and Musician), assists with computer hardware diagnostics and technical troubleshooting, offers free 15-minute consultations (covering tech support, custom PC sales, website creation, AI implementations, and new business startups), and provides 24/7 direct escalation via interactive click-to-call and click-to-text to Nate's work line at **585-484-1764**.
+Create a dedicated "About Me" tab in the top navigation bar presenting Nathaniel Mina's journey as an engineer turned musician and philosopher in a continuous narrative blog format with chapter anchors, based on his autobiography "The System & The Soul". Configure the AI Assistant Widget to auto-expand with a contextual greeting when the user navigates to the Pure Computers tab, and update assistant logic and server endpoints to prioritize direct, step-by-step technical problem solving before offering consultation links, while answering site-wide questions including his TikTok handle.
 
-## User Review & Critical Decisions
+## User Review Required
 
 > [!IMPORTANT]
-> The following architectural and user experience decisions were confirmed during the planning clarification phase:
-> 
-> - **Widget Placement**: Floating corner widget anchored at the bottom-right, persistent and accessible across all portfolio tabs (Bio, Pure Computers, Works, Music, Resume, Cases, and Calculator).
-> - **Voice & Chat Mode**: Unified interface with an intuitive tab/toggle switcher between **Live Voice Mode** (real-time audio conversation with animated equalizer) and **Chatbot Mode** (multi-turn streaming text conversation).
-> - **24/7 Work Line Escalation (585-484-1764)**: Prominent interactive Call (`tel:5854841764`) and Text (`sms:5854841764`) action buttons that appear when the visitor requests direct human help, when technical issues exceed automated resolution, or when scheduling a consultation.
+> - **Top Navigation Ordering**: Following your answer, the new "About Me" tab will be placed in the **second position**, immediately after "Link In Bio" (`Link In Bio` → `About Me` → `Pure Computers` → `Portfolio / Works` → `Music & Podcasts` → `CV & Resume` → `Case Studies` → `η Calculator`).
+> - **Pure Computers Tab Auto-Popup**: When a visitor clicks into the "Pure Computers" tab, the AI Assistant will automatically pop open with an active greeting tailored for tech support diagnostics and custom workstation inquiries. Users can minimize or close the dialog at any time.
+> - **Tech Support First Workflow**: The chatbot will rigorously provide direct, actionable troubleshooting steps (hardware, software, thermals, BIOS/RAM) first before offering consultation booking or contact escalation.
 
 ---
 
-## 1. Overview & Core Concept
+## Proposed Changes
 
-### What It Does
-- **Warm Persona & Greeting**: Proactively introduces Nate Mina—highlighting his background in mechanical engineering (UB SUNY), computer hardware architecture (Pure Computers), web development, and music production.
-- **Consultation Intake & Triage**: Inquires if visitors need computer tech support, custom PC build sales, or a free 15-minute consultation spanning tech support, custom workstation sales, bespoke website design, enterprise AI integration, or new business ideas.
-- **Deep Technical Support Proficiency**: Diagnoses hardware bottlenecks, thermal throttling, OS crashes, GPU/CPU stability, custom loop cooling maintenance, network troubleshooting, and data backup strategies with authoritative precision.
-- **Seamless 24/7 Escalation**: When complex diagnostics require hands-on physical inspection, or when visitors request direct contact, the assistant provides immediate one-tap calling and texting to Nate's work number (`585-484-1764`), with optional automatic Google Task logging for follow-ups.
+### 1. New "About Me" Page Component (`src/components/AboutMePage.tsx`)
 
-### Target Audience & Persona
-- Potential clients seeking custom liquid-cooled PC builds, workstation engineering, or managed IT support.
-- Founders and business owners looking for full-stack web applications, AI automation, or startup consulting.
-- Technical recruiters and engineering peers exploring Nate's cross-disciplinary portfolio.
+- **Format & Style**: Continuous narrative blog format with sticky chapter anchor sidebar navigation, written in a casual, reflective, and engaging first-person voice.
+- **Narrative Structure & Polymath Evolution**:
+  - **Introduction: The Mechanical Mind**: The foundation of an engineer who approaches life through deterministic models and first principles.
+  - **The Crucible & The Napkin Bucket List**: Surviving RIT's 7% graduation threshold, the 2008 Highland Hospital tension pneumothorax crisis, and the napkin bucket list completed by age 27.
+  - **The Unexpected Muse: From Equations to DomInNATEly**: Exploring how writing music, audio composition, and philosophy would have been the last thing Nate ever envisioned in high school or college, but became a vital creative anchor.
+  - **The System & The Soul**: Integrating the mathematical Trust Equation ($T = \frac{R + I}{S}$), utility models, and cognitive debugging (AVRT) with the realization that human hearts, vulnerability, and artistic expression exist beyond simple calculators.
+  - **Current Frontiers**: Leading Pure Computers, custom multi-GPU hardware, and applied thermodynamic projects (such as the house-to-pool heat recovery system).
+- **Interactive Chapter Anchors**: Smooth-scrolling table of contents with active section highlights.
+- **Visual Design**: Themed layout adhering to Jekyll themes, code/math block callouts, rich imagery integration from profile photos, and links to his music portfolio (`DomInNATEly`), TikTok (`@dominnately`), and YouTube.
 
----
+### 2. Navigation & Header Integration (`src/components/Header.tsx`, `src/App.tsx`, `src/types.ts`)
 
-## 2. User Experience & Visual Design
+- Update `activeTab` type to include `'about'`:
+  `'links' | 'about' | 'purecomp' | 'portfolio' | 'resume' | 'music' | 'cases' | 'calculator'`.
+- Insert the **"About Me"** tab button in `Header.tsx` as the second tab directly following "Link In Bio".
+- Render `<AboutMePage />` in `App.tsx` when `activeTab === 'about'`.
 
-### Key User Flows
+### 3. Assistant Pure Computers Tab Auto-Popup (`src/components/assistant/AIAssistantWidget.tsx`, `src/App.tsx`)
 
-```
-[ Visitor Lands on Portfolio ]
-              │
-              ▼
-[ Floating Assistant Pill (Bottom-Right) ]
-   "👋 Hi! I'm Nate's AI Assistant. Ask me anything or start a live voice chat."
-              │  (Click to open)
-              ▼
-[ Unified Assistant Window ]
- ┌────────────────────────────────────────────────────────┐
- │ Header: Nate AI Assistant · [● Live Voice] [💬 Chat]  │
- ├────────────────────────────────────────────────────────┤
- │ Initial Message:                                       │
- │ "Hello! I'm Nate Mina's AI assistant. Nate is a       │
- │ mechanical engineer, entrepreneur, founder of Pure    │
- │ Computers, and musician.                               │
- │                                                        │
- │ How can I help you today?                              │
- │ • Computer Tech Support or Hardware Diagnostics        │
- │ • Custom PC Build Quotes & Sales                       │
- │ • Free 15-Min Consult (Tech, Web, AI, or Startups)     │
- ├────────────────────────────────────────────────────────┤
- │ Quick Prompt Chips:                                    │
- │ [Diagnose PC Issue] [Book Free Consult] [Who is Nate?] │
- ├────────────────────────────────────────────────────────┤
- │ Escalation Banner (Always Visible on Need):            │
- │ 📞 Need Nate directly? Call or Text 24/7: 585-484-1764 │
- │ [Call Nate] [Text Nate]                                │
- └────────────────────────────────────────────────────────┘
-```
+- Pass `activeTab` or an `autoOpenOnPureComp` trigger from `App.tsx` to `AIAssistantWidget`.
+- When `activeTab === 'purecomp'` is triggered, automatically set `isOpen(true)` with a welcoming toast/message prompting visitors for tech support and hardware diagnostics.
+- Ensure visitors can dismiss or minimize without it re-popping annoying loops on re-renders.
 
-### Visual Identity & Theme
-- **Cyberpunk / Dark Terminal Aesthetic**: Consistent with Nate's existing Jekyll themes (Midnight, Dracula, Hacker, Chirpy, Cayman), featuring high-contrast typography, emerald/cyan accents, and glassmorphic translucent panels.
-- **Zero-Pill Discipline**: Metadata, response tags, and timestamps rendered as clean unboxed typography with typographic dots (`·`). Interactive controls rendered as clean functional buttons.
-- **Live Voice Visualizer**: Pulsing audio wave / equalizer bars indicating model speaking, user listening, and thinking states.
-- **Responsive Layout**: Adapts gracefully from a compact 400px bottom-right desktop drawer to a full-viewport mobile overlay with safe-area spacing.
+### 4. Assistant System Prompt & Endpoint Upgrades (`server.ts`, `src/components/assistant/ChatModeView.tsx`)
+
+- **Tech Support First Protocol**: Ensure the AI assistant's system instructions and fallback logic explicitly require providing direct diagnostic workflows and solutions first (e.g., checking power rails, thermal paste/pump headers, memory reseating, driver DDU clean installs, BSOD analysis) before recommending a consultation booking or calling Nate at 585-484-1764.
+- **Site-Wide Knowledge**: Ensure immediate accurate answers with direct links for:
+  - TikTok: `@dominnately` ([https://www.tiktok.com/@dominnately](https://www.tiktok.com/@dominnately))
+  - Polymath memoir & autobiography ("The System & The Soul")
+  - DomInNATEly Music & YouTube portfolio
+  - Pure Computers custom workstation and repair offerings
+- **Quick Action Chips**: Add direct query chips in `ChatModeView.tsx` including "Tech Support Problem", "Nate's TikTok Handle", "Why DomInNATEly Music?", and "Book 15m Consult".
 
 ---
 
-## 3. Key Product Decisions & Trade-Offs
+## Verification Plan
 
-| Decision | Chosen Approach | Rationale | Alternatives Considered |
-| :--- | :--- | :--- | :--- |
-| **Backend Integration** | Express server (`server.ts`) with `@google/genai` SDK | Secure API key management, streaming SSE responses, WebSocket support for Live audio | Client-side API calls (violates security & guidelines) |
-| **AI Models** | `gemini-3.8-flash` for multi-turn chat & `gemini-3.8-live` / `gemini-3.8-flash-lite-tts` for voice | Low latency, high reasoning fidelity for technical troubleshooting, native voice synthesis | Deprecated `gemini-1.5` / `gemini-2.0` models (strictly prohibited) |
-| **Escalation Path** | Direct `tel:` and `sms:` deep-links + Google Tasks sync | Instant zero-friction visitor action on mobile & desktop; integrates with existing Google Tasks follow-up engine | Email-only contact (slower conversion) |
-| **Voice Interaction** | Client Web Audio API (16kHz capture, 24kHz playback) | Natural conversational back-and-forth matching Live API protocol standards | Browser SpeechSynthesis (robotic, low fidelity) |
+### Automated Verification
+- Run `compile_applet` to verify TypeScript builds without compile errors.
+- Run `lint_applet` (`tsc --noEmit`) to verify clean type checking across new and updated components.
 
----
-
-## 4. Technical Architecture & System Flow
-
-```
-┌───────────────────────────────────────────────────────────────┐
-│                      Client (Browser SPA)                     │
-│                                                               │
-│   ┌─────────────────────┐       ┌─────────────────────────┐   │
-│   │  Floating Launcher  │ ────▶ │  AIAssistantModal       │   │
-│   └─────────────────────┘       │  ├─ VoiceModeView       │   │
-│                                 │  │   └─ AudioVisualizer │   │
-│                                 │  ├─ ChatModeView        │   │
-│                                 │  │   └─ MessageThread   │   │
-│                                 │  └─ EscalationBar       │   │
-│                                 │      ├─ [Call 585...]   │   │
-│                                 │      └─ [Text 585...]   │   │
-│                                 └─────────────────────────┘   │
-└───────────────────────────────┬───────────────────────────────┘
-                                │ HTTP / WebSocket
-                                ▼
-┌───────────────────────────────────────────────────────────────┐
-│                   Server (Express - server.ts)                │
-│                                                               │
-│   POST /api/assistant/chat  ──▶  GoogleGenAI (gemini-3.8-flash)│
-│                                 System Instruction:           │
-│                                 - Nate Mina biography         │
-│                                 - Pure Computers hardware specs│
-│                                 - 15-min consult offerings    │
-│                                 - Troubleshooting protocols   │
-│                                 - 585-484-1764 escalation     │
-│                                                               │
-│   WS   /api/assistant/live  ──▶  Live Session (gemini-3.8-live)│
-│                                 Bidirectional PCM Audio Bridge│
-└───────────────────────────────────────────────────────────────┘
-```
-
-### Component Structure
-- `src/components/assistant/AIAssistantWidget.tsx`: The primary floating launcher and container.
-- `src/components/assistant/ChatModeView.tsx`: Multi-turn conversational view with streaming text, markdown formatting, suggestion chips, and automated escalation buttons.
-- `src/components/assistant/VoiceModeView.tsx`: Real-time voice interaction with animated waveform visualization, mic input controls, speaker audio output, and live transcript captions.
-- `src/components/assistant/EscalationBanner.tsx`: Prominent 24/7 contact card with clickable `tel:5854841764` and `sms:5854841764` buttons.
-- `server.ts`: Full-stack Express server proxying Gemini 3.8 requests and hosting WebSocket live audio bridge.
+### Manual Verification
+1. **Navigation**: Click "About Me" in the top bar to verify the new tab loads in position 2 with continuous blog narrative, chapter anchor scrolling, and responsive styling.
+2. **Pure Computers Tab Auto-Popup**: Click the "Pure Computers" tab and verify the AI Assistant widget automatically expands with a contextual welcome.
+3. **Tech Support Query**: Ask the chatbot: *"My computer won't boot and the motherboard shows a yellow DRAM LED. What should I do?"* Verify it answers with step-by-step diagnostic advice first without immediately telling the user to book a consultation.
+4. **TikTok Query**: Ask the chatbot: *"What is Nate's TikTok handle?"* Verify it returns `@dominnately` with a link to `https://www.tiktok.com/@dominnately`.
+5. **Polymath Question**: Ask: *"Why did Nate start writing music?"* Verify it answers using insights from his autobiography (*The System & The Soul*).

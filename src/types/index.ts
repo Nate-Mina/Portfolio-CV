@@ -1,5 +1,7 @@
 export type JekyllThemeId = 'midnight' | 'dracula' | 'chirpy' | 'cayman' | 'hacker';
 
+export type PortfolioTabId = 'links' | 'about' | 'purecomp' | 'portfolio' | 'resume' | 'music' | 'cases' | 'calculator';
+
 export interface JekyllTheme {
   id: JekyllThemeId;
   name: string;

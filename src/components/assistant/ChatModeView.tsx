@@ -13,17 +13,17 @@ interface Message {
 const INITIAL_MESSAGE: Message = {
   id: 'init-1',
   role: 'assistant',
-  text: `Hello and welcome! I am Nathaniel (Nate) Mina's personal AI assistant.\n\nNate is a **Mechanical Engineer** (University at Buffalo, SUNY), **entrepreneur**, **founder & CEO of Pure Computers**, and **musician**.\n\nHow can I help you today?\n• **Computer Tech Support & Diagnostics**: Troubleshoot hardware, crashes, thermals, or OS issues.\n• **Custom PC Build Quotes & Sales**: High-performance workstations, custom loops, and AI rigs.\n• **Free 15-Minute Consultation**: Discuss tech support, sales, custom website creation, or AI implementation for your existing business or a new startup idea!\n\nIf you ever need direct assistance, you can call or text Nate 24/7 at **585-484-1764**.`,
+  text: `Hello and welcome! I am Nathaniel (Nate) Mina's personal AI assistant.\n\nNate is a **polymath**: a **Mechanical Engineer** (RIT), **systems architect**, **founder & CEO of Pure Computers**, **musician (DomInNATEly)**, and **author** of *"The System & The Soul"*.\n\nHow can I help you today?\n• **Computer Tech Support & Diagnostics**: Describe your hardware symptom, crash code, or thermal issue—I will troubleshoot it with you step-by-step first!\n• **Explore Nate's Polymath Journey**: Ask about his memoir, why writing music was the last thing he envisioned doing in school, or his TikTok (@dominnately).\n• **Custom PC Builds & Enterprise IT**: Multi-GPU AI rigs, CAD workstations, and managed services.\n• **Free 15-Minute Consultation**: High-level guidance for tech support, web development, or AI implementation.\n\nYou can also call or text Nate directly 24/7 at **585-484-1764**.`,
   timestamp: 'Just now',
   escalation: true,
 };
 
 const SUGGESTIONS = [
-  'Tell me about Nate Mina',
-  'I need computer tech support',
+  'Help troubleshoot my PC issue',
+  "What is Nate's TikTok handle?",
+  'Tell me about Nate (Polymath story)',
+  'Why did Nate start writing music?',
   'Book free 15-min consult',
-  'Custom PC build sales',
-  'AI implementation for business',
   'Call or text Nate directly',
 ];
 

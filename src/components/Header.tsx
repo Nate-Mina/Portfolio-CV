@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Terminal, QrCode, Download, Sparkles, Code2, ExternalLink, Mail, Check } from 'lucide-react';
-import { JekyllTheme } from '../types';
+import { JekyllTheme, PortfolioTabId } from '../types';
 import { jekyllThemes, profileData } from '../data/profileData';
 import { handleImageError } from '../utils/imageUtils';
 import { exportCvPdf } from '../utils/exportPdfCv';
@@ -8,8 +8,8 @@ import { exportCvPdf } from '../utils/exportPdfCv';
 interface HeaderProps {
   currentTheme: JekyllTheme;
   onSelectTheme: (theme: JekyllTheme) => void;
-  activeTab: 'links' | 'purecomp' | 'portfolio' | 'resume' | 'music' | 'cases' | 'calculator';
-  setActiveTab: (tab: 'links' | 'purecomp' | 'portfolio' | 'resume' | 'music' | 'cases' | 'calculator') => void;
+  activeTab: PortfolioTabId;
+  setActiveTab: (tab: PortfolioTabId) => void;
   onOpenTerminal: () => void;
   onOpenQr: () => void;
   onOpenGallery?: () => void;
@@ -119,6 +119,16 @@ export const Header: React.FC<HeaderProps> = ({
             }`}
           >
             Link In Bio
+          </button>
+          <button
+            onClick={() => setActiveTab('about')}
+            className={`px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg text-[11px] sm:text-xs font-mono font-medium whitespace-nowrap shrink-0 transition-all ${
+              activeTab === 'about'
+                ? 'bg-purple-600 text-white shadow-md font-bold'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+            }`}
+          >
+            About Me
           </button>
           <button
             onClick={() => setActiveTab('purecomp')}

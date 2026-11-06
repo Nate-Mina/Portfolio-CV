@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Bot, Mic, MessageSquare, X, Minus, Sparkles, Phone, Volume2 } from 'lucide-react';
 import { VoiceModeView } from './VoiceModeView';
 import { ChatModeView } from './ChatModeView';
@@ -6,11 +6,20 @@ import { JekyllTheme } from '../../types';
 
 interface AIAssistantWidgetProps {
   currentTheme?: JekyllTheme;
+  activeTab?: string;
 }
 
-export const AIAssistantWidget: React.FC<AIAssistantWidgetProps> = ({ currentTheme }) => {
+export const AIAssistantWidget: React.FC<AIAssistantWidgetProps> = ({ currentTheme, activeTab }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [mode, setMode] = useState<'voice' | 'chat'>('voice'); // Voice is primary as requested
+
+  // Automatically expand assistant dialog when user clicks on Pure Computers tab
+  useEffect(() => {
+    if (activeTab === 'purecomp') {
+      setIsOpen(true);
+      setMode('chat');
+    }
+  }, [activeTab]);
 
   return (
     <>
