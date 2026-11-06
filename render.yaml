@@ -1,0 +1,21 @@
+# Exported from Render on 2026-11-06T18:11:33Z
+version: "1"
+projects:
+- name: NATECV
+  environments:
+  - name: Production
+    services:
+    - type: web
+      name: NATECV
+      runtime: node
+      repo: https://github.com/Nate-Mina/Portfolio-CV
+      plan: free
+      envVars:
+      - key: local.env
+        sync: false
+      - key: .env
+        sync: false
+      region: ohio
+      buildCommand: bun install
+      startCommand: bun run start
+      autoDeployTrigger: commit
