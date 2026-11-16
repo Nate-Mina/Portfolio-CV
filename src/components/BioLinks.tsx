@@ -124,7 +124,7 @@ export const BioLinks: React.FC<BioLinksProps> = ({
       boxBg = 'bg-red-950/70 border-red-800/60 text-red-400';
     } else if (link.id === 'github' || link.iconName === 'Github') {
       boxBg = 'bg-amber-950/70 border-amber-800/60 text-amber-400';
-    } else if (link.id === 'website' || link.iconName === 'Globe') {
+    } else if (link.id === 'website' || link.iconName === 'Globe' || link.iconName === 'Cpu' || link.id === 'polymath-portal') {
       boxBg = 'bg-emerald-950/70 border-emerald-800/60 text-emerald-400';
     }
 
@@ -144,6 +144,7 @@ export const BioLinks: React.FC<BioLinksProps> = ({
       case 'Image': iconEl = <ImageIcon {...iconProps} />; break;
       case 'Github': iconEl = <Github {...iconProps} />; break;
       case 'Globe': iconEl = <Globe {...iconProps} />; break;
+      case 'Cpu': iconEl = <Cpu {...iconProps} />; break;
       case 'Flame': iconEl = <Flame {...iconProps} />; break;
       case 'Activity': iconEl = <Activity {...iconProps} />; break;
       case 'Compass': iconEl = <Compass {...iconProps} />; break;

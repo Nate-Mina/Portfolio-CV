@@ -18,6 +18,7 @@ import {
   Filter,
   BarChart2,
   Box,
+  Github,
 } from 'lucide-react';
 import { JekyllTheme } from '../types';
 import { GithubContributionsHeatmap } from './GithubContributionsHeatmap';
@@ -37,6 +38,7 @@ export interface PortfolioProject {
   technologies: string[];
   url: string;
   fullscreenUrl?: string;
+  repoUrl?: string;
   previewImageUrl?: string;
   featured?: boolean;
   badge?: string;
@@ -194,6 +196,29 @@ export const portfolioProjects: PortfolioProject[] = [
     metrics: {
       label: 'Audio Discography',
       value: 'Original Works',
+    },
+  },
+  {
+    id: 'polymath-engineering-hub',
+    title: 'Polymath: Systems, Engineering & Creative Architecture (nate-mina.github.io/Polymath)',
+    category: 'web',
+    categoryLabel: 'Live Web & Systems Portal',
+    description: 'Official interactive Polymath web platform deployed on GitHub Pages by Nathaniel Mina. Features live interactive demonstrations, systems architecture blueprints, thermodynamic energy equations, and creative multimedia orchestration.',
+    detailedSpecs: [
+      'Live deployed web application hosted on GitHub Pages at nate-mina.github.io/Polymath.',
+      'Demonstrates full-stack engineering with modern React, TypeScript, and responsive interactive interfaces.',
+      'Bridges physical engineering (thermodynamics, hardware architecture) with modern software orchestration and AI integration.',
+      'Includes direct link to inspect open-source code and commit history on GitHub (Nate-Mina/Polymath).',
+    ],
+    technologies: ['React', 'TypeScript', 'Tailwind CSS', 'GitHub Pages', 'Systems Architecture', 'Python'],
+    url: 'https://nate-mina.github.io/Polymath/',
+    fullscreenUrl: 'https://nate-mina.github.io/Polymath/',
+    repoUrl: 'https://github.com/Nate-Mina/Polymath',
+    featured: true,
+    badge: 'Live Portal & App',
+    metrics: {
+      label: 'Platform & Host',
+      value: 'GitHub Pages',
     },
   },
   {
@@ -378,7 +403,10 @@ export const PortfolioWorksPage: React.FC<PortfolioWorksPageProps> = ({ currentT
               </button>
 
               <div className="flex items-center gap-2">
-                {(project.category === 'aistudio' || project.url.endsWith('.html') || project.id === 'vitalstats-clinical-portal') && (
+                {(project.category === 'aistudio' ||
+                  project.url.endsWith('.html') ||
+                  project.id === 'vitalstats-clinical-portal' ||
+                  project.url.includes('github.io')) && (
                   <button
                     type="button"
                     onClick={() => setActiveIframeApp(project)}
@@ -389,14 +417,36 @@ export const PortfolioWorksPage: React.FC<PortfolioWorksPageProps> = ({ currentT
                   </button>
                 )}
 
+                {project.repoUrl && (
+                  <a
+                    href={project.repoUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 text-xs font-mono font-bold flex items-center gap-1.5 transition-colors"
+                    title="View Source Repository on GitHub"
+                  >
+                    <Github className="w-3.5 h-3.5 text-slate-400" />
+                    <span>Repo</span>
+                  </a>
+                )}
+
                 <a
                   href={project.url}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-mono font-bold flex items-center gap-1.5 shadow-md transition-colors"
                 >
-                  <span>Launch App</span>
-                  <ExternalLink className="w-3.5 h-3.5" />
+                  {project.url.includes('github.com') ? (
+                    <>
+                      <Github className="w-3.5 h-3.5" />
+                      <span>View on GitHub</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>{project.url.startsWith('#') ? 'Open Tool' : 'Launch App'}</span>
+                      <ExternalLink className="w-3.5 h-3.5" />
+                    </>
+                  )}
                 </a>
               </div>
             </div>
