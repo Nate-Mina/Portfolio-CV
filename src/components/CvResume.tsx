@@ -30,7 +30,6 @@ import {
 } from 'lucide-react';
 import { JekyllTheme } from '../types';
 import { profileData } from '../data/profileData';
-import { SystemCalculator } from './SystemCalculator';
 
 interface CvResumeProps {
   currentTheme: JekyllTheme;
@@ -392,9 +391,6 @@ export const CvResume: React.FC<CvResumeProps> = ({ currentTheme, onOpenTerminal
             &eta; = <span className="underline underline-offset-4 decoration-emerald-500/50">Value-Generated Throughput</span> / (<span className="text-amber-300">Energy Capital</span> + <span className="text-sky-300">Time Capital Expended</span>) &rarr; max
           </div>
         </div>
-
-        {/* Embedded Interactive Efficiency Calculator */}
-        <SystemCalculator themeAccent={currentTheme.accentColor} />
       </div>
 
       {/* Tech Stack & Tooling Matrix */}

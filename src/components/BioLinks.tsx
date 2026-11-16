@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { handleImageError } from '../utils/imageUtils';
 import {
   Globe,
@@ -63,16 +63,60 @@ export const BioLinks: React.FC<BioLinksProps> = ({
   const [visitorCount, setVisitorCount] = useState<number>(() => {
     try {
       const stored = localStorage.getItem('nate_site_visitor_count');
-      const count = stored ? parseInt(stored, 10) : 14285;
-      const nextCount = count + 1;
-      localStorage.setItem('nate_site_visitor_count', nextCount.toString());
-      return nextCount;
+      return stored ? parseInt(stored, 10) : 14285;
     } catch {
       return 14285;
     }
   });
 
-  const handleQrClick纯 = (url: string, title: string, e: React.MouseEvent) => {
+  useEffect(() => {
+    let cancelled = false;
+    const syncVisits = async () => {
+      const sessionKey = 'nate_site_visit_counted';
+      const alreadyCounted =
+        typeof window !== 'undefined' && sessionStorage.getItem(sessionKey) === '1';
+
+      try {
+        const res = await fetch('/api/stats/visits', {
+          method: alreadyCounted ? 'GET' : 'POST',
+        });
+        if (res.ok && (res.headers.get('content-type') || '').includes('application/json')) {
+          const json = await res.json();
+          if (!cancelled && typeof json?.visits === 'number') {
+            setVisitorCount(json.visits);
+            try {
+              localStorage.setItem('nate_site_visitor_count', String(json.visits));
+              if (!alreadyCounted) sessionStorage.setItem(sessionKey, '1');
+            } catch {
+              // Ignore storage errors
+            }
+            return;
+          }
+        }
+      } catch {
+        // Fallback to localStorage counter in static hosting environments
+      }
+
+      if (!alreadyCounted) {
+        try {
+          const stored = localStorage.getItem('nate_site_visitor_count');
+          const next = (stored ? parseInt(stored, 10) : 14285) + 1;
+          localStorage.setItem('nate_site_visitor_count', String(next));
+          sessionStorage.setItem(sessionKey, '1');
+          if (!cancelled) setVisitorCount(next);
+        } catch {
+          // Ignore storage errors
+        }
+      }
+    };
+
+    syncVisits();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const handleQrClick = (url: string, title: string, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     if (onOpenCustomQr) {
@@ -463,7 +507,7 @@ export const BioLinks: React.FC<BioLinksProps> = ({
                       <div className="flex items-center gap-1">
                         <button
                           type="button"
-                          onClick={(e) => handleQrClick纯(link.url, link.title, e)}
+                          onClick={(e) => handleQrClick(link.url, link.title, e)}
                           className="p-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-sky-400 hover:text-sky-300 border border-slate-800 transition-colors"
                           title="Show QR Code"
                         >
@@ -524,7 +568,7 @@ export const BioLinks: React.FC<BioLinksProps> = ({
                       </a>
                       <button
                         type="button"
-                        onClick={(e) => handleQrClick纯(link.url, link.title, e)}
+                        onClick={(e) => handleQrClick(link.url, link.title, e)}
                         className="p-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-sky-400 hover:text-sky-300 border border-slate-800 transition-colors"
                         title="Show QR Code"
                       >

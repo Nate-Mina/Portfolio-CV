@@ -1,6 +1,6 @@
 export type JekyllThemeId = 'midnight' | 'dracula' | 'chirpy' | 'cayman' | 'hacker';
 
-export type PortfolioTabId = 'links' | 'about' | 'purecomp' | 'portfolio' | 'resume' | 'music' | 'cases' | 'calculator';
+export type PortfolioTabId = 'links' | 'about' | 'purecomp' | 'portfolio' | 'resume' | 'music' | 'cases' | 'hire';
 
 export interface JekyllTheme {
   id: JekyllThemeId;

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { jekyllThemes, profileData } from './data/profileData';
 import { JekyllTheme, PortfolioTabId } from './types';
 import { Header } from './components/Header';
@@ -8,7 +8,7 @@ import { CvResume } from './components/CvResume';
 import { PureComputersPage } from './components/PureComputersPage';
 import { PortfolioWorksPage } from './components/PortfolioWorksPage';
 import { MusicPage } from './components/MusicPage';
-import { SystemCalculator } from './components/SystemCalculator';
+import { HireMePage, HireInquiryType } from './components/HireMePage';
 import { TerminalModal } from './components/TerminalModal';
 import { QrCodeModal } from './components/QrCodeModal';
 import { PhotoCarouselModal } from './components/PhotoCarouselModal';
@@ -17,14 +17,69 @@ import { ToastProvider } from './context/ToastContext';
 import { ToastContainer } from './components/Toast';
 import { AIAssistantWidget } from './components/assistant/AIAssistantWidget';
 
+const VALID_TABS: PortfolioTabId[] = ['links', 'about', 'purecomp', 'portfolio', 'music', 'resume', 'cases', 'hire'];
+
+const HASH_ALIASES: Record<string, PortfolioTabId> = {
+  links: 'links',
+  bio: 'links',
+  about: 'about',
+  'about-me': 'about',
+  purecomp: 'purecomp',
+  'pure-computers': 'purecomp',
+  portfolio: 'portfolio',
+  works: 'portfolio',
+  music: 'music',
+  resume: 'resume',
+  cv: 'resume',
+  cases: 'cases',
+  hire: 'hire',
+  'hire-me': 'hire',
+  'custom-portfolio': 'hire',
+};
+
+function getInitialTabFromUrl(): PortfolioTabId {
+  if (typeof window === 'undefined') return 'links';
+  const params = new URLSearchParams(window.location.search);
+  const queryTab = params.get('tab')?.toLowerCase();
+  if (queryTab && HASH_ALIASES[queryTab]) return HASH_ALIASES[queryTab];
+  const hashKey = window.location.hash.replace(/^#/, '').toLowerCase();
+  if (hashKey && HASH_ALIASES[hashKey]) return HASH_ALIASES[hashKey];
+  return 'links';
+}
+
 export default function App() {
   const [currentTheme, setCurrentTheme] = useState<JekyllTheme>(jekyllThemes[0]);
-  const [activeTab, setActiveTab] = useState<PortfolioTabId>('links');
+  const [activeTab, setActiveTabState] = useState<PortfolioTabId>(getInitialTabFromUrl);
+  const [hirePreset, setHirePreset] = useState<HireInquiryType>('contract');
   const [isTerminalOpen, setIsTerminalOpen] = useState(false);
   const [qrModalData, setQrModalData] = useState<{ isOpen: boolean; url?: string; title?: string }>({
     isOpen: false,
   });
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
+
+  const setActiveTab = useCallback((tab: PortfolioTabId) => {
+    setActiveTabState(tab);
+    if (typeof window !== 'undefined') {
+      const targetHash = tab === 'links' ? '' : `#${tab}`;
+      if (window.location.hash !== targetHash) {
+        window.history.pushState(null, '', targetHash || window.location.pathname + window.location.search);
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, []);
+
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hashKey = window.location.hash.replace(/^#/, '').toLowerCase();
+      if (!hashKey) {
+        setActiveTabState('links');
+      } else if (HASH_ALIASES[hashKey] && VALID_TABS.includes(HASH_ALIASES[hashKey])) {
+        setActiveTabState(HASH_ALIASES[hashKey]);
+      }
+    };
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
 
   const handleOpenQr = (url?: string, title?: string) => {
     setQrModalData({
@@ -46,6 +101,10 @@ export default function App() {
         onOpenTerminal={() => setIsTerminalOpen(true)}
         onOpenQr={() => handleOpenQr('https://www.PureComp.Net', 'Pure Computers Official Hub')}
         onOpenGallery={() => setIsGalleryOpen(true)}
+        onOpenHire={(preset = 'contract') => {
+          setHirePreset(preset);
+          setActiveTab('hire');
+        }}
       />
 
       {/* Main Container */}
@@ -141,19 +200,12 @@ export default function App() {
           </div>
         )}
 
-        {activeTab === 'calculator' && (
-          <div className="max-w-3xl mx-auto px-4 py-8">
-            <div className="text-center space-y-2 mb-6">
-              <h2 className="text-2xl font-mono font-bold text-slate-100">
-                Systemic Efficiency Interactive Sandbox
-              </h2>
-              <p className="text-xs font-mono text-slate-400">
-                Calculate &eta; based on Value-Generated Throughput vs. Energy &amp; Time Capital
-              </p>
-            </div>
-
-            <SystemCalculator themeAccent={currentTheme.accentColor} />
-          </div>
+        {activeTab === 'hire' && (
+          <HireMePage
+            currentTheme={currentTheme}
+            initialInquiryType={hirePreset}
+            onNavigateTab={setActiveTab}
+          />
         )}
       </main>
 

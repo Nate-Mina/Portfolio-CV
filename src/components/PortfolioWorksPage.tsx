@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { JekyllTheme } from '../types';
 import { GithubContributionsHeatmap } from './GithubContributionsHeatmap';
+import { GitHubActivityWidget } from './GitHubActivityWidget';
 
 interface PortfolioWorksPageProps {
   currentTheme: JekyllTheme;
@@ -191,6 +192,7 @@ export const portfolioProjects: PortfolioProject[] = [
     ],
     technologies: ['GitHub Pages', 'Web Audio', 'HTML5/CSS3', 'Sound Design', 'Responsive UI'],
     url: 'https://nate-mina.github.io/DomInNATEly/',
+    repoUrl: 'https://github.com/Nate-Mina/DomInNATEly',
     featured: true,
     badge: 'Music Portfolio',
     metrics: {
@@ -222,22 +224,25 @@ export const portfolioProjects: PortfolioProject[] = [
     },
   },
   {
-    id: 'efficiency-calc-app',
-    title: 'Systemic Efficiency (η) Calculator',
-    category: 'systems',
-    categoryLabel: 'Engineering Tool',
-    description: 'Interactive mathematical sandbox calculating system throughput (η) against energy and time capital expended. Derived from first-principles mechanical engineering equations.',
+    id: 'portfolio-cv-hub',
+    title: 'Portfolio, Link-in-Bio & Interactive CV Platform (nate-mina.github.io/Portfolio-CV)',
+    category: 'web',
+    categoryLabel: 'Full-Stack Portfolio & AI Hub',
+    description: 'Jekyll-inspired dark interactive Link-in-Bio, Engineering Portfolio, Music Gallery, Pure Computers Portal, and Voice/Text Gemini AI Assistant built by Nathaniel Mina.',
     detailedSpecs: [
-      'Real-time LaTeX formula rendering using KaTeX math typesetting.',
-      'Dynamic input sliders for value throughput and energy expenditure.',
-      'Interactive chart visualizer plotting efficiency curves.',
+      'Multi-theme Jekyll styling (Midnight, Dracula, Chirpy, Cayman, Hacker) with responsive UI.',
+      'Real-time GitHub Activity telemetry, contributions calendar, and live consultation booking workflows.',
+      'Integrated Gemini Live audio & text assistant with Pure Computers technical diagnostics.',
     ],
-    technologies: ['TypeScript', 'KaTeX', 'Recharts', 'Tailwind CSS'],
-    url: '#calculator',
-    badge: 'Built-in Tool',
+    technologies: ['React 19', 'TypeScript', 'Express', 'Tailwind CSS', 'Gemini API', 'Firebase'],
+    url: 'https://nate-mina.github.io/Portfolio-CV/',
+    fullscreenUrl: 'https://nate-mina.github.io/Portfolio-CV/',
+    repoUrl: 'https://github.com/Nate-Mina/Portfolio-CV',
+    featured: true,
+    badge: 'Flagship Hub',
     metrics: {
-      label: 'Model Precision',
-      value: 'Deterministic',
+      label: 'Architecture',
+      value: 'Full-Stack SPA',
     },
   },
 ];
@@ -245,6 +250,7 @@ export const portfolioProjects: PortfolioProject[] = [
 export const PortfolioWorksPage: React.FC<PortfolioWorksPageProps> = ({ currentTheme }) => {
   const [filter, setFilter] = useState<'all' | 'aistudio' | 'web' | 'systems'>('all');
   const [activeIframeApp, setActiveIframeApp] = useState<PortfolioProject | null>(null);
+  const [iframeLoaded, setIframeLoaded] = useState<boolean>(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const filteredProjects = portfolioProjects.filter((p) => {
@@ -344,10 +350,33 @@ export const PortfolioWorksPage: React.FC<PortfolioWorksPageProps> = ({ currentT
                 )}
               </div>
 
-              {/* Title */}
-              <h2 className="text-lg font-mono font-bold text-slate-100 group-hover:text-emerald-400 transition-colors flex items-center justify-between">
-                <span>{project.title}</span>
-              </h2>
+              {/* Title & Metrics Callout */}
+              <div className="flex items-start justify-between gap-3">
+                <h2 className="text-lg font-mono font-bold text-slate-100 group-hover:text-emerald-400 transition-colors">
+                  {project.title}
+                </h2>
+                {project.metrics && (
+                  <div className="shrink-0 px-2.5 py-1 rounded-lg bg-slate-950 border border-emerald-500/30 text-right">
+                    <div className="text-[9px] font-mono uppercase tracking-wider text-slate-400">
+                      {project.metrics.label}
+                    </div>
+                    <div className="text-[11px] font-mono font-bold text-emerald-400">
+                      {project.metrics.value}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {project.previewImageUrl && (
+                <div className="rounded-xl overflow-hidden border border-slate-800 bg-slate-950">
+                  <img
+                    src={project.previewImageUrl}
+                    alt={`${project.title} preview`}
+                    className="w-full h-40 object-cover"
+                    loading="lazy"
+                  />
+                </div>
+              )}
 
               <p className="text-xs font-sans text-slate-300 leading-relaxed">
                 {project.description}
@@ -409,7 +438,10 @@ export const PortfolioWorksPage: React.FC<PortfolioWorksPageProps> = ({ currentT
                   project.url.includes('github.io')) && (
                   <button
                     type="button"
-                    onClick={() => setActiveIframeApp(project)}
+                    onClick={() => {
+                      setIframeLoaded(false);
+                      setActiveIframeApp(project);
+                    }}
                     className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-emerald-400 text-xs font-mono font-bold flex items-center gap-1.5 transition-colors"
                   >
                     <Monitor className="w-3.5 h-3.5" />
@@ -454,8 +486,13 @@ export const PortfolioWorksPage: React.FC<PortfolioWorksPageProps> = ({ currentT
         ))}
       </div>
 
+      {/* Live GitHub Activity Widget */}
+      <div className="pt-4">
+        <GitHubActivityWidget currentTheme={currentTheme} />
+      </div>
+
       {/* GitHub Contributions Heatmap */}
-      <div className="pt-6">
+      <div className="pt-2">
         <GithubContributionsHeatmap currentTheme={currentTheme} />
       </div>
 
@@ -493,11 +530,28 @@ export const PortfolioWorksPage: React.FC<PortfolioWorksPageProps> = ({ currentT
             </div>
 
             {/* Modal Body / Iframe Container */}
-            <div className="flex-1 bg-slate-950 relative">
+            <div className="flex-1 bg-slate-950 relative flex flex-col">
+              <div className="px-4 py-2 bg-slate-900/90 border-b border-slate-800 flex flex-wrap items-center justify-between gap-2 text-[11px] font-mono text-slate-400">
+                <span>
+                  {iframeLoaded
+                    ? 'Embedded live preview active. Some third-party sites restrict interactive frames.'
+                    : 'Loading embedded preview... If the frame stays blank due to host security headers, open it directly.'}
+                </span>
+                <a
+                  href={activeIframeApp.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-emerald-400 hover:text-emerald-300 font-bold flex items-center gap-1"
+                >
+                  <span>Open in New Tab</span>
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+              </div>
               <iframe
                 src={activeIframeApp.url}
                 title={activeIframeApp.title}
-                className="w-full h-full border-none"
+                onLoad={() => setIframeLoaded(true)}
+                className="w-full flex-1 border-none bg-slate-950"
                 allow="camera; microphone; geolocation; clipboard-write"
               />
             </div>

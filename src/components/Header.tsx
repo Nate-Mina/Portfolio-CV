@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Terminal, QrCode, Download, Sparkles, Code2, ExternalLink, Mail, Check } from 'lucide-react';
+import { Terminal, QrCode, Download, Sparkles, Code2, ExternalLink, Mail, Check, Briefcase, ArrowRight } from 'lucide-react';
 import { JekyllTheme, PortfolioTabId } from '../types';
 import { jekyllThemes, profileData } from '../data/profileData';
 import { handleImageError } from '../utils/imageUtils';
@@ -13,6 +13,7 @@ interface HeaderProps {
   onOpenTerminal: () => void;
   onOpenQr: () => void;
   onOpenGallery?: () => void;
+  onOpenHire?: (preset?: 'employer' | 'contract' | 'portfolio_build') => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -23,6 +24,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenTerminal,
   onOpenQr,
   onOpenGallery,
+  onOpenHire,
 }) => {
   const [showThemePicker, setShowThemePicker] = useState(false);
   const [downloaded, setDownloaded] = useState(false);
@@ -76,6 +78,26 @@ export const Header: React.FC<HeaderProps> = ({
       ref={headerRef}
       className="relative w-full border-b border-slate-800 bg-slate-950/95 backdrop-blur-md sticky top-0 z-40"
     >
+      {/* Top Custom Portfolio Promo Banner */}
+      <div className="w-full bg-gradient-to-r from-emerald-950/90 via-slate-900 to-sky-950/90 border-b border-emerald-500/25">
+        <div className="max-w-6xl mx-auto px-3 sm:px-4 py-1.5 flex items-center justify-center">
+          <button
+            type="button"
+            onClick={() => (onOpenHire ? onOpenHire('portfolio_build') : setActiveTab('hire'))}
+            className="text-[11px] sm:text-xs font-mono text-emerald-300 hover:text-white flex items-center gap-1.5 transition-colors cursor-pointer text-center group"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+            <span>
+              Like this portfolio?{' '}
+              <span className="underline decoration-emerald-400/70 underline-offset-2 font-bold text-white group-hover:text-emerald-300">
+                Get your Custom Interactive CV to show employer&apos;s, TXT/Call Nathaniel now at (585)484-1764 for free estimate and get yours for as low as $20
+              </span>
+            </span>
+            <ArrowRight className="w-3.5 h-3.5 text-emerald-400 group-hover:translate-x-0.5 transition-transform shrink-0" />
+          </button>
+        </div>
+      </div>
+
       {/* Primary Navigation & Brand Header Bar */}
       <div className="max-w-6xl mx-auto px-3 sm:px-4 py-2 sm:py-3 flex flex-wrap items-center justify-between gap-2 sm:gap-3">
         <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
@@ -103,7 +125,7 @@ export const Header: React.FC<HeaderProps> = ({
               </h1>
             </div>
             <p className="text-[11px] sm:text-xs text-slate-400 font-mono truncate max-w-[200px] sm:max-w-none">
-              Mechanical Engineer, Entrapaneur &amp; Musician
+              {profileData.title}
             </p>
           </div>
         </div>
@@ -180,20 +202,25 @@ export const Header: React.FC<HeaderProps> = ({
           >
             Case Studies
           </button>
-          <button
-            onClick={() => setActiveTab('calculator')}
-            className={`px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg text-[11px] sm:text-xs font-mono font-medium whitespace-nowrap shrink-0 transition-all ${
-              activeTab === 'calculator'
-                ? 'bg-emerald-600 text-white shadow-md'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
-            }`}
-          >
-            &eta; Calculator
-          </button>
         </div>
 
         {/* Right Tools & Actions Toolbar */}
         <div className="flex items-center gap-1.5 sm:gap-2">
+          {/* Hire Me Button (placed directly before CLI Terminal) */}
+          <button
+            type="button"
+            onClick={() => (onOpenHire ? onOpenHire('contract') : setActiveTab('hire'))}
+            className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg sm:rounded-xl text-xs font-mono font-bold transition-all shadow-sm cursor-pointer ${
+              activeTab === 'hire'
+                ? 'bg-emerald-500 text-slate-950 border border-emerald-400 shadow-emerald-500/30'
+                : 'bg-gradient-to-r from-emerald-600 to-sky-600 hover:from-emerald-500 hover:to-sky-500 text-white border border-emerald-400/40'
+            }`}
+            title="Hire Nathaniel Mina or Request a Custom Portfolio"
+          >
+            <Briefcase className="w-3.5 h-3.5 shrink-0" />
+            <span>Hire Me</span>
+          </button>
+
           {/* CLI Terminal Button */}
           <button
             onClick={onOpenTerminal}
