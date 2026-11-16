@@ -143,14 +143,14 @@ export const Header: React.FC<HeaderProps> = ({
             Link In Bio
           </button>
           <button
-            onClick={() => setActiveTab('about')}
+            onClick={() => setActiveTab('resume')}
             className={`px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg text-[11px] sm:text-xs font-mono font-medium whitespace-nowrap shrink-0 transition-all ${
-              activeTab === 'about'
-                ? 'bg-purple-600 text-white shadow-md font-bold'
+              activeTab === 'resume'
+                ? 'bg-emerald-600 text-white shadow-md'
                 : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
             }`}
           >
-            About Me
+            CV &amp; Resume
           </button>
           <button
             onClick={() => setActiveTab('purecomp')}
@@ -183,16 +183,6 @@ export const Header: React.FC<HeaderProps> = ({
             Music &amp; Podcasts
           </button>
           <button
-            onClick={() => setActiveTab('resume')}
-            className={`px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg text-[11px] sm:text-xs font-mono font-medium whitespace-nowrap shrink-0 transition-all ${
-              activeTab === 'resume'
-                ? 'bg-emerald-600 text-white shadow-md'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
-            }`}
-          >
-            CV &amp; Resume
-          </button>
-          <button
             onClick={() => setActiveTab('cases')}
             className={`px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg text-[11px] sm:text-xs font-mono font-medium whitespace-nowrap shrink-0 transition-all ${
               activeTab === 'cases'
@@ -201,6 +191,16 @@ export const Header: React.FC<HeaderProps> = ({
             }`}
           >
             Case Studies
+          </button>
+          <button
+            onClick={() => setActiveTab('about')}
+            className={`px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg text-[11px] sm:text-xs font-mono font-medium whitespace-nowrap shrink-0 transition-all ${
+              activeTab === 'about'
+                ? 'bg-purple-600 text-white shadow-md font-bold'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+            }`}
+          >
+            About Me
           </button>
         </div>
 
