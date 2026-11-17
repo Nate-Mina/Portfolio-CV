@@ -28,32 +28,167 @@
       href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230b1120'/%3E%3Crect x='3' y='3' width='58' height='58' rx='11' fill='none' stroke='%2310b981' stroke-width='3'/%3E%3Ctext x='50%25' y='54%25' dominant-baseline='middle' text-anchor='middle' font-family='monospace' font-weight='bold' font-size='26' fill='%2310b981'%3ENM%3C/text%3E%3C/svg%3E"
     />
     <script type="application/ld+json">
-      {
-        "@context": "https://schema.org",
-        "@type": "Person",
-        "name": "Nathaniel (Nate) K. Mina",
-        "alternateName": ["DomInNATEly", "Dom-I-Nate"],
-        "jobTitle": "Mechanical Engineer, Systems Architect & CEO",
-        "worksFor": {
-          "@type": "Organization",
-          "name": "Pure Computers",
-          "url": "https://www.PureComp.Net"
-        },
-        "alumniOf": {
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Person",
+      "@id": "https://nate-mina.github.io/Portfolio-CV/#person",
+      "name": "Nathaniel (Nate) K. Mina",
+      "givenName": "Nathaniel",
+      "additionalName": "K.",
+      "familyName": "Mina",
+      "alternateName": [
+        "Nate Mina",
+        "Nate Dogg",
+        "Dom-I-Nate",
+        "DOM-I-NATE",
+        "DomInNATEly"
+      ],
+      "url": "https://nate-mina.github.io/Portfolio-CV/",
+      "jobTitle": "Mechanical Engineer, Systems Architect & CEO",
+      "description": "Mechanical engineer, systems architect, and Founder & CEO of Pure Computers in Rochester, NY, specializing in liquid-cooled multi-GPU compute nodes, AI data center infrastructure, thermal recovery systems, and full-stack AI software.",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Rochester",
+        "addressRegion": "NY",
+        "addressCountry": "US"
+      },
+      "alumniOf": {
+        "@type": "CollegeOrUniversity",
+        "name": "Rochester Institute of Technology",
+        "sameAs": "https://www.rit.edu/"
+      },
+      "hasCredential": {
+        "@type": "EducationalOccupationalCredential",
+        "credentialCategory": "degree",
+        "educationalLevel": "Bachelor of Science",
+        "about": "Mechanical Engineering",
+        "recognizedBy": {
           "@type": "CollegeOrUniversity",
           "name": "Rochester Institute of Technology"
-        },
-        "url": "https://nate-mina.github.io/Portfolio-CV/",
-        "sameAs": [
-          "https://github.com/Nate-Mina",
-          "https://linkedin.com/in/dominnately",
-          "https://www.tiktok.com/@dominnately",
-          "https://www.youtube.com/@DomInNATEly",
-          "https://nate-mina.github.io/Polymath/",
-          "https://nate-mina.github.io/DomInNATEly/"
-        ]
+        }
+      },
+      "worksFor": {
+        "@id": "https://www.PureComp.Net/#organization"
+      },
+      "founder": {
+        "@id": "https://www.PureComp.Net/#organization"
+      },
+      "knowsAbout": [
+        "Systems Architecture",
+        "Mechanical Engineering",
+        "Artificial Intelligence",
+        "AI Data Center Infrastructure",
+        "Liquid Cooling Systems",
+        "Thermal Management",
+        "High-Performance Computing",
+        "Enterprise Networking",
+        "Marine IT Infrastructure",
+        "Fiber Optic Splicing",
+        "Computer Vision",
+        "Large Language Models",
+        "Python",
+        "C#",
+        ".NET Core",
+        "Microsoft Blazor",
+        "TypeScript",
+        "React",
+        "Docker",
+        "Linux",
+        "Hydroponics"
+      ],
+      "sameAs": [
+        "https://www.PureComp.Net",
+        "https://github.com/Nate-Mina",
+        "https://linkedin.com/in/dominnately",
+        "https://www.tiktok.com/@dominnately",
+        "https://www.youtube.com/@DomInNATEly",
+        "https://nate-mina.github.io/Polymath/",
+        "https://nate-mina.github.io/DomInNATEly/"
+      ]
+    },
+    {
+      "@type": "Organization",
+      "@id": "https://www.PureComp.Net/#organization",
+      "name": "Pure Computers",
+      "url": "https://www.PureComp.Net",
+      "description": "Information technology, systems engineering, high-density custom GPU compute, and enterprise network infrastructure firm based in Rochester, New York.",
+      "founder": {
+        "@id": "https://nate-mina.github.io/Portfolio-CV/#person"
+      },
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Rochester",
+        "addressRegion": "NY",
+        "addressCountry": "US"
+      },
+      "areaServed": {
+        "@type": "Place",
+        "name": "Rochester, New York"
+      },
+      "knowsAbout": [
+        "Enterprise IT Consulting",
+        "Liquid-Cooled Multi-GPU Workstations",
+        "AI Infrastructure",
+        "Fiber Optic Fusion Splicing",
+        "Marine Network Infrastructure",
+        "Custom Software & LLM Automation Pipelines"
+      ]
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://nate-mina.github.io/Portfolio-CV/#website",
+      "url": "https://nate-mina.github.io/Portfolio-CV/",
+      "name": "Nathaniel (Nate) K. Mina — Systems Architecture & Engineering Portfolio",
+      "author": {
+        "@id": "https://nate-mina.github.io/Portfolio-CV/#person"
       }
-    </script>
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://nate-mina.github.io/Polymath/#website",
+      "url": "https://nate-mina.github.io/Polymath/",
+      "name": "Nathaniel (Nate) K. Mina — Polymath Hub",
+      "description": "Multidisciplinary hub spanning engineering, systems architecture, theoretical physics, institutional governance, hydroponics, and creative production.",
+      "author": {
+        "@id": "https://nate-mina.github.io/Portfolio-CV/#person"
+      }
+    },
+    {
+      "@type": "CreativeWork",
+      "@id": "https://nate-mina.github.io/Portfolio-CV/#thermalcore",
+      "name": "ThermalCore",
+      "description": "Engineered liquid-to-liquid heat recovery system integrating residential air conditioning condensers with pool heating to capture and reuse waste thermal energy.",
+      "creator": {
+        "@id": "https://nate-mina.github.io/Portfolio-CV/#person"
+      },
+      "keywords": "Thermal Modeling, Heat Transfer, Liquid-to-Liquid Heat Recovery, HVAC, Mechanical Engineering"
+    },
+    {
+      "@type": "SoftwareSourceCode",
+      "@id": "https://nate-mina.github.io/Portfolio-CV/#loss-prevention-cv",
+      "name": "Computer Vision Behavioral Detection Framework",
+      "description": "Real-time spatial-tracking and behavioral analytics framework utilizing camera feeds for automated retail loss prevention.",
+      "author": {
+        "@id": "https://nate-mina.github.io/Portfolio-CV/#person"
+      },
+      "programmingLanguage": ["Python", "C#"],
+      "keywords": "Computer Vision, Spatial Tracking, Behavioral Analytics, Retail Loss Prevention"
+    },
+    {
+      "@type": "MusicGroup",
+      "@id": "https://nate-mina.github.io/DomInNATEly/#musicgroup",
+      "name": "DomInNATEly",
+      "url": "https://nate-mina.github.io/DomInNATEly/",
+      "genre": ["Alternative Metal", "Rap-Rock", "Neo-Soul"],
+      "founder": {
+        "@id": "https://nate-mina.github.io/Portfolio-CV/#person"
+      }
+    }
+  ]
+}
+</script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Metal+Mania&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
