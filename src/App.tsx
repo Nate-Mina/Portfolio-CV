@@ -1,21 +1,50 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, Suspense, lazy } from 'react';
 import { jekyllThemes, profileData } from './data/profileData';
 import { JekyllTheme, PortfolioTabId } from './types';
 import { Header } from './components/Header';
 import { BioLinks } from './components/BioLinks';
-import { AboutMePage } from './components/AboutMePage';
-import { CvResume } from './components/CvResume';
-import { PureComputersPage } from './components/PureComputersPage';
-import { PortfolioWorksPage } from './components/PortfolioWorksPage';
-import { MusicPage } from './components/MusicPage';
-import { HireMePage, HireInquiryType } from './components/HireMePage';
-import { TerminalModal } from './components/TerminalModal';
-import { QrCodeModal } from './components/QrCodeModal';
-import { PhotoCarouselModal } from './components/PhotoCarouselModal';
+import type { HireInquiryType } from './components/HireMePage';
 import { Footer } from './components/Footer';
 import { ToastProvider } from './context/ToastContext';
 import { ToastContainer } from './components/Toast';
-import { AIAssistantWidget } from './components/assistant/AIAssistantWidget';
+
+const AboutMePage = lazy(() =>
+  import('./components/AboutMePage').then((m) => ({ default: m.AboutMePage }))
+);
+const CvResume = lazy(() =>
+  import('./components/CvResume').then((m) => ({ default: m.CvResume }))
+);
+const PureComputersPage = lazy(() =>
+  import('./components/PureComputersPage').then((m) => ({ default: m.PureComputersPage }))
+);
+const PortfolioWorksPage = lazy(() =>
+  import('./components/PortfolioWorksPage').then((m) => ({ default: m.PortfolioWorksPage }))
+);
+const MusicPage = lazy(() =>
+  import('./components/MusicPage').then((m) => ({ default: m.MusicPage }))
+);
+const HireMePage = lazy(() =>
+  import('./components/HireMePage').then((m) => ({ default: m.HireMePage }))
+);
+const TerminalModal = lazy(() =>
+  import('./components/TerminalModal').then((m) => ({ default: m.TerminalModal }))
+);
+const QrCodeModal = lazy(() =>
+  import('./components/QrCodeModal').then((m) => ({ default: m.QrCodeModal }))
+);
+const PhotoCarouselModal = lazy(() =>
+  import('./components/PhotoCarouselModal').then((m) => ({ default: m.PhotoCarouselModal }))
+);
+const AIAssistantWidget = lazy(() =>
+  import('./components/assistant/AIAssistantWidget').then((m) => ({ default: m.AIAssistantWidget }))
+);
+
+const TabLoadingFallback: React.FC = () => (
+  <div className="max-w-5xl mx-auto px-4 py-16 flex flex-col items-center justify-center gap-3 text-xs font-mono text-slate-400">
+    <div className="w-6 h-6 rounded-full border-2 border-emerald-500/30 border-t-emerald-400 animate-spin" />
+    <span>Loading view...</span>
+  </div>
+);
 
 const VALID_TABS: PortfolioTabId[] = ['links', 'about', 'purecomp', 'portfolio', 'music', 'resume', 'cases', 'hire'];
 
@@ -119,44 +148,55 @@ export default function App() {
           />
         )}
 
-        {activeTab === 'about' && (
-          <AboutMePage
-            currentTheme={currentTheme}
-            onOpenTerminal={() => setIsTerminalOpen(true)}
-            onOpenQr={() => handleOpenQr()}
-            onOpenGallery={() => setIsGalleryOpen(true)}
-          />
-        )}
+        <Suspense fallback={<TabLoadingFallback />}>
+          {activeTab === 'about' && (
+            <AboutMePage
+              currentTheme={currentTheme}
+              onOpenTerminal={() => setIsTerminalOpen(true)}
+              onOpenQr={() => handleOpenQr()}
+              onOpenGallery={() => setIsGalleryOpen(true)}
+              onNavigateTab={setActiveTab}
+            />
+          )}
 
-        {activeTab === 'purecomp' && (
-          <PureComputersPage
-            currentTheme={currentTheme}
-            onOpenTerminal={() => setIsTerminalOpen(true)}
-          />
-        )}
+          {activeTab === 'purecomp' && (
+            <PureComputersPage
+              currentTheme={currentTheme}
+              onOpenTerminal={() => setIsTerminalOpen(true)}
+            />
+          )}
 
-        {activeTab === 'portfolio' && (
-          <PortfolioWorksPage
-            currentTheme={currentTheme}
-            onOpenTerminal={() => setIsTerminalOpen(true)}
-          />
-        )}
+          {activeTab === 'portfolio' && (
+            <PortfolioWorksPage
+              currentTheme={currentTheme}
+              onOpenTerminal={() => setIsTerminalOpen(true)}
+            />
+          )}
 
-        {activeTab === 'music' && (
-          <MusicPage
-            currentTheme={currentTheme}
-            onOpenTerminal={() => setIsTerminalOpen(true)}
-            onOpenCustomQr={(url, title) => handleOpenQr(url, title)}
-          />
-        )}
+          {activeTab === 'music' && (
+            <MusicPage
+              currentTheme={currentTheme}
+              onOpenTerminal={() => setIsTerminalOpen(true)}
+              onOpenCustomQr={(url, title) => handleOpenQr(url, title)}
+            />
+          )}
 
-        {activeTab === 'resume' && (
-          <CvResume
-            currentTheme={currentTheme}
-            onOpenTerminal={() => setIsTerminalOpen(true)}
-            onOpenGallery={() => setIsGalleryOpen(true)}
-          />
-        )}
+          {activeTab === 'resume' && (
+            <CvResume
+              currentTheme={currentTheme}
+              onOpenTerminal={() => setIsTerminalOpen(true)}
+              onOpenGallery={() => setIsGalleryOpen(true)}
+            />
+          )}
+
+          {activeTab === 'hire' && (
+            <HireMePage
+              currentTheme={currentTheme}
+              initialInquiryType={hirePreset}
+              onNavigateTab={setActiveTab}
+            />
+          )}
+        </Suspense>
 
         {activeTab === 'cases' && (
           <div className="max-w-4xl mx-auto px-4 py-8 space-y-8">
@@ -199,40 +239,46 @@ export default function App() {
             </div>
           </div>
         )}
-
-        {activeTab === 'hire' && (
-          <HireMePage
-            currentTheme={currentTheme}
-            initialInquiryType={hirePreset}
-            onNavigateTab={setActiveTab}
-          />
-        )}
       </main>
 
-      {/* Terminal Command Modal */}
-      <TerminalModal
-        isOpen={isTerminalOpen}
-        onClose={() => setIsTerminalOpen(false)}
-        activeThemeName={currentTheme.name}
-      />
+      {/* Terminal Command Modal (loaded on demand) */}
+      {isTerminalOpen && (
+        <Suspense fallback={null}>
+          <TerminalModal
+            isOpen={isTerminalOpen}
+            onClose={() => setIsTerminalOpen(false)}
+            activeThemeName={currentTheme.name}
+          />
+        </Suspense>
+      )}
 
-      {/* QR Code Sharing Modal */}
-      <QrCodeModal
-        isOpen={qrModalData.isOpen}
-        onClose={() => setQrModalData({ isOpen: false })}
-        url={qrModalData.url}
-        title={qrModalData.title}
-      />
+      {/* QR Code Sharing Modal (loaded on demand) */}
+      {qrModalData.isOpen && (
+        <Suspense fallback={null}>
+          <QrCodeModal
+            isOpen={qrModalData.isOpen}
+            onClose={() => setQrModalData({ isOpen: false })}
+            url={qrModalData.url}
+            title={qrModalData.title}
+          />
+        </Suspense>
+      )}
 
-      {/* Profile Photo Gallery Carousel Modal */}
-      <PhotoCarouselModal
-        isOpen={isGalleryOpen}
-        onClose={() => setIsGalleryOpen(false)}
-        photos={profileData.galleryPhotos || []}
-      />
+      {/* Profile Photo Gallery Carousel Modal (loaded on demand) */}
+      {isGalleryOpen && (
+        <Suspense fallback={null}>
+          <PhotoCarouselModal
+            isOpen={isGalleryOpen}
+            onClose={() => setIsGalleryOpen(false)}
+            photos={profileData.galleryPhotos || []}
+          />
+        </Suspense>
+      )}
 
         {/* Nate Mina AI Voice & Chatbot Assistant */}
-        <AIAssistantWidget currentTheme={currentTheme} activeTab={activeTab} />
+        <Suspense fallback={null}>
+          <AIAssistantWidget currentTheme={currentTheme} activeTab={activeTab} />
+        </Suspense>
 
         {/* Global Toast Container */}
         <ToastContainer />

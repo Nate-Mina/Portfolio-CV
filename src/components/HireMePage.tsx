@@ -182,7 +182,7 @@ export const HireMePage: React.FC<HireMePageProps> = ({
 
   const handleCopyMessage = () => {
     if (!submittedData) return;
-    navigator.clipboard.writeText(submittedData.plainText);
+    navigator.clipboard?.writeText(submittedData.plainText).catch(() => {});
     setCopiedEmailText(true);
     setTimeout(() => setCopiedEmailText(false), 2000);
   };
@@ -313,7 +313,16 @@ export const HireMePage: React.FC<HireMePageProps> = ({
                     Creative Direction &amp; Philosophy
                   </div>
                   <p className="text-[11px] font-sans text-slate-400 mt-0.5">
-                    Author of <em>&ldquo;The System &amp; The Soul&rdquo;</em> and electronic/alt-rock artist as @DomInNATEly.
+                    Author of{' '}
+                    <a
+                      href="https://nate-mina.github.io/E.MUSK-AUTOBIO-PARODY/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-emerald-400 hover:underline font-medium"
+                    >
+                      <em>&ldquo;The System &amp; The Soul&rdquo;</em>
+                    </a>{' '}
+                    (book about Elon Musk) and electronic/alt-rock artist as @DomInNATEly.
                   </p>
                 </div>
               </div>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { handleImageError } from '../utils/imageUtils';
 import {
   X,
@@ -32,6 +32,16 @@ export const PhotoCarouselModal: React.FC<PhotoCarouselModalProps> = ({
   const [isPlaying, setIsPlaying] = useState(false);
   const [copied, setCopied] = useState(false);
 
+  const handleNext = useCallback(() => {
+    if (photos.length === 0) return;
+    setCurrentIndex((prev) => (prev + 1) % photos.length);
+  }, [photos.length]);
+
+  const handlePrev = useCallback(() => {
+    if (photos.length === 0) return;
+    setCurrentIndex((prev) => (prev - 1 + photos.length) % photos.length);
+  }, [photos.length]);
+
   // Sync initial photo if provided
   useEffect(() => {
     if (initialPhotoId) {
@@ -46,7 +56,7 @@ export const PhotoCarouselModal: React.FC<PhotoCarouselModalProps> = ({
 
   // Slideshow timer
   useEffect(() => {
-    let interval: any = null;
+    let interval: ReturnType<typeof setInterval> | null = null;
     if (isPlaying && isOpen && photos.length > 0) {
       interval = setInterval(() => {
         setCurrentIndex((prev) => (prev + 1) % photos.length);
@@ -71,22 +81,15 @@ export const PhotoCarouselModal: React.FC<PhotoCarouselModalProps> = ({
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, photos.length]);
+  }, [isOpen, onClose, handlePrev, handleNext]);
 
   if (!isOpen || photos.length === 0) return null;
 
   const currentPhoto = photos[currentIndex];
 
-  const handleNext = () => {
-    setCurrentIndex((prev) => (prev + 1) % photos.length);
-  };
-
-  const handlePrev = () => {
-    setCurrentIndex((prev) => (prev - 1 + photos.length) % photos.length);
-  };
-
   const handleCopyLink = () => {
-    navigator.clipboard.writeText(window.location.origin + currentPhoto.url);
+    const absoluteUrl = new URL(currentPhoto.url, window.location.href).href;
+    navigator.clipboard?.writeText(absoluteUrl).catch(() => {});
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };

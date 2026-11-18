@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { handleImageError } from '../utils/imageUtils';
 import {
   Globe,
@@ -129,7 +129,7 @@ export const BioLinks: React.FC<BioLinksProps> = ({
   const handleCopy = (url: string, id: string, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    navigator.clipboard.writeText(url);
+    navigator.clipboard?.writeText(url).catch(() => {});
     setCopiedLinkId(id);
     setTimeout(() => setCopiedLinkId(null), 2000);
   };
@@ -226,15 +226,20 @@ export const BioLinks: React.FC<BioLinksProps> = ({
     }
   };
 
-  const filteredLinks = profileData.links.filter((link) => {
-    const matchesCategory = selectedCategory === 'all' || link.category === selectedCategory;
-    const matchesSearch棱 =
-      link.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      link.subtitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (link.handle && link.handle.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      link.displayUrl.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesSearch棱;
-  });
+  const filteredLinks = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+    return profileData.links.filter((link) => {
+      const matchesCategory = selectedCategory === 'all' || link.category === selectedCategory;
+      if (!matchesCategory) return false;
+      if (!query) return true;
+      return (
+        link.title.toLowerCase().includes(query) ||
+        link.subtitle.toLowerCase().includes(query) ||
+        Boolean(link.handle && link.handle.toLowerCase().includes(query)) ||
+        link.displayUrl.toLowerCase().includes(query)
+      );
+    });
+  }, [selectedCategory, searchQuery]);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">

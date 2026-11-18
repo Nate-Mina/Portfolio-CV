@@ -1,8 +1,11 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, Suspense, lazy } from 'react';
 import { Terminal as TerminalIcon, X, Maximize2, Minimize2, Play, Gamepad2 } from 'lucide-react';
 import { profileData } from '../data/profileData';
 import { exportCvPdf } from '../utils/exportPdfCv';
-import { DosGorillaGame } from './DosGorillaGame';
+
+const DosGorillaGame = lazy(() =>
+  import('./DosGorillaGame').then((m) => ({ default: m.DosGorillaGame }))
+);
 
 interface TerminalModalProps {
   isOpen: boolean;
@@ -97,22 +100,16 @@ export const TerminalModal: React.FC<TerminalModalProps> = ({ isOpen, onClose, a
       case 'export pdf':
       case 'download cv':
       case 'download resume':
-        try {
-          exportCvPdf();
-          outputNode = (
-            <div className="text-emerald-400 space-y-1 text-xs font-mono">
-              <div className="font-bold">✔ PDF Document Generated Successfully!</div>
-              <div className="text-slate-300">File: Nathaniel_Mina_CV_Resume.pdf</div>
-              <div className="text-slate-400">Triggered direct browser download.</div>
-            </div>
-          );
-        } catch (err) {
-          outputNode = (
-            <div className="text-rose-400 text-xs font-mono">
-              Failed to generate PDF: {String(err)}
-            </div>
-          );
-        }
+        void exportCvPdf().catch((err) => {
+          console.error('Failed to generate PDF from CLI:', err);
+        });
+        outputNode = (
+          <div className="text-emerald-400 space-y-1 text-xs font-mono">
+            <div className="font-bold">✔ Generating PDF Document...</div>
+            <div className="text-slate-300">File: Nathaniel_Mina_CV_Resume.pdf</div>
+            <div className="text-slate-400">Triggered direct browser download.</div>
+          </div>
+        );
         break;
 
       case 'jekyll build':
@@ -276,23 +273,31 @@ plugins:
         {isGorillaGameActive ? (
           <div className="flex-1 p-2 sm:p-4 overflow-y-auto bg-slate-950 flex flex-col items-center justify-start">
             <div className="w-full max-w-4xl">
-              <DosGorillaGame
-                onExit={() => {
-                  setIsGorillaGameActive(false);
-                  setLogs((prev) => [
-                    ...prev,
-                    {
-                      command: 'exit',
-                      output: (
-                        <div className="text-amber-400 space-y-0.5 text-xs font-mono">
-                          <div>[MS-DOS GORILLAS] Game session ended.</div>
-                          <div className="text-slate-400">Returned to nate@purecomp-gh-pages: ~/site</div>
-                        </div>
-                      ),
-                    },
-                  ]);
-                }}
-              />
+              <Suspense
+                fallback={
+                  <div className="py-20 text-center text-xs font-mono text-emerald-400">
+                    Loading MS-DOS QBasic Gorillas...
+                  </div>
+                }
+              >
+                <DosGorillaGame
+                  onExit={() => {
+                    setIsGorillaGameActive(false);
+                    setLogs((prev) => [
+                      ...prev,
+                      {
+                        command: 'exit',
+                        output: (
+                          <div className="text-amber-400 space-y-0.5 text-xs font-mono">
+                            <div>[MS-DOS GORILLAS] Game session ended.</div>
+                            <div className="text-slate-400">Returned to nate@purecomp-gh-pages: ~/site</div>
+                          </div>
+                        ),
+                      },
+                    ]);
+                  }}
+                />
+              </Suspense>
             </div>
           </div>
         ) : (

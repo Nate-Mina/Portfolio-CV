@@ -68,7 +68,7 @@ export const QrCodeModal: React.FC<QrCodeModalProps> = ({
   if (!isOpen) return null;
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(activeUrl);
+    navigator.clipboard?.writeText(activeUrl).catch(() => {});
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };

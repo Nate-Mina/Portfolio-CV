@@ -1,11 +1,11 @@
-import jsPDF from 'jspdf';
 import { profileData } from '../data/profileData';
 
 /**
  * Generates and downloads a clean, executive-formatted PDF Curriculum Vitae / Resume
- * for Nathaniel (Nate) K. Mina using jsPDF.
+ * for Nathaniel (Nate) K. Mina using jsPDF (loaded on demand to keep initial bundle lean).
  */
-export const exportCvPdf = (): void => {
+export const exportCvPdf = async (): Promise<void> => {
+  const { default: jsPDF } = await import('jspdf');
   const doc = new jsPDF({
     orientation: 'portrait',
     unit: 'mm',

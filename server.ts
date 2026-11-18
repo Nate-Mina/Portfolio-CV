@@ -14,6 +14,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
+app.disable('x-powered-by');
 const server = http.createServer(app);
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 
@@ -253,7 +254,7 @@ async function fetchGitHubJson(url: string) {
   if (process.env.GITHUB_TOKEN) {
     headers.Authorization = `Bearer ${process.env.GITHUB_TOKEN}`;
   }
-  const res = await fetch(url, { headers });
+  const res = await fetch(url, { headers, signal: AbortSignal.timeout(8000) });
   if (!res.ok) {
     const text = await res.text().catch(() => '');
     throw new Error(`GitHub API ${res.status}: ${text || res.statusText}`);
@@ -438,6 +439,7 @@ app.get('/api/github/contributions', async (req: Request, res: Response) => {
         'User-Agent': 'Nate-Mina-Portfolio-Works',
         Accept: 'text/html',
       },
+      signal: AbortSignal.timeout(8000),
     });
 
     if (!htmlRes.ok) {
@@ -457,14 +459,20 @@ app.get('/api/github/contributions', async (req: Request, res: Response) => {
       countById.set(targetId, numMatch ? parseInt(numMatch[1], 10) : 0);
     }
 
-    // Parse day cells
+    // Parse day cells (attribute-order agnostic)
     const days: { date: string; count: number; level: number }[] = [];
-    const cellRegex = /<td[^>]*data-date="(\d{4}-\d{2}-\d{2})"[^>]*id="([^"]+)"[^>]*data-level="(\d)"[^>]*>/g;
-    let cellMatch: RegExpExecArray | null;
-    while ((cellMatch = cellRegex.exec(html)) !== null) {
-      const date = cellMatch[1];
-      const id = cellMatch[2];
-      const level = parseInt(cellMatch[3], 10);
+    const tdRegex = /<td\b([^>]*)>/g;
+    let tdMatch: RegExpExecArray | null;
+    while ((tdMatch = tdRegex.exec(html)) !== null) {
+      const attrs = tdMatch[1];
+      const dateMatch = attrs.match(/data-date="(\d{4}-\d{2}-\d{2})"/);
+      if (!dateMatch) continue;
+      const idMatch = attrs.match(/\bid="([^"]+)"/);
+      const levelMatch = attrs.match(/data-level="(\d)"/);
+      if (!idMatch || !levelMatch) continue;
+      const date = dateMatch[1];
+      const id = idMatch[1];
+      const level = parseInt(levelMatch[1], 10);
       const count = countById.has(id) ? (countById.get(id) ?? 0) : level;
       days.push({ date, count, level });
     }
@@ -565,20 +573,19 @@ function readSiteVisits(): number {
   return INITIAL_VISITS_SEED;
 }
 
+let statsWriteQueue: Promise<void> = Promise.resolve();
+
 function writeSiteVisits(count: number) {
   siteVisitCountCache = count;
-  try {
-    if (!fs.existsSync(STATS_DIR)) {
-      fs.mkdirSync(STATS_DIR, { recursive: true });
-    }
-    fs.writeFileSync(
-      STATS_FILE,
-      JSON.stringify({ visits: count, updatedAt: new Date().toISOString() }, null, 2),
-      'utf8'
-    );
-  } catch (err) {
-    console.warn('Unable to persist site-stats.json:', err);
-  }
+  const payload = JSON.stringify({ visits: count, updatedAt: new Date().toISOString() }, null, 2);
+  statsWriteQueue = statsWriteQueue
+    .then(async () => {
+      await fs.promises.mkdir(STATS_DIR, { recursive: true });
+      await fs.promises.writeFile(STATS_FILE, payload, 'utf8');
+    })
+    .catch((err) => {
+      console.warn('Unable to persist site-stats.json:', err);
+    });
 }
 
 app.get('/api/stats/visits', (_req: Request, res: Response) => {
@@ -593,6 +600,7 @@ app.post('/api/stats/visits', (_req: Request, res: Response) => {
 
 // Hire Me Contact & Inquiry Endpoint
 const INQUIRIES_FILE = path.join(STATS_DIR, 'hire-inquiries.json');
+let inquiriesWriteQueue: Promise<void> = Promise.resolve();
 
 app.post('/api/hire-inquiry', async (req: Request, res: Response) => {
   try {
@@ -625,20 +633,28 @@ app.post('/api/hire-inquiry', async (req: Request, res: Response) => {
       createdAt: new Date().toISOString(),
     };
 
-    try {
-      if (!fs.existsSync(STATS_DIR)) {
-        fs.mkdirSync(STATS_DIR, { recursive: true });
-      }
-      let existing: any[] = [];
-      if (fs.existsSync(INQUIRIES_FILE)) {
-        const parsed = JSON.parse(fs.readFileSync(INQUIRIES_FILE, 'utf8'));
-        if (Array.isArray(parsed)) existing = parsed;
-      }
-      existing.unshift(record);
-      fs.writeFileSync(INQUIRIES_FILE, JSON.stringify(existing.slice(0, 200), null, 2), 'utf8');
-    } catch (fsErr) {
-      console.warn('Unable to persist hire-inquiries.json:', fsErr);
-    }
+    inquiriesWriteQueue = inquiriesWriteQueue
+      .then(async () => {
+        await fs.promises.mkdir(STATS_DIR, { recursive: true });
+        let existing: any[] = [];
+        try {
+          const raw = await fs.promises.readFile(INQUIRIES_FILE, 'utf8');
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed)) existing = parsed;
+        } catch {
+          // File may not exist yet or be empty
+        }
+        existing.unshift(record);
+        await fs.promises.writeFile(
+          INQUIRIES_FILE,
+          JSON.stringify(existing.slice(0, 200), null, 2),
+          'utf8'
+        );
+      })
+      .catch((fsErr) => {
+        console.warn('Unable to persist hire-inquiries.json:', fsErr);
+      });
+    await inquiriesWriteQueue;
 
     let emailDispatched = false;
     const resendKey = process.env.RESEND_API_KEY;
@@ -672,6 +688,7 @@ app.post('/api/hire-inquiry', async (req: Request, res: Response) => {
             Authorization: `Bearer ${resendKey}`,
             'Content-Type': 'application/json',
           },
+          signal: AbortSignal.timeout(8000),
           body: JSON.stringify({
             from: process.env.RESEND_FROM_EMAIL || 'Portfolio Hire Form <onboarding@resend.dev>',
             to: ['NateMina@gmail.com', 'nate@purecomp.onmicrosoft.com'],
@@ -701,8 +718,16 @@ app.post('/api/hire-inquiry', async (req: Request, res: Response) => {
 // Setup Live WebSocket Server on /api/assistant/live
 const wss = new WebSocketServer({ noServer: true });
 
+wss.on('error', (err) => {
+  console.error('WebSocket server error:', err);
+});
+
 wss.on('connection', async (clientWs: WebSocket) => {
   let liveSession: any = null;
+
+  clientWs.on('error', (err) => {
+    console.warn('WebSocket client error:', err);
+  });
 
   try {
     if (ai) {
@@ -760,7 +785,9 @@ wss.on('connection', async (clientWs: WebSocket) => {
     });
   } catch (err) {
     console.error('Error connecting to Live API:', err);
-    clientWs.send(JSON.stringify({ type: 'error', message: 'Failed to initialize live voice session' }));
+    if (clientWs.readyState === WebSocket.OPEN) {
+      clientWs.send(JSON.stringify({ type: 'error', message: 'Failed to initialize live voice session' }));
+    }
   }
 });
 
@@ -771,7 +798,14 @@ server.on('upgrade', (request, socket, head) => {
     wss.handleUpgrade(request, socket, head, (ws) => {
       wss.emit('connection', ws, request);
     });
+  } else {
+    socket.destroy();
   }
+});
+
+// Return JSON 404 for unknown /api/* endpoints instead of falling through to SPA HTML
+app.all('/api/*', (_req: Request, res: Response) => {
+  res.status(404).json({ error: 'API endpoint not found' });
 });
 
 // Mount Vite middleware in development or static serve in production
@@ -785,8 +819,26 @@ async function startServer() {
     app.use(vite.middlewares);
   } else {
     const distPath = path.resolve(process.cwd(), 'dist');
-    app.use(express.static(distPath));
+    // Long-lived immutable cache for hashed Vite asset bundles
+    app.use(
+      '/assets',
+      express.static(path.join(distPath, 'assets'), {
+        maxAge: '1y',
+        immutable: true,
+      })
+    );
+    app.use(
+      express.static(distPath, {
+        maxAge: '1h',
+        setHeaders: (res, filePath) => {
+          if (filePath.endsWith('.html')) {
+            res.setHeader('Cache-Control', 'no-cache');
+          }
+        },
+      })
+    );
     app.get('*', (_req: Request, res: Response) => {
+      res.setHeader('Cache-Control', 'no-cache');
       res.sendFile(path.resolve(distPath, 'index.html'));
     });
   }

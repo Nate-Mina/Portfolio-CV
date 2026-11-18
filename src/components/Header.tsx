@@ -62,9 +62,9 @@ export const Header: React.FC<HeaderProps> = ({
     };
   }, []);
 
-  const handleExportCvPdf = () => {
+  const handleExportCvPdf = async () => {
     try {
-      exportCvPdf();
+      await exportCvPdf();
       setDownloaded(true);
       setTimeout(() => setDownloaded(false), 2500);
     } catch (err) {

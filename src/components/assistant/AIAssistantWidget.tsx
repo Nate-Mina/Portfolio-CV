@@ -1,8 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { Bot, Mic, MessageSquare, X, Minus, Sparkles, Phone, Volume2 } from 'lucide-react';
-import { VoiceModeView } from './VoiceModeView';
-import { ChatModeView } from './ChatModeView';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
+import { Bot, Mic, MessageSquare, X } from 'lucide-react';
 import { JekyllTheme } from '../../types';
+
+const VoiceModeView = lazy(() =>
+  import('./VoiceModeView').then((m) => ({ default: m.VoiceModeView }))
+);
+const ChatModeView = lazy(() =>
+  import('./ChatModeView').then((m) => ({ default: m.ChatModeView }))
+);
 
 interface AIAssistantWidgetProps {
   currentTheme?: JekyllTheme;
@@ -120,11 +125,19 @@ export const AIAssistantWidget: React.FC<AIAssistantWidgetProps> = ({ currentThe
 
           {/* Active Mode View */}
           <div className="bg-slate-900/60 flex-1 overflow-hidden">
-            {mode === 'voice' ? (
-              <VoiceModeView onSwitchToChat={() => setMode('chat')} />
-            ) : (
-              <ChatModeView />
-            )}
+            <Suspense
+              fallback={
+                <div className="h-[520px] max-h-[80vh] flex items-center justify-center text-xs font-mono text-slate-400">
+                  Loading assistant...
+                </div>
+              }
+            >
+              {mode === 'voice' ? (
+                <VoiceModeView onSwitchToChat={() => setMode('chat')} />
+              ) : (
+                <ChatModeView />
+              )}
+            </Suspense>
           </div>
         </div>
       )}

@@ -42,15 +42,15 @@ export const CvResume: React.FC<CvResumeProps> = ({ currentTheme, onOpenTerminal
   const [pdfExporting, setPdfExporting] = useState(false);
 
   const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
+    navigator.clipboard?.writeText(text).catch(() => {});
     setCopiedEmail(text);
     setTimeout(() => setCopiedEmail(null), 2000);
   };
 
-  const handleExportPdf = () => {
+  const handleExportPdf = async () => {
     try {
       setPdfExporting(true);
-      exportCvPdf();
+      await exportCvPdf();
       setTimeout(() => setPdfExporting(false), 2500);
     } catch (err) {
       console.error('Failed to export PDF:', err);

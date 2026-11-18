@@ -18,9 +18,15 @@ export const VoiceModeView: React.FC<VoiceModeViewProps> = ({ onSwitchToChat }) 
   const [micPermissionError, setMicPermissionError] = useState(false);
   const recognitionRef = useRef<any>(null);
   const audioPlayerRef = useRef<HTMLAudioElement | null>(null);
+  const transcriptRef = useRef('');
+  const hasSubmittedRef = useRef(false);
+  const handleQueryRef = useRef<(query: string) => void>(() => {});
+  const isMountedRef = useRef(true);
+  const fetchAbortRef = useRef<AbortController | null>(null);
 
   // Play audio greeting or assistant response using server TTS or Web Speech fallback
   const speakText = async (textToSpeak: string) => {
+    if (!isMountedRef.current) return;
     // Stop any existing speech
     if (audioPlayerRef.current) {
       audioPlayerRef.current.pause();
@@ -33,104 +39,63 @@ export const VoiceModeView: React.FC<VoiceModeViewProps> = ({ onSwitchToChat }) 
     setIsSpeaking(true);
 
     try {
+      const controller = new AbortController();
+      fetchAbortRef.current = controller;
       const res = await fetch('/api/assistant/tts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text: textToSpeak }),
+        signal: controller.signal,
       });
 
-      if (res.ok) {
+      if (res.ok && isMountedRef.current) {
         const data = await res.json();
-        if (data.audio) {
+        if (data.audio && isMountedRef.current) {
           const audio = new Audio(`data:audio/wav;base64,${data.audio}`);
           audioPlayerRef.current = audio;
           audio.onended = () => {
-            setIsSpeaking(false);
+            if (isMountedRef.current) setIsSpeaking(false);
           };
           audio.onerror = () => {
-            setIsSpeaking(false);
+            if (isMountedRef.current) setIsSpeaking(false);
           };
           await audio.play();
           return;
         }
       }
-    } catch (err) {
+    } catch (err: any) {
+      if (err?.name === 'AbortError' || !isMountedRef.current) return;
       console.warn('Server TTS failed, falling back to Web Speech API:', err);
     }
+
+    if (!isMountedRef.current) return;
 
     // Fallback: Web Speech API
     if ('speechSynthesis' in window) {
       const utterance = new SpeechSynthesisUtterance(textToSpeak);
       utterance.rate = 1.05;
       utterance.pitch = 1.0;
-      utterance.onend = () => setIsSpeaking(false);
-      utterance.onerror = () => setIsSpeaking(false);
+      utterance.onend = () => {
+        if (isMountedRef.current) setIsSpeaking(false);
+      };
+      utterance.onerror = () => {
+        if (isMountedRef.current) setIsSpeaking(false);
+      };
       window.speechSynthesis.speak(utterance);
     } else {
       setIsSpeaking(false);
     }
   };
 
-  // Initialize Speech Recognition
-  useEffect(() => {
-    const SpeechRecognition =
-      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-
-    if (!SpeechRecognition) {
-      setSpeechSupported(false);
-      return;
-    }
-
-    const recognition = new SpeechRecognition();
-    recognition.continuous = false;
-    recognition.interimResults = true;
-    recognition.lang = 'en-US';
-
-    recognition.onstart = () => {
-      setIsListening(true);
-    };
-
-    recognition.onresult = (event: any) => {
-      const current = event.resultIndex;
-      const text = event.results[current][0].transcript;
-      setTranscript(text);
-    };
-
-    recognition.onerror = (event: any) => {
-      console.warn('Speech recognition warning/error:', event.error);
-      setIsListening(false);
-      if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
-        setMicPermissionError(true);
-      }
-    };
-
-    recognition.onend = () => {
-      setIsListening(false);
-    };
-
-    recognitionRef.current = recognition;
-
-    return () => {
-      if (recognitionRef.current) {
-        try {
-          recognitionRef.current.abort();
-        } catch (_) {}
-      }
-      if (audioPlayerRef.current) {
-        audioPlayerRef.current.pause();
-      }
-      if (window.speechSynthesis) {
-        window.speechSynthesis.cancel();
-      }
-    };
-  }, []);
-
-  // When speech recognition ends with a non-empty transcript, query the assistant
+  // Query the assistant with transcript
   const handleQuery = async (userQuery: string) => {
-    if (!userQuery.trim()) return;
+    if (!userQuery.trim() || !isMountedRef.current) return;
 
     setIsThinking(true);
     try {
+      fetchAbortRef.current?.abort();
+      const controller = new AbortController();
+      fetchAbortRef.current = controller;
       const res = await fetch('/api/assistant/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -138,15 +103,18 @@ export const VoiceModeView: React.FC<VoiceModeViewProps> = ({ onSwitchToChat }) 
           message: userQuery,
           history: [{ role: 'assistant', text: aiSpeechText }],
         }),
+        signal: controller.signal,
       });
 
       if (!res.ok) throw new Error('API error');
       const data = await res.json();
+      if (!isMountedRef.current) return;
       const reply = data.reply || "I'm here to help. You can also call or text Nate directly at 585-484-1764.";
       setAiSpeechText(reply);
       setIsThinking(false);
       speakText(reply);
-    } catch (err) {
+    } catch (err: any) {
+      if (err?.name === 'AbortError' || !isMountedRef.current) return;
       console.error('Error in voice query:', err);
       setIsThinking(false);
       const fallback = "I encountered a network issue, but you can reach Nate Mina directly anytime at 585-484-1764.";
@@ -155,15 +123,89 @@ export const VoiceModeView: React.FC<VoiceModeViewProps> = ({ onSwitchToChat }) 
     }
   };
 
+  handleQueryRef.current = handleQuery;
+
+  // Initialize Speech Recognition
+  useEffect(() => {
+    isMountedRef.current = true;
+    const SpeechRecognition =
+      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+      setSpeechSupported(false);
+    } else {
+      const recognition = new SpeechRecognition();
+      recognition.continuous = false;
+      recognition.interimResults = true;
+      recognition.lang = 'en-US';
+
+      recognition.onstart = () => {
+        hasSubmittedRef.current = false;
+        setIsListening(true);
+      };
+
+      recognition.onresult = (event: any) => {
+        const current = event.resultIndex;
+        const text = event.results[current][0].transcript;
+        transcriptRef.current = text;
+        setTranscript(text);
+      };
+
+      recognition.onerror = (event: any) => {
+        console.warn('Speech recognition warning/error:', event.error);
+        setIsListening(false);
+        if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+          setMicPermissionError(true);
+        }
+      };
+
+      recognition.onend = () => {
+        setIsListening(false);
+        const captured = transcriptRef.current.trim();
+        if (captured && !hasSubmittedRef.current) {
+          hasSubmittedRef.current = true;
+          handleQueryRef.current(captured);
+        }
+      };
+
+      recognitionRef.current = recognition;
+    }
+
+    return () => {
+      isMountedRef.current = false;
+      fetchAbortRef.current?.abort();
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.abort();
+        } catch (_) {}
+      }
+      if (audioPlayerRef.current) {
+        audioPlayerRef.current.pause();
+        audioPlayerRef.current = null;
+      }
+      if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, []);
+
   const toggleListening = () => {
+    if (!speechSupported) {
+      onSwitchToChat();
+      return;
+    }
     if (isListening) {
+      const captured = transcriptRef.current.trim();
+      if (captured && !hasSubmittedRef.current) {
+        hasSubmittedRef.current = true;
+        handleQuery(captured);
+      }
       if (recognitionRef.current) {
         recognitionRef.current.stop();
       }
-      if (transcript.trim()) {
-        handleQuery(transcript);
-      }
     } else {
+      transcriptRef.current = '';
+      hasSubmittedRef.current = false;
       setTranscript('');
       if (audioPlayerRef.current) {
         audioPlayerRef.current.pause();
@@ -258,25 +300,21 @@ export const VoiceModeView: React.FC<VoiceModeViewProps> = ({ onSwitchToChat }) 
       <div className="flex flex-col items-center justify-center space-y-4 py-2">
         {/* Animated Equalizer Waveform */}
         <div className="flex items-center justify-center gap-1.5 h-20 w-full max-w-xs">
-          {[40, 70, 95, 60, 85, 45, 90, 65, 30, 80, 50, 75].map((val, idx) => (
-            <div
-              key={idx}
-              className={`w-2 rounded-full transition-all duration-150 ${
-                isSpeaking
-                  ? 'bg-gradient-to-t from-purple-600 to-sky-400'
-                  : isListening
-                  ? 'bg-gradient-to-t from-rose-500 to-amber-400'
-                  : 'bg-slate-800'
-              }`}
-              style={{
-                height: isSpeaking
-                  ? `${Math.max(12, (val * (Math.sin(Date.now() / 200 + idx) + 1.2)) / 2)}px`
-                  : isListening
-                  ? `${Math.max(15, (val * (Math.cos(Date.now() / 150 + idx) + 1.4)) / 2)}px`
-                  : '10px',
-              }}
-            />
-          ))}
+          {[40, 70, 95, 60, 85, 45, 90, 65, 30, 80, 50, 75].map((_, idx) => {
+            const eqClass = isSpeaking || isListening ? `animate-eq-${(idx % 5) + 1}` : 'h-2.5';
+            return (
+              <div
+                key={idx}
+                className={`w-2 rounded-full transition-all duration-150 ${eqClass} ${
+                  isSpeaking
+                    ? 'bg-gradient-to-t from-purple-600 to-sky-400'
+                    : isListening
+                    ? 'bg-gradient-to-t from-rose-500 to-amber-400'
+                    : 'bg-slate-800'
+                }`}
+              />
+            );
+          })}
         </div>
 
         {/* Central Push-to-Talk / Mic Button */}
@@ -286,12 +324,22 @@ export const VoiceModeView: React.FC<VoiceModeViewProps> = ({ onSwitchToChat }) 
           className={`relative p-6 rounded-full transition-all shadow-2xl active:scale-95 cursor-pointer flex items-center justify-center ${
             isListening
               ? 'bg-rose-500 text-white ring-8 ring-rose-500/20 animate-pulse'
+              : !speechSupported
+              ? 'bg-slate-800 text-slate-400 ring-2 ring-slate-700'
               : 'bg-gradient-to-tr from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white ring-4 ring-emerald-500/20'
           }`}
-          title={isListening ? 'Click to stop and send' : 'Click to speak to Nate AI'}
+          title={
+            !speechSupported
+              ? 'Voice input unsupported in this browser — click for text chat'
+              : isListening
+              ? 'Click to stop and send'
+              : 'Click to speak to Nate AI'
+          }
         >
-          {isListening ? <Mic className="w-8 h-8" /> : <Mic className="w-8 h-8" />}
-          <span className="sr-only">{isListening ? 'Stop Listening' : 'Start Talking'}</span>
+          {speechSupported ? <Mic className="w-8 h-8" /> : <MicOff className="w-8 h-8" />}
+          <span className="sr-only">
+            {!speechSupported ? 'Switch to Text Chat' : isListening ? 'Stop Listening' : 'Start Talking'}
+          </span>
         </button>
 
         <p className="text-xs font-mono text-slate-400 text-center">

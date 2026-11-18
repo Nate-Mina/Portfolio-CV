@@ -91,6 +91,8 @@ const GRAVITY = 0.28;
 export const DosGorillaGame: React.FC<DosGorillaGameProps> = ({ onExit }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const skylineCanvasRef = useRef<HTMLCanvasElement | null>(null);
+  const skylineCtxRef = useRef<CanvasRenderingContext2D | null>(null);
+  const timeoutsRef = useRef<number[]>([]);
 
   // Audio Context Ref
   const audioCtxRef = useRef<AudioContext | null>(null);
@@ -213,9 +215,10 @@ export const DosGorillaGame: React.FC<DosGorillaGameProps> = ({ onExit }) => {
     try {
       const notes = [262, 330, 392, 523, 659, 784];
       notes.forEach((freq, idx) => {
-        setTimeout(() => {
+        const timerId = window.setTimeout(() => {
           playBeep(freq, 0.12, 'square');
         }, idx * 110);
+        timeoutsRef.current.push(timerId);
       });
     } catch {
       // Audio fallback
@@ -295,8 +298,13 @@ export const DosGorillaGame: React.FC<DosGorillaGameProps> = ({ onExit }) => {
       skylineCanvasRef.current = document.createElement('canvas');
       skylineCanvasRef.current.width = CANVAS_WIDTH;
       skylineCanvasRef.current.height = CANVAS_HEIGHT;
+      skylineCtxRef.current = skylineCanvasRef.current.getContext('2d', {
+        willReadFrequently: true,
+      });
     }
-    const skyCtx = skylineCanvasRef.current.getContext('2d');
+    const skyCtx =
+      skylineCtxRef.current ||
+      skylineCanvasRef.current.getContext('2d', { willReadFrequently: true });
     if (skyCtx) {
       skyCtx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
       // Draw all buildings
@@ -338,14 +346,21 @@ export const DosGorillaGame: React.FC<DosGorillaGameProps> = ({ onExit }) => {
     setStatusLog(`Round started! Wind: ${newWind > 0 ? `+${newWind} (Right)` : newWind < 0 ? `${newWind} (Left)` : '0 (Calm)'}. Player 1 aim!`);
   }, []);
 
-  // Initial mount: setup round
+  // Initial mount: setup round & cleanup timers/audio on unmount
   useEffect(() => {
     initCityAndRound(true);
+    return () => {
+      timeoutsRef.current.forEach((id) => window.clearTimeout(id));
+      timeoutsRef.current = [];
+      if (audioCtxRef.current && audioCtxRef.current.state !== 'closed') {
+        audioCtxRef.current.close().catch(() => {});
+      }
+    };
   }, [initCityAndRound]);
 
   // Carve crater in buildings canvas
   const carveCrater = (cx: number, cy: number, radius: number) => {
-    const skyCtx = skylineCanvasRef.current?.getContext('2d');
+    const skyCtx = skylineCtxRef.current;
     if (skyCtx) {
       skyCtx.save();
       skyCtx.globalCompositeOperation = 'destination-out';
@@ -358,10 +373,9 @@ export const DosGorillaGame: React.FC<DosGorillaGameProps> = ({ onExit }) => {
 
   // Check collision of banana against buildings
   const checkBuildingCollision = (x: number, y: number): boolean => {
-    if (!skylineCanvasRef.current) return false;
-    if (x < 0 || x >= CANVAS_WIDTH || y < 0 || y >= CANVAS_HEIGHT) return false;
-    const skyCtx = skylineCanvasRef.current.getContext('2d');
+    const skyCtx = skylineCtxRef.current;
     if (!skyCtx) return false;
+    if (x < 0 || x >= CANVAS_WIDTH || y < 0 || y >= CANVAS_HEIGHT) return false;
     try {
       const pixel = skyCtx.getImageData(Math.floor(x), Math.floor(y), 1, 1).data;
       // If alpha > 30, it hit a non-transparent building pixel!
@@ -505,9 +519,10 @@ export const DosGorillaGame: React.FC<DosGorillaGameProps> = ({ onExit }) => {
     setStatusLog(`${isP1 ? 'Player 1' : mode === 'pve' ? 'Gorilla Bot (CPU)' : 'Player 2'} threw with Angle ${throwAngle}°, Velocity ${throwVelocity}!`);
 
     // Reset arm after brief throw animation
-    setTimeout(() => {
+    const timerId = window.setTimeout(() => {
       shooter.armState = 'idle';
     }, 350);
+    timeoutsRef.current.push(timerId);
   }, [mode, playThrowSound]);
 
   executeThrowRef.current = executeThrow;
@@ -931,14 +946,14 @@ export const DosGorillaGame: React.FC<DosGorillaGameProps> = ({ onExit }) => {
   const handleNextRound = useCallback(() => {
     setRoundNumber((r) => r + 1);
     initCityAndRound(false);
-  }, []);
+  }, [initCityAndRound]);
 
   handleNextRoundRef.current = handleNextRound;
 
   // Reset Full Match
   const handleRestartMatch = useCallback(() => {
     initCityAndRound(true);
-  }, []);
+  }, [initCityAndRound]);
 
   handleRestartMatchRef.current = handleRestartMatch;
 

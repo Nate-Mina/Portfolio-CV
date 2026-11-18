@@ -3,43 +3,383 @@ import {
   BookOpen,
   Music,
   Cpu,
-  Compass,
-  Sparkles,
   ExternalLink,
-  ChevronRight,
-  Activity,
-  Award,
-  Layers,
-  Wrench,
-  Radio,
-  FileText,
   Terminal,
-  QrCode,
-  Zap,
   ArrowRight,
-  CheckCircle2,
+  ArrowLeft,
   Server,
-  Heart,
+  Radio,
+  Briefcase,
+  GraduationCap,
+  MapPin,
+  Phone,
+  Mail,
   Globe,
+  Award,
+  Code,
+  FileText,
+  Sparkles,
+  ChevronRight,
+  Maximize2,
 } from 'lucide-react';
-import { JekyllTheme } from '../types';
+import { JekyllTheme, PortfolioTabId } from '../types';
 import { profileData } from '../data/profileData';
+import { handleImageError } from '../utils/imageUtils';
 
 interface AboutMePageProps {
   currentTheme: JekyllTheme;
   onOpenTerminal: () => void;
   onOpenQr: () => void;
   onOpenGallery?: () => void;
+  onNavigateTab?: (tab: PortfolioTabId) => void;
 }
 
 export const AboutMePage: React.FC<AboutMePageProps> = ({
   currentTheme,
   onOpenTerminal,
-  onOpenQr,
   onOpenGallery,
+  onNavigateTab,
 }) => {
-  // Page mode: 'both' | 1 | 2
+  // Default to clean 1-page overview; toggle to the full 2-page autobiography on demand
+  const [viewMode, setViewMode] = useState<'simple' | 'autobiography'>('simple');
   const [currentPage, setCurrentPage] = useState<'both' | 1 | 2>('both');
+
+  const switchView = (mode: 'simple' | 'autobiography') => {
+    setViewMode(mode);
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  if (viewMode === 'simple') {
+    const primaryEducation = profileData.education[0];
+    const keyExperiences = profileData.experience.slice(0, 4);
+
+    return (
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+        {/* Hero Overview Card */}
+        <section
+          className={`p-6 sm:p-8 rounded-3xl border ${currentTheme.borderClass} ${currentTheme.cardBgClass} shadow-2xl relative overflow-hidden backdrop-blur-md space-y-5`}
+        >
+          <div className="absolute -top-20 -right-20 w-72 h-72 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -bottom-20 -left-20 w-72 h-72 bg-purple-600/10 rounded-full blur-3xl pointer-events-none" />
+
+          <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
+              {/* Clickable Portrait */}
+              <div
+                onClick={onOpenGallery}
+                className={`relative w-20 h-20 sm:w-24 sm:h-24 rounded-2xl p-0.5 bg-gradient-to-tr from-emerald-400 via-sky-500 to-purple-500 shadow-xl shrink-0 ${
+                  onOpenGallery ? 'cursor-pointer group hover:scale-105 transition-transform' : ''
+                }`}
+                title={onOpenGallery ? 'Click to view photo gallery' : profileData.name}
+              >
+                <img
+                  src={profileData.avatarUrl}
+                  alt={profileData.name}
+                  data-filename="MAIN.jpg"
+                  className="w-full h-full object-cover rounded-[14px]"
+                  referrerPolicy="no-referrer"
+                  onError={(e) => handleImageError(e, 'MAIN.jpg')}
+                />
+                {onOpenGallery && (
+                  <div className="absolute inset-0 rounded-[14px] bg-slate-950/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                    <Maximize2 className="w-5 h-5 text-emerald-400" />
+                  </div>
+                )}
+              </div>
+
+              <div className="space-y-1.5">
+                <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[11px] font-mono font-semibold">
+                  <Sparkles className="w-3 h-3" />
+                  <span>About Me &bull; Executive Overview</span>
+                </div>
+                <h1 className="text-2xl sm:text-3xl font-mono font-bold text-slate-100 tracking-tight">
+                  {profileData.name}
+                </h1>
+                <p className="text-sm font-mono font-semibold text-emerald-400">
+                  {profileData.title} &bull; CEO at {profileData.company}
+                </p>
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs font-mono text-slate-400 pt-0.5">
+                  <span className="inline-flex items-center gap-1">
+                    <MapPin className="w-3.5 h-3.5 text-emerald-400" />
+                    {profileData.location}
+                  </span>
+                  <a
+                    href={`tel:${profileData.phone.replace(/\D/g, '')}`}
+                    className="inline-flex items-center gap-1 hover:text-emerald-400 transition-colors"
+                  >
+                    <Phone className="w-3.5 h-3.5 text-sky-400" />
+                    {profileData.phone}
+                  </a>
+                  <a
+                    href={`mailto:${profileData.emails[1] || profileData.emails[0]}`}
+                    className="inline-flex items-center gap-1 hover:text-emerald-400 transition-colors"
+                  >
+                    <Mail className="w-3.5 h-3.5 text-purple-400" />
+                    {profileData.emails[1] || profileData.emails[0]}
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            {/* Action Buttons: Detailed Autobiography & Full CV */}
+            <div className="flex flex-wrap sm:flex-nowrap md:flex-col gap-2 shrink-0">
+              <button
+                type="button"
+                onClick={() => switchView('autobiography')}
+                className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-mono text-xs font-bold shadow-lg flex items-center justify-center gap-2 transition-all cursor-pointer"
+              >
+                <BookOpen className="w-4 h-4 shrink-0" />
+                <span>Read Detailed Autobiography</span>
+                <ArrowRight className="w-3.5 h-3.5 shrink-0" />
+              </button>
+
+              {onNavigateTab && (
+                <button
+                  type="button"
+                  onClick={() => onNavigateTab('resume')}
+                  className="px-4 py-2 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-slate-200 border border-slate-700 font-mono text-xs font-semibold flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                >
+                  <FileText className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                  <span>Open Full CV &amp; Resume</span>
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Concise Bio & Philosophy */}
+          <p className="relative z-10 text-sm font-sans text-slate-200 leading-relaxed border-t border-slate-800/80 pt-4">
+            {profileData.bioSummary}{' '}
+            Outside of leading custom workstations, marine fiber infrastructure, and applied AI engineering, I release original music under{' '}
+            <a
+              href="https://nate-mina.github.io/DomInNATEly/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-purple-300 font-mono font-semibold hover:underline"
+            >
+              DomInNATEly
+            </a>{' '}
+            and authored{' '}
+            <a
+              href="https://nate-mina.github.io/E.MUSK-AUTOBIO-PARODY/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-emerald-400 font-mono font-semibold hover:underline inline-flex items-center gap-1"
+            >
+              <em>&ldquo;The System &amp; The Soul&rdquo;</em>
+              <ExternalLink className="w-3 h-3 inline" />
+            </a>{' '}
+            (about Elon Musk).
+          </p>
+        </section>
+
+        {/* Single-Page Resume & Background Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          {/* Left: Experience Snapshot (from CV/Resume) */}
+          <section
+            className={`lg:col-span-7 p-6 rounded-2xl border ${currentTheme.borderClass} ${currentTheme.cardBgClass} shadow-xl space-y-4`}
+          >
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div className="flex items-center gap-2.5">
+                <Briefcase className="w-5 h-5 text-sky-400" />
+                <h2 className="text-base sm:text-lg font-mono font-bold text-slate-100">
+                  Career &amp; Experience Highlights
+                </h2>
+              </div>
+              {onNavigateTab && (
+                <button
+                  type="button"
+                  onClick={() => onNavigateTab('resume')}
+                  className="text-[11px] font-mono text-emerald-400 hover:underline flex items-center gap-1 cursor-pointer"
+                >
+                  <span>Full CV</span>
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+
+            <div className="space-y-4">
+              {keyExperiences.map((exp, idx) => (
+                <div
+                  key={idx}
+                  className="p-3.5 rounded-xl bg-slate-950/75 border border-slate-800/80 space-y-1.5"
+                >
+                  <div className="flex flex-wrap items-baseline justify-between gap-2">
+                    <h3 className="text-sm font-mono font-bold text-slate-100">{exp.role}</h3>
+                    <span className="text-[11px] font-mono text-slate-400">{exp.period}</span>
+                  </div>
+                  <div className="text-xs font-mono text-emerald-400 font-semibold">
+                    {exp.company} &bull; <span className="text-slate-400 font-normal">{exp.location}</span>
+                  </div>
+                  {exp.highlights[0] && (
+                    <p className="text-xs font-sans text-slate-300 leading-relaxed pt-0.5">
+                      {exp.highlights[0]}
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* Right: Education, Skills & Honors (from CV/Resume) */}
+          <div className="lg:col-span-5 space-y-5">
+            {/* Education */}
+            {primaryEducation && (
+              <section
+                className={`p-5 rounded-2xl border ${currentTheme.borderClass} ${currentTheme.cardBgClass} shadow-xl space-y-3`}
+              >
+                <div className="flex items-center gap-2 border-b border-slate-800 pb-2.5">
+                  <GraduationCap className="w-4 h-4 text-emerald-400" />
+                  <h2 className="text-sm font-mono font-bold text-slate-100 uppercase tracking-wider">
+                    Education
+                  </h2>
+                </div>
+                <div className="space-y-1">
+                  <div className="text-sm font-mono font-bold text-slate-100">
+                    {primaryEducation.institution}
+                  </div>
+                  <div className="text-xs font-mono text-emerald-400 font-semibold">
+                    {primaryEducation.degree}
+                  </div>
+                  <div className="text-[11px] font-mono text-slate-400">
+                    {primaryEducation.period} &bull; {primaryEducation.location}
+                  </div>
+                  {primaryEducation.details?.[0] && (
+                    <p className="text-xs font-sans text-slate-300 pt-1 leading-relaxed">
+                      {primaryEducation.details[0]}
+                    </p>
+                  )}
+                </div>
+              </section>
+            )}
+
+            {/* Core Stack */}
+            <section
+              className={`p-5 rounded-2xl border ${currentTheme.borderClass} ${currentTheme.cardBgClass} shadow-xl space-y-3`}
+            >
+              <div className="flex items-center gap-2 border-b border-slate-800 pb-2.5">
+                <Code className="w-4 h-4 text-sky-400" />
+                <h2 className="text-sm font-mono font-bold text-slate-100 uppercase tracking-wider">
+                  Core Engineering &amp; Tech Stack
+                </h2>
+              </div>
+              <div className="space-y-2.5">
+                {profileData.techStack.slice(0, 4).map((group) => (
+                  <div key={group.domain} className="space-y-1">
+                    <div className="text-[11px] font-mono font-bold text-emerald-400">
+                      {group.domain}
+                    </div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {group.technologies.slice(0, 4).map((tech) => (
+                        <span
+                          key={tech}
+                          className="text-[11px] font-mono px-2 py-0.5 rounded bg-slate-950 border border-slate-800 text-slate-300"
+                        >
+                          {tech}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            {/* Recognition & Affiliations */}
+            <section
+              className={`p-5 rounded-2xl border ${currentTheme.borderClass} ${currentTheme.cardBgClass} shadow-xl space-y-3`}
+            >
+              <div className="flex items-center gap-2 border-b border-slate-800 pb-2.5">
+                <Award className="w-4 h-4 text-amber-400" />
+                <h2 className="text-sm font-mono font-bold text-slate-100 uppercase tracking-wider">
+                  Honors &amp; Certifications
+                </h2>
+              </div>
+              <ul className="space-y-1.5 text-xs font-sans text-slate-300">
+                {profileData.awards.map((award, idx) => (
+                  <li key={idx} className="flex items-center justify-between gap-2">
+                    <span className="font-medium text-slate-200">{award.title}</span>
+                    <span className="text-[11px] font-mono text-slate-400 shrink-0">
+                      {award.organization}
+                    </span>
+                  </li>
+                ))}
+                <li className="pt-1 border-t border-slate-800/80 text-[11px] font-mono text-slate-400">
+                  {profileData.certifications.length} Verified Certifications &bull;{' '}
+                  {profileData.memberships.join(' • ')}
+                </li>
+              </ul>
+            </section>
+          </div>
+        </div>
+
+        {/* Bottom Autobiography Banner & Quick Links */}
+        <section
+          className={`p-5 sm:p-6 rounded-2xl border border-purple-500/30 bg-gradient-to-r from-purple-950/40 via-slate-900/90 to-emerald-950/40 shadow-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4`}
+        >
+          <div className="space-y-1">
+            <h2 className="text-sm sm:text-base font-mono font-bold text-slate-100 flex items-center gap-2">
+              <BookOpen className="w-4 h-4 text-purple-400" />
+              <span>Want the full story behind the resume?</span>
+            </h2>
+            <p className="text-xs font-sans text-slate-300">
+              Read the detailed two-page autobiographical edition or explore the full{' '}
+              <a
+                href="https://nate-mina.github.io/E.MUSK-AUTOBIO-PARODY/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-emerald-400 font-mono font-semibold hover:underline inline-flex items-center gap-1"
+              >
+                <em>&ldquo;The System &amp; The Soul&rdquo;</em> book about Elon Musk
+                <ExternalLink className="w-3 h-3 inline" />
+              </a>.
+            </p>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={() => switchView('autobiography')}
+              className="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-mono text-xs font-bold flex items-center gap-1.5 shadow-md transition-colors cursor-pointer"
+            >
+              <span>Read Autobiography</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+
+            <a
+              href="https://nate-mina.github.io/E.MUSK-AUTOBIO-PARODY/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-purple-300 border border-purple-500/40 font-mono text-xs font-bold flex items-center gap-1.5 transition-colors"
+            >
+              <BookOpen className="w-3.5 h-3.5" />
+              <span>Open Book</span>
+              <ExternalLink className="w-3 h-3" />
+            </a>
+
+            <a
+              href={profileData.website}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-emerald-400 border border-slate-700 font-mono text-xs font-bold flex items-center gap-1.5 transition-colors"
+            >
+              <Globe className="w-3.5 h-3.5" />
+              <span>PureComp.Net</span>
+            </a>
+
+            <button
+              type="button"
+              onClick={onOpenTerminal}
+              className="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 font-mono text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+            >
+              <Terminal className="w-3.5 h-3.5" />
+              <span>CLI</span>
+            </button>
+          </div>
+        </section>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
@@ -47,6 +387,28 @@ export const AboutMePage: React.FC<AboutMePageProps> = ({
       <div className={`p-6 sm:p-8 rounded-3xl border ${currentTheme.borderClass} ${currentTheme.cardBgClass} shadow-xl relative overflow-hidden backdrop-blur-md space-y-5`}>
         <div className="absolute top-0 right-0 w-80 h-80 bg-purple-600/10 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="relative z-10 flex flex-wrap items-center justify-between gap-3">
+          <button
+            type="button"
+            onClick={() => switchView('simple')}
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-emerald-400 border border-emerald-500/30 text-xs font-mono font-bold transition-colors cursor-pointer"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" />
+            <span>Back to Simple About Me</span>
+          </button>
+
+          {onNavigateTab && (
+            <button
+              type="button"
+              onClick={() => onNavigateTab('resume')}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-slate-300 border border-slate-700 text-xs font-mono font-semibold transition-colors cursor-pointer"
+            >
+              <FileText className="w-3.5 h-3.5 text-sky-400" />
+              <span>View CV &amp; Resume Tab</span>
+            </button>
+          )}
+        </div>
 
         <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-5 border-b border-slate-800 pb-5">
           <div className="space-y-1.5">
@@ -63,7 +425,17 @@ export const AboutMePage: React.FC<AboutMePageProps> = ({
               About Nathaniel (Nate) Mina
             </h1>
             <p className="text-xs sm:text-sm font-sans text-slate-300">
-              The concise two-page synthesis of my autobiography <em>&ldquo;The System &amp; The Soul&rdquo;</em> combined with ten years of engineering, enterprise leadership, and sonic artistry.
+              The concise two-page synthesis of my autobiography inspired alongside my book{' '}
+              <a
+                href="https://nate-mina.github.io/E.MUSK-AUTOBIO-PARODY/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-emerald-400 font-mono font-semibold hover:underline inline-flex items-center gap-1"
+              >
+                <em>&ldquo;The System &amp; The Soul&rdquo;</em> (about Elon Musk)
+                <ExternalLink className="w-3 h-3 inline" />
+              </a>{' '}
+              combined with ten years of engineering, enterprise leadership, and sonic artistry.
             </p>
           </div>
 
@@ -312,7 +684,14 @@ export const AboutMePage: React.FC<AboutMePageProps> = ({
 
           {/* Page 2 Action Footer */}
           <div className="pt-4 border-t border-slate-800 flex flex-wrap items-center justify-between gap-3 text-xs font-mono">
-            <span className="text-slate-500">The System &amp; The Soul &bull; Part II Summary</span>
+            <button
+              type="button"
+              onClick={() => switchView('simple')}
+              className="text-emerald-400 hover:text-emerald-300 font-bold inline-flex items-center gap-1.5 cursor-pointer"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>Back to Simple About Me</span>
+            </button>
 
             <div className="flex flex-wrap items-center gap-2">
               <a
@@ -337,7 +716,7 @@ export const AboutMePage: React.FC<AboutMePageProps> = ({
 
               <button
                 onClick={onOpenTerminal}
-                className="px-3.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-emerald-400 border border-slate-800 font-bold flex items-center gap-1.5 transition-all"
+                className="px-3.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-emerald-400 border border-slate-800 font-bold flex items-center gap-1.5 transition-all cursor-pointer"
               >
                 <Terminal className="w-3.5 h-3.5" />
                 <span>CLI Terminal</span>

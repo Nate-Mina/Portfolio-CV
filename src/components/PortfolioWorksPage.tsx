@@ -224,6 +224,27 @@ export const portfolioProjects: PortfolioProject[] = [
     },
   },
   {
+    id: 'the-system-and-the-soul-book',
+    title: 'The System & The Soul — Book About Elon Musk (nate-mina.github.io/E.MUSK-AUTOBIO-PARODY)',
+    category: 'web',
+    categoryLabel: 'Interactive Book & Publication',
+    description: 'Interactive web book and autobiographical parody examining Elon Musk through a first-principles systems engineering, aerospace/hardware ambition, and philosophical lens.',
+    detailedSpecs: [
+      'Full interactive web edition published on GitHub Pages at nate-mina.github.io/E.MUSK-AUTOBIO-PARODY.',
+      'Blends first-principles systems thinking, deterministic physics, and sharp autobiographical parody exploring Elon Musk.',
+      'Supports direct full-page launch or embedded interactive reader preview directly inside Portfolio Works.',
+    ],
+    technologies: ['GitHub Pages', 'HTML5', 'CSS3', 'Interactive Writing', 'Systems Philosophy'],
+    url: 'https://nate-mina.github.io/E.MUSK-AUTOBIO-PARODY/',
+    fullscreenUrl: 'https://nate-mina.github.io/E.MUSK-AUTOBIO-PARODY/',
+    featured: true,
+    badge: 'Book · Elon Musk',
+    metrics: {
+      label: 'Publication Type',
+      value: 'Web Book',
+    },
+  },
+  {
     id: 'portfolio-cv-hub',
     title: 'Portfolio, Link-in-Bio & Interactive CV Platform (nate-mina.github.io/Portfolio-CV)',
     category: 'web',
@@ -259,7 +280,7 @@ export const PortfolioWorksPage: React.FC<PortfolioWorksPageProps> = ({ currentT
   });
 
   const handleCopyLink = (url: string, id: string) => {
-    navigator.clipboard.writeText(url);
+    navigator.clipboard?.writeText(url).catch(() => {});
     setCopiedId(id);
     setTimeout(() => setCopiedId(null), 2000);
   };

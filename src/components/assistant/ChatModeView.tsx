@@ -32,6 +32,16 @@ export const ChatModeView: React.FC = () => {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const isMountedRef = useRef(true);
+  const abortControllerRef = useRef<AbortController | null>(null);
+
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+      abortControllerRef.current?.abort();
+    };
+  }, []);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -63,6 +73,10 @@ export const ChatModeView: React.FC = () => {
         text: m.text,
       }));
 
+      abortControllerRef.current?.abort();
+      const controller = new AbortController();
+      abortControllerRef.current = controller;
+
       const res = await fetch('/api/assistant/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -70,6 +84,7 @@ export const ChatModeView: React.FC = () => {
           message: query.trim(),
           history: historyPayload,
         }),
+        signal: controller.signal,
       });
 
       if (!res.ok) {
@@ -77,6 +92,7 @@ export const ChatModeView: React.FC = () => {
       }
 
       const data = await res.json();
+      if (!isMountedRef.current) return;
       const assistantMsg: Message = {
         id: `msg-${Date.now()}-a`,
         role: 'assistant',
@@ -87,6 +103,7 @@ export const ChatModeView: React.FC = () => {
 
       setMessages((prev) => [...prev, assistantMsg]);
     } catch (err: any) {
+      if (err?.name === 'AbortError' || !isMountedRef.current) return;
       console.error('Failed to send message:', err);
       const fallbackMsg: Message = {
         id: `msg-${Date.now()}-err`,
@@ -97,7 +114,9 @@ export const ChatModeView: React.FC = () => {
       };
       setMessages((prev) => [...prev, fallbackMsg]);
     } finally {
-      setIsLoading(false);
+      if (isMountedRef.current) {
+        setIsLoading(false);
+      }
     }
   };
 

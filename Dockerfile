@@ -16,7 +16,10 @@ ENV NODE_ENV=production \
     PORT=3000
 WORKDIR /app
 
-RUN addgroup -S app && adduser -S app -G app
+RUN addgroup -S app && adduser -S app -G app \
+    && mkdir -p /app/.data \
+    && chown -R app:app /app/.data
+COPY --from=build --chown=app:app /app/package.json ./package.json
 COPY --from=build --chown=app:app /app/node_modules ./node_modules
 COPY --from=build --chown=app:app /app/dist ./dist
 COPY --from=build --chown=app:app /app/server.mjs ./server.mjs
