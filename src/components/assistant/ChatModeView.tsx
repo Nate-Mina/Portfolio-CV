@@ -19,12 +19,12 @@ const INITIAL_MESSAGE: Message = {
 };
 
 const SUGGESTIONS = [
-  'Help troubleshoot my PC issue',
+  'PC turns on, fans spin, no display (POST issue)',
+  'Help fix a Windows BSOD crash (WHEA / VIDEO_TDR)',
+  'High CPU/GPU temps or liquid cooling issue',
   "What is Nate's TikTok handle?",
-  'Tell me about Nate (Polymath story)',
-  'Why did Nate start writing music?',
+  'Tell me about "The System & The Soul" book',
   'Book free 15-min consult',
-  'Call or text Nate directly',
 ];
 
 export const ChatModeView: React.FC = () => {
@@ -88,7 +88,8 @@ export const ChatModeView: React.FC = () => {
       });
 
       if (!res.ok) {
-        throw new Error(`Server returned ${res.status}`);
+        const errBody = await res.json().catch(() => null);
+        throw new Error(errBody?.error || `Server returned ${res.status}`);
       }
 
       const data = await res.json();
@@ -105,10 +106,11 @@ export const ChatModeView: React.FC = () => {
     } catch (err: any) {
       if (err?.name === 'AbortError' || !isMountedRef.current) return;
       console.error('Failed to send message:', err);
+      const detail = err?.message ? `\n\n*Details: ${err.message}*` : '';
       const fallbackMsg: Message = {
         id: `msg-${Date.now()}-err`,
         role: 'assistant',
-        text: `I'm having a connection glitch, but Nate is available directly! You can call or text his work line 24/7 at **585-484-1764** for computer tech support, custom sales, or your free 15-minute consultation.`,
+        text: `I couldn't complete that request cleanly right now.${detail}\n\nFor immediate PC tech support, custom workstation quotes, or a free 15-minute consultation, call or text Nate 24/7 at **585-484-1764**.`,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         escalation: true,
       };

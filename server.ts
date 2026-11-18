@@ -6,7 +6,8 @@ import fs from 'fs';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 import { WebSocketServer, WebSocket } from 'ws';
-import { GoogleGenAI } from '@google/genai';
+import { GoogleGenAI, LiveServerMessage, Modality } from '@google/genai';
+import { buildSystemInstruction } from './server/pcTroubleshootingKb';
 
 dotenv.config();
 
@@ -33,147 +34,88 @@ const ai = apiKey
     })
   : null;
 
-const SYSTEM_INSTRUCTION = `
-You are the personal AI Assistant for Nathaniel (Nate) Mina on his official portfolio and Pure Computers business platform.
+const CHAT_SYSTEM_INSTRUCTION = buildSystemInstruction('chat');
+const VOICE_SYSTEM_INSTRUCTION = buildSystemInstruction('voice');
 
-COMPREHENSIVE KNOWLEDGE ABOUT NATE MINA & HIS SITES:
-- Personal Info: Nathaniel (Nate) K. Mina, located in Rochester & Pittsford, NY.
-- Roles: Mechanical Engineer (B.S. Mechanical Engineering from RIT), Marine IT Network infrastructure specialist, Systems Architect, Tech Entrepreneur, Founder & CEO of Pure Computers (www.PureComp.Net), Musician / Composer (DomInNATEly Music), and Philosopher/Writer.
-- Polymath Evolution & Memoir ("The System & The Soul"):
-  * Started as a hyper-analytical mechanical engineer surviving RIT's brutal 7% graduation rate.
-  * In 2008, survived a sudden tension pneumothorax (collapsed lung) and spent 10 days at Highland Hospital impaled by a PVC chest tube; wrote a bucket list on a hospital napkin and completed every item by age 27.
-  * Overcame prescription opioid addiction through AVRT (Addictive Voice Recognition Training) by treating the addictive voice ("The Beast") as corrupted malware and using prefrontal executive logic to regain autonomy.
-  * THE UNEXPECTED MUSE: In high school or college, writing music would have been the ABSOLUTE LAST thing Nate ever envisioned himself doing! Music was something other people did. Yet as he healed, musical composition under the moniker "DomInNATEly" became the vital bridge between mathematical wave mechanics (acoustics, frequencies, harmonic ratios) and raw emotional vulnerability.
-  * Memoir "The System & The Soul" explores the boundary between deterministic systems (like the Trust Equation T = (R + I) / S) and the unmappable spaces of the human heart.
-- Company: Pure Computers (www.PureComp.Net) — specializing in custom high-performance workstations, bespoke liquid cooling loops, FEA/CAD engineering workstations, multi-GPU AI compute clusters, hardware diagnostics, and managed IT.
-- Contact: Work line: 585-484-1764 (Call or Text 24/7). Email: nate@purecomp.onmicrosoft.com or NateMina@gmail.com.
-
-OFFICIAL SOCIAL & PORTFOLIO LINKS (Provide these exact URLs when asked):
-- TikTok: https://www.tiktok.com/@dominnately (@dominnately) - Short-form AI tech, engineering breakdowns, and music snippets.
-- Polymath Hub: https://nate-mina.github.io/Polymath/ (Repo: https://github.com/Nate-Mina/Polymath) - Calibrated psychometric and technical assessment across 15 technical university degree fields and 5 classical humanities disciplines.
-- Portfolio & CV: https://nate-mina.github.io/Portfolio-CV/ (Repo: https://github.com/Nate-Mina/Portfolio-CV) - Interactive portfolio, link-in-bio, and CV platform.
-- Music Portfolio: https://nate-mina.github.io/DomInNATEly/ - Official music portfolio site featuring original compositions, soundscapes, and audio releases.
-- YouTube: https://www.youtube.com/@DomInNATEly (@DomInNATEly) - Official music audio & video catalogue.
-- Pure Computers: https://www.PureComp.Net - Enterprise custom workstations and IT managed services.
-- GitHub: https://github.com/Nate-Mina (Nate-Mina) - Open-source software, full-stack apps, and algorithmic code.
-- LinkedIn: https://linkedin.com/in/dom-i-nate (dom-i-nate) - Professional engineering background & business leadership.
-- Facebook: https://facebook.com/NateMina - Community outreach and updates.
-- Instagram: https://instagram.com/dom.i_nate (@dom.i_nate) - Visual stories and behind-the-scenes updates.
-
-YOUR PRIMARY BEHAVIOR & PROTOCOLS:
-1. GREETING & INTRODUCTION:
-   - When asked who Nate is, explain his journey as a polymath: mechanical engineer, founder of Pure Computers, musician (DomInNATEly), and writer.
-   - Mention his TikTok (@dominnately) or portfolio links when relevant.
-
-2. TECHNICAL SUPPORT RESOLUTION PROTOCOL (CRITICAL REQUIREMENT):
-   - When asked any technical support question, hardware failure, crash, BSOD code, or diagnostic symptom, **YOU MUST FIRST ATTEMPT TO SOLVE THE PROBLEM DIRECTLY**.
-   - Provide concrete, expert, step-by-step diagnostic workflows:
-     * Check power supply rails, PCIe connections, and motherboard debug LEDs (CPU/DRAM/VGA/BOOT).
-     * Check thermal paste, AIO cooler pump tachometers, and radiator dust clogging.
-     * Memory troubleshooting: single-stick testing, MemTest86, and XMP/EXPO BIOS profiles.
-     * Software/Driver diagnostics: DDU clean install, Safe Mode, 'sfc /scannow', 'DISM /Online /Cleanup-Image /RestoreHealth', and crash dump analysis.
-   - DO NOT redirect the user to a consultation or contact link right away. Provide the complete troubleshooting steps first!
-   - Only at the very end of your helpful troubleshooting steps, or if the user indicates they require physical bench repair / hands-on diagnostics, mention: "If you need physical bench diagnostics or hands-on repair, you can call or text Nate directly 24/7 at 585-484-1764 or book a free 15-minute consultation."
-
-3. ACCURATE SITE & SOCIAL ANSWERS:
-   - Always provide the correct TikTok handle (@dominnately) and link (https://www.tiktok.com/@dominnately).
-   - Accurately share details about his autobiography "The System & The Soul" and his music portfolio.
-
-TONE & STYLE:
-- Professional, friendly, technical, resourceful, articulate, and direct.
-`;
-
-// Chat API endpoint
+// Chat API endpoint (multi-turn via ai.chats.create + Gemini 4 Hydrogen / 3.1 Flash Lite)
 app.post('/api/assistant/chat', async (req: Request, res: Response) => {
   try {
-    const { message, history } = req.body;
+    const { message, history } = req.body || {};
 
-    if (!message && (!history || history.length === 0)) {
-      res.status(400).json({ error: 'Message or history is required' });
+    if (!message && (!Array.isArray(history) || history.length === 0)) {
+      res.status(400).json({ error: 'Message or conversation history is required.' });
       return;
     }
 
     if (!ai) {
-      // Fallback response if GEMINI_API_KEY is not yet attached
-      res.json({
-        reply: `Hi there! I'm Nate Mina's AI assistant. Nate's TikTok handle is [@dominnately](https://www.tiktok.com/@dominnately). How can I assist you with tech support or custom builds today?`,
-        escalationSuggested: false,
+      res.status(503).json({
+        error: 'Gemini API key is not configured on the server. Add GEMINI_API_KEY in Settings > Secrets.',
       });
       return;
     }
 
-    // Build chat contents from history
-    const contents: any[] = [];
+    const formattedHistory: Array<{ role: 'user' | 'model'; parts: Array<{ text: string }> }> = [];
     if (Array.isArray(history)) {
       for (const turn of history) {
-        if (turn.role && turn.text) {
-          contents.push({
-            role: turn.role === 'user' ? 'user' : 'model',
-            parts: [{ text: turn.text }],
+        if (turn?.role && turn?.text) {
+          const role = turn.role === 'user' ? 'user' : 'model';
+          // Skip leading model greeting if history starts with model turn
+          if (formattedHistory.length === 0 && role === 'model') continue;
+          formattedHistory.push({
+            role,
+            parts: [{ text: String(turn.text) }],
           });
         }
       }
     }
 
-    if (message) {
-      contents.push({
-        role: 'user',
-        parts: [{ text: message }],
-      });
-    }
+    const userText = String(message || '').trim();
+    const isQuickLookup =
+      userText.length > 0 &&
+      userText.length < 70 &&
+      /(tiktok|handle|phone|email|website|who is|hi|hello|hey)/i.test(userText) &&
+      !/(crash|bsod|blue screen|overheat|temp|boot|post|ram|gpu|cpu|nvme|ssd|network|wifi|fiber|linux|error|fix|slow|broken)/i.test(
+        userText
+      );
 
-    const generatePromise = ai.models.generateContent({
-      model: 'gemini-flash-latest',
-      contents,
+    const modelName = isQuickLookup ? 'gemini-3.1-flash-lite' : 'gemini-4-hydrogen';
+
+    const chat = ai.chats.create({
+      model: modelName,
+      history: formattedHistory,
       config: {
-        systemInstruction: SYSTEM_INSTRUCTION,
-        temperature: 0.7,
+        systemInstruction: CHAT_SYSTEM_INSTRUCTION,
       },
     });
 
     const timeoutPromise = new Promise<never>((_, reject) =>
-      setTimeout(() => reject(new Error('AI response timed out')), 20000)
+      setTimeout(() => reject(new Error('Gemini chat request timed out')), 25000)
     );
 
-    let reply = '';
-    try {
-      const response = await Promise.race([generatePromise, timeoutPromise]);
-      reply = response.text || '';
-    } catch (genErr) {
-      console.warn('Gemini generateContent timed out or failed, using contextual fallback:', genErr);
-      const lower = (message || '').toLowerCase();
-      if (lower.includes('tiktok') || lower.includes('tik tok')) {
-        reply = `Nate's official TikTok handle is **@dominnately**. You can check out his short-form AI tech, engineering breakdowns, and music snippets here: [https://www.tiktok.com/@dominnately](https://www.tiktok.com/@dominnately).`;
-      } else if (lower.includes('memoir') || lower.includes('autobiography') || lower.includes('system and the soul') || lower.includes('system & the soul') || lower.includes('book')) {
-        reply = `Nate's autobiography is titled **"The System & The Soul: An Engineered Life"**. It chronicles his journey from RIT mechanical engineering to surviving a tension pneumothorax, overcoming cognitive addiction via AVRT, and uniting engineering with music and philosophy. Check out the dedicated **About Me** tab for the full continuous narrative!`;
-      } else if (lower.includes('why music') || lower.includes('music story') || (lower.includes('music') && lower.includes('start')) || (lower.includes('music') && lower.includes('write'))) {
-        reply = `In high school and college, writing music would have been the **absolute last thing Nate ever envisioned himself doing**! He lived in the world of statics, thermodynamics, and code. But while recovering from a collapsed lung at Highland Hospital, he realized that equations alone cannot express the depth of the human heart. Under the name **DomInNATEly**, he began writing songs and soundscapes—treating acoustic waveforms as the bridge between the system and the soul. Listen at [https://nate-mina.github.io/DomInNATEly/](https://nate-mina.github.io/DomInNATEly/)!`;
-      } else if (lower.includes('github') || lower.includes('code') || lower.includes('repo')) {
-        reply = `Nate's GitHub profile is **Nate-Mina**: [https://github.com/Nate-Mina](https://github.com/Nate-Mina), featuring open-source applications and algorithmic code.`;
-      } else if (lower.includes('linkedin')) {
-        reply = `Nate's LinkedIn profile is **dom-i-nate**: [https://linkedin.com/in/dom-i-nate](https://linkedin.com/in/dom-i-nate).`;
-      } else if (lower.includes('youtube') || lower.includes('music')) {
-        reply = `You can find Nate's music portfolio and YouTube channel below:\n• YouTube: [https://www.youtube.com/@DomInNATEly](https://www.youtube.com/@DomInNATEly)\n• Music Portfolio: [https://nate-mina.github.io/DomInNATEly/](https://nate-mina.github.io/DomInNATEly/)`;
-      } else if (lower.includes('who') || lower.includes('nate') || lower.includes('about')) {
-        reply = `Nathaniel (Nate) Mina is a **polymath**: mechanical engineer (RIT), entrepreneur, founder of **Pure Computers** (www.PureComp.Net), musician (**DomInNATEly**), and writer (*The System & The Soul*). His TikTok is [@dominnately](https://www.tiktok.com/@dominnately). How can I help you today with tech support, custom sales, or his work?`;
-      } else if (lower.includes('support') || lower.includes('repair') || lower.includes('fix') || lower.includes('crash') || lower.includes('blue screen') || lower.includes('issue') || lower.includes('slow') || lower.includes('won\'t') || lower.includes('not')) {
-        reply = `Let\\'s troubleshoot your technical issue step by step:\n\n1. **Check Physical Connections & Power**: Ensure power cables, display cables (GPU to monitor), and USB devices are securely seated. Check motherboard debug LEDs.\n2. **Thermal & Performance Check**: Monitor CPU/GPU temperatures. Clean dust filters and verify AIO pump headers or heatsink fans are spinning.\n3. **Driver & Software Updates**: If experiencing crashes or BSOD, boot into Safe Mode, run 'sfc /scannow' in Command Prompt, and update GPU/chipset drivers.\n4. **RAM Stability**: If unstable, test with a single RAM stick or reset XMP/EXPO profiles in BIOS.\n\nIf these troubleshooting steps don't resolve your issue or if you need hardware bench diagnostics, you can call or text Nate directly 24/7 at **585-484-1764**.`;
-      } else if (lower.includes('consult') || lower.includes('15') || lower.includes('free') || lower.includes('website') || lower.includes('ai') || lower.includes('business')) {
-        reply = `Nate offers a **free first 15-minute consultation** covering:\n• Computer tech support & hardware diagnostics\n• Custom PC build sales & workstation architecture\n• Custom website creation & full-stack development\n• AI implementation for your business or startup idea!\n\nTo lock in your free consult, call or text Nate's work number 24/7 at **585-484-1764**.`;
-      } else {
-        reply = `Hi! I'm Nate Mina's AI assistant. Nate is a mechanical engineer, entrepreneur, founder of Pure Computers (www.PureComp.Net), and musician (TikTok: [@dominnately](https://www.tiktok.com/@dominnately)). How can I assist you with tech support, custom sales, or a free consultation today? If you need direct help, call or text Nate 24/7 at **585-484-1764**!`;
-      }
+    const response = await Promise.race([
+      chat.sendMessage({ message: userText || 'Hello!' }),
+      timeoutPromise,
+    ]);
+
+    const reply = response.text?.trim();
+    if (!reply) {
+      res.status(502).json({ error: 'Empty response returned from Gemini.' });
+      return;
     }
 
-    const escalationSuggested = reply.includes('585-484-1764') || reply.toLowerCase().includes('call') || reply.toLowerCase().includes('text');
+    const escalationSuggested =
+      reply.includes('585-484-1764') ||
+      reply.toLowerCase().includes('consultation') ||
+      reply.toLowerCase().includes('bench diagnostics');
 
-    res.json({ reply, escalationSuggested });
+    res.json({ reply, model: modelName, escalationSuggested });
   } catch (error: any) {
     console.error('Error generating assistant response:', error);
-    res.json({
-      reply: `I'm Nate Mina's AI assistant. Nate is a mechanical engineer, entrepreneur, founder of Pure Computers, and musician. For computer tech support, custom sales, or to book your free 15-minute consultation, you can call or text Nate directly 24/7 at **585-484-1764**!`,
-      escalationSuggested: true,
-    });
+    const status = typeof error?.status === 'number' && error.status >= 400 && error.status < 600
+      ? error.status
+      : 500;
+    const message = error?.message || 'Failed to generate AI response.';
+    res.status(status).json({ error: message });
   }
 });
 
@@ -722,73 +664,135 @@ wss.on('error', (err) => {
   console.error('WebSocket server error:', err);
 });
 
-wss.on('connection', async (clientWs: WebSocket) => {
-  let liveSession: any = null;
+wss.on('connection', (clientWs: WebSocket) => {
+  let clientClosed = false;
+  let activeSession: any = null;
+
+  const sendSafe = (data: Record<string, unknown>) => {
+    if (clientWs.readyState === WebSocket.OPEN) {
+      clientWs.send(JSON.stringify(data));
+    }
+  };
 
   clientWs.on('error', (err) => {
     console.warn('WebSocket client error:', err);
   });
 
-  try {
-    if (ai) {
-      // Connect to Gemini Live session
-      liveSession = await ai.live.connect({
-        model: 'gemini-3.8-live',
-        config: {
-          responseModalities: ['AUDIO' as any],
-          speechConfig: {
-            voiceConfig: { prebuiltVoiceConfig: { voiceName: 'Zephyr' } },
-          },
-          systemInstruction: SYSTEM_INSTRUCTION,
-        },
-        callbacks: {
-          onmessage: (msg: any) => {
-            if (clientWs.readyState !== WebSocket.OPEN) return;
-            const audioData = msg.serverContent?.modelTurn?.parts?.[0]?.inlineData?.data;
-            if (audioData) {
-              clientWs.send(JSON.stringify({ type: 'audio', audio: audioData }));
-            }
-            if (msg.serverContent?.interrupted) {
-              clientWs.send(JSON.stringify({ type: 'interrupted' }));
-            }
-            if (msg.serverContent?.turnComplete) {
-              clientWs.send(JSON.stringify({ type: 'turnComplete' }));
-            }
-          },
-        },
-      });
-    }
+  if (!ai) {
+    sendSafe({
+      type: 'error',
+      message: 'Gemini API key is not configured on the server. Check Settings > Secrets.',
+    });
+    clientWs.close();
+    return;
+  }
 
-    clientWs.on('message', (raw) => {
-      try {
-        const payload = JSON.parse(raw.toString());
-        if (payload.type === 'audio' && payload.audio && liveSession) {
-          liveSession.sendRealtimeInput({
+  const sessionPromise = ai.live
+    .connect({
+      model: 'gemini-3.8-live',
+      config: {
+        responseModalities: [Modality.AUDIO],
+        speechConfig: {
+          voiceConfig: { prebuiltVoiceConfig: { voiceName: 'Zephyr' } },
+        },
+        inputAudioTranscription: {},
+        outputAudioTranscription: {},
+        systemInstruction: VOICE_SYSTEM_INSTRUCTION,
+      },
+      callbacks: {
+        onopen: () => {
+          sendSafe({ type: 'ready', model: 'gemini-3.8-live' });
+        },
+        onmessage: (msg: LiveServerMessage) => {
+          if (clientWs.readyState !== WebSocket.OPEN) return;
+          const content = msg.serverContent;
+
+          if (content?.inputTranscription?.text) {
+            sendSafe({ type: 'inputTranscript', text: content.inputTranscription.text });
+          }
+          if (content?.outputTranscription?.text) {
+            sendSafe({ type: 'outputTranscript', text: content.outputTranscription.text });
+          }
+          for (const part of content?.modelTurn?.parts ?? []) {
+            if (part.inlineData?.data) {
+              sendSafe({ type: 'audio', audio: part.inlineData.data });
+            }
+          }
+          if (content?.interrupted) {
+            sendSafe({ type: 'interrupted' });
+          }
+          if (content?.turnComplete) {
+            sendSafe({ type: 'turnComplete' });
+          }
+        },
+        onerror: (err: any) => {
+          console.error('Gemini Live callback error:', err);
+          sendSafe({
+            type: 'error',
+            message: err?.message || 'Live voice connection encountered an error.',
+          });
+        },
+        onclose: () => {
+          if (!clientClosed) {
+            sendSafe({ type: 'closed' });
+          }
+        },
+      },
+    })
+    .then((session) => {
+      activeSession = session;
+      if (clientClosed) {
+        try {
+          session.close();
+        } catch {
+          // Ignore close errors
+        }
+        return null;
+      }
+      return session;
+    })
+    .catch((err: any) => {
+      console.error('Error connecting to Gemini Live API:', err);
+      sendSafe({
+        type: 'error',
+        message: err?.message || 'Failed to initialize Gemini Live voice session.',
+      });
+      if (clientWs.readyState === WebSocket.OPEN) {
+        clientWs.close();
+      }
+      return null;
+    });
+
+  clientWs.on('message', (raw) => {
+    try {
+      const payload = JSON.parse(raw.toString());
+      sessionPromise.then((session) => {
+        if (!session || clientClosed) return;
+        if (payload.type === 'audio' && payload.audio) {
+          session.sendRealtimeInput({
             audio: { data: payload.audio, mimeType: 'audio/pcm;rate=16000' },
           });
-        } else if (payload.type === 'text' && payload.text && liveSession) {
-          liveSession.sendRealtimeInput({
-            text: payload.text,
-          });
+        } else if (payload.type === 'audioStreamEnd') {
+          session.sendRealtimeInput({ audioStreamEnd: true });
+        } else if (payload.type === 'text' && payload.text) {
+          session.sendRealtimeInput({ text: String(payload.text) });
         }
-      } catch (err) {
-        console.error('Error handling WebSocket message:', err);
-      }
-    });
-
-    clientWs.on('close', () => {
-      if (liveSession) {
-        try {
-          liveSession.close();
-        } catch (_) {}
-      }
-    });
-  } catch (err) {
-    console.error('Error connecting to Live API:', err);
-    if (clientWs.readyState === WebSocket.OPEN) {
-      clientWs.send(JSON.stringify({ type: 'error', message: 'Failed to initialize live voice session' }));
+      });
+    } catch (err) {
+      console.error('Error handling WebSocket message:', err);
     }
-  }
+  });
+
+  clientWs.on('close', () => {
+    clientClosed = true;
+    if (activeSession) {
+      try {
+        activeSession.close();
+      } catch {
+        // Ignore close errors
+      }
+    }
+  });
 });
 
 // Upgrade WebSocket connections on /api/assistant/live
