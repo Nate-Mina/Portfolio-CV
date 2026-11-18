@@ -26,6 +26,8 @@ import {
   FileSpreadsheet,
   LogOut,
   CheckSquare,
+  HelpCircle,
+  ChevronDown,
 } from 'lucide-react';
 import { JekyllTheme } from '../types';
 import { profileData } from '../data/profileData';
@@ -54,6 +56,91 @@ interface PureComputersPageProps {
   onOpenTerminal: () => void;
 }
 
+type FaqCategory = 'all' | 'builds' | 'pricing' | 'consulting';
+
+interface FaqItem {
+  id: string;
+  category: Exclude<FaqCategory, 'all'>;
+  categoryLabel: string;
+  question: string;
+  answer: string;
+}
+
+const PURE_COMPUTERS_FAQS: FaqItem[] = [
+  {
+    id: 'build-included',
+    category: 'builds',
+    categoryLabel: 'Custom Builds',
+    question: 'What is included in every custom Pure Computers build?',
+    answer:
+      'Every system includes silicon/component compatibility validation, custom cable management, BIOS & memory XMP/EXPO tuning, optimized fan and pump curves, OS & driver configuration, and a 48-hour continuous thermal and stability burn-in test before handoff—backed by our Pure Computers workmanship warranty.',
+  },
+  {
+    id: 'build-turnaround',
+    category: 'builds',
+    categoryLabel: 'Custom Builds',
+    question: 'How long does a custom workstation or liquid-cooled build take?',
+    answer:
+      'Standard air-cooled and 360mm AIO builds typically ship or complete within 5–10 business days after components arrive. Bespoke hardline copper/acrylic loops and multi-GPU AI compute nodes take 2–3 weeks to allow for precision tube bending, thermal pad calibration, 24-hour pressure leak testing, and sustained full-load validation.',
+  },
+  {
+    id: 'build-byo-parts',
+    category: 'builds',
+    categoryLabel: 'Custom Builds',
+    question: 'Can I supply my own parts, or do you source everything?',
+    answer:
+      'Both options are supported. Pure Computers can source vetted retail/enterprise components at transparent market pricing, or you can bring/ship components you already own for professional mechanical assembly, custom loop integration, BIOS tuning, and diagnostics.',
+  },
+  {
+    id: 'pricing-structure',
+    category: 'pricing',
+    categoryLabel: 'Pricing & Quotes',
+    question: 'How is pricing structured for custom compute builds vs. repairs?',
+    answer:
+      'Custom compute builds pair transparent component cost with a flat engineering and assembly fee scaled by build complexity (air/AIO vs. custom hardline or multi-GPU clusters). Diagnostics and hardware repairs use upfront flat-rate evaluation fees that are credited directly toward approved repair work.',
+  },
+  {
+    id: 'pricing-estimates',
+    category: 'pricing',
+    categoryLabel: 'Pricing & Quotes',
+    question: 'Are the Configurator numbers above final, and are there hidden fees?',
+    answer:
+      'The Build Configurator provides realistic budget ranges based on workload, cooling architecture, and hardware tier. Once you request a quote, you receive an itemized parts list and fixed labor estimate locked in before any order is placed—with zero surprise add-ons.',
+  },
+  {
+    id: 'pricing-milestones',
+    category: 'pricing',
+    categoryLabel: 'Pricing & Quotes',
+    question: 'How does billing work for high-density multi-GPU or enterprise orders?',
+    answer:
+      'For larger compute nodes and commercial deployments, hardware procurement is covered via an initial parts deposit, while the engineering, assembly, and validation balance is billed upon completion of 48-hour stress testing and benchmark sign-off.',
+  },
+  {
+    id: 'consulting-scope',
+    category: 'consulting',
+    categoryLabel: 'Infrastructure Consulting',
+    question: 'What does Pure Computers infrastructure & IT consulting cover?',
+    answer:
+      'We design and maintain resilient small-business and enterprise environments: firewall and VLAN network segmentation, secure VPN remote access, automated 3-2-1 backup strategies, fiber optic splicing/termination, workstation fleet standardization, and Microsoft Power Automate workflow automation.',
+  },
+  {
+    id: 'consulting-local-ai',
+    category: 'consulting',
+    categoryLabel: 'Infrastructure Consulting',
+    question: 'Can you deploy private on-prem AI / LLM compute nodes for sensitive data?',
+    answer:
+      'Yes. We architect VLAN-isolated or air-gapped multi-GPU workstations and rack servers tuned for local LLM inference and computer vision pipelines—keeping proprietary engineering, financial, legal, or medical data completely off third-party cloud APIs.',
+  },
+  {
+    id: 'consulting-remote',
+    category: 'consulting',
+    categoryLabel: 'Infrastructure Consulting',
+    question: 'Do you offer remote consulting outside Rochester & Pittsford, NY?',
+    answer:
+      'Yes. On-site hardware installations, fiber work, and in-person drop-offs cover Greater Rochester, NY (plus insured shipping nationwide for custom builds), while IT architecture consulting, software/AI pipelines, and remote troubleshooting are available anywhere.',
+  },
+];
+
 export const PureComputersPage: React.FC<PureComputersPageProps> = ({ currentTheme }) => {
   // Configurator state for custom PC estimate
   const [workload, setWorkload] = useState<'gaming' | 'ai' | 'cad' | 'office'>('gaming');
@@ -66,6 +153,34 @@ export const PureComputersPage: React.FC<PureComputersPageProps> = ({ currentThe
   const [contactPhone, setContactPhone] = useState('');
   const [remoteOnly, setRemoteOnly] = useState(false);
   const [contactMsg, setContactMsg] = useState('');
+
+  // FAQ state
+  const [faqCategory, setFaqCategory] = useState<FaqCategory>('all');
+  const [openFaqIds, setOpenFaqIds] = useState<string[]>(['build-included']);
+
+  const filteredFaqs =
+    faqCategory === 'all'
+      ? PURE_COMPUTERS_FAQS
+      : PURE_COMPUTERS_FAQS.filter((item) => item.category === faqCategory);
+
+  const toggleFaq = (id: string) => {
+    setOpenFaqIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  };
+
+  const allVisibleExpanded =
+    filteredFaqs.length > 0 && filteredFaqs.every((item) => openFaqIds.includes(item.id));
+
+  const handleToggleAllFaqs = () => {
+    if (allVisibleExpanded) {
+      const visibleSet = new Set(filteredFaqs.map((item) => item.id));
+      setOpenFaqIds((prev) => prev.filter((id) => !visibleSet.has(id)));
+    } else {
+      const merged = new Set([...openFaqIds, ...filteredFaqs.map((item) => item.id)]);
+      setOpenFaqIds(Array.from(merged));
+    }
+  };
 
   // Toast notifications
   const { showSuccess, showWarning, showError, showGoogleFormReceived } = useToast();
@@ -926,6 +1041,134 @@ export const PureComputersPage: React.FC<PureComputersPageProps> = ({ currentThe
           </div>
         </div>
       </div>
+
+      {/* Frequently Asked Questions Section */}
+      <section
+        id="pure-computers-faq"
+        className={`p-8 rounded-3xl border ${currentTheme.borderClass} ${currentTheme.cardBgClass} space-y-6 shadow-xl`}
+      >
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20">
+              <HelpCircle className="w-5 h-5" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-mono font-bold text-slate-100">
+                Frequently Asked Questions
+              </h2>
+              <p className="text-xs font-mono text-slate-400">
+                Answers on custom compute builds, pricing transparency, and IT infrastructure consulting
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleToggleAllFaqs}
+            className="self-start md:self-auto px-3.5 py-2 rounded-xl bg-slate-950 hover:bg-slate-900 border border-slate-800 text-xs font-mono font-bold text-slate-300 hover:text-emerald-400 transition-colors cursor-pointer"
+          >
+            {allVisibleExpanded ? 'Collapse All' : 'Expand All'}
+          </button>
+        </div>
+
+        {/* FAQ Category Filter Tabs */}
+        <div className="flex flex-wrap items-center gap-2">
+          {(
+            [
+              { id: 'all', label: 'All Topics' },
+              { id: 'builds', label: 'Custom Builds' },
+              { id: 'pricing', label: 'Pricing & Quotes' },
+              { id: 'consulting', label: 'Infrastructure Consulting' },
+            ] as { id: FaqCategory; label: string }[]
+          ).map((tab) => (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => setFaqCategory(tab.id)}
+              className={`px-3.5 py-1.5 rounded-xl border text-xs font-mono transition-all cursor-pointer ${
+                faqCategory === tab.id
+                  ? 'bg-emerald-500/20 border-emerald-500 text-emerald-300 font-bold'
+                  : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Accordion List */}
+        <div className="space-y-3">
+          {filteredFaqs.map((faq) => {
+            const isOpen = openFaqIds.includes(faq.id);
+            const badgeStyle =
+              faq.category === 'builds'
+                ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+                : faq.category === 'pricing'
+                ? 'bg-amber-500/10 text-amber-400 border-amber-500/20'
+                : 'bg-sky-500/10 text-sky-400 border-sky-500/20';
+
+            return (
+              <div
+                key={faq.id}
+                className={`rounded-2xl border transition-colors ${
+                  isOpen
+                    ? 'bg-slate-950/90 border-emerald-500/40'
+                    : 'bg-slate-950/60 border-slate-800 hover:border-slate-700'
+                }`}
+              >
+                <button
+                  type="button"
+                  onClick={() => toggleFaq(faq.id)}
+                  aria-expanded={isOpen}
+                  aria-controls={`faq-panel-${faq.id}`}
+                  className="w-full p-4 sm:p-5 flex items-center justify-between gap-4 text-left cursor-pointer"
+                >
+                  <div className="space-y-1.5">
+                    <span
+                      className={`inline-block text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-md border ${badgeStyle}`}
+                    >
+                      {faq.categoryLabel}
+                    </span>
+                    <h3 className="text-sm sm:text-base font-mono font-bold text-slate-100">
+                      {faq.question}
+                    </h3>
+                  </div>
+                  <ChevronDown
+                    className={`w-5 h-5 shrink-0 text-slate-400 transition-transform duration-200 ${
+                      isOpen ? 'rotate-180 text-emerald-400' : ''
+                    }`}
+                  />
+                </button>
+
+                {isOpen && (
+                  <div
+                    id={`faq-panel-${faq.id}`}
+                    className="px-4 sm:px-5 pb-5 pt-0 border-t border-slate-800/70"
+                  >
+                    <p className="pt-3.5 text-xs sm:text-sm font-sans text-slate-300 leading-relaxed">
+                      {faq.answer}
+                    </p>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Bottom Direct Prompt */}
+        <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs font-mono text-slate-400 border-t border-slate-800/80">
+          <span>
+            Have a specific workload, budget target, or network topology question?
+          </span>
+          <a
+            href={`tel:${profileData.phone}`}
+            className="text-emerald-400 hover:text-emerald-300 font-bold inline-flex items-center gap-1.5"
+          >
+            <Phone className="w-3.5 h-3.5" />
+            <span>Call or text {profileData.phone} or submit below</span>
+          </a>
+        </div>
+      </section>
 
       {/* Direct Service Request / Consultation Form with Phone & Remote Tech Support Options */}
       <div className={`p-8 rounded-3xl border ${currentTheme.borderClass} ${currentTheme.cardBgClass} space-y-6`}>

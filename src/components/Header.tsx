@@ -73,13 +73,9 @@ export const Header: React.FC<HeaderProps> = ({
   };
 
   return (
-    <header
-      id="portfolio-main-header"
-      ref={headerRef}
-      className="relative w-full border-b border-slate-800 bg-slate-950/95 backdrop-blur-md sticky top-0 z-40"
-    >
-      {/* Top Custom Portfolio Promo Banner */}
-      <div className="w-full bg-gradient-to-r from-emerald-950/90 via-slate-900 to-sky-950/90 border-b border-emerald-500/25">
+    <>
+      {/* Top Custom Portfolio Promo Banner (not frozen; scrolls with page) */}
+      <div className="w-full shrink-0 bg-gradient-to-r from-emerald-950/90 via-slate-900 to-sky-950/90 border-b border-emerald-500/25">
         <div className="max-w-6xl mx-auto px-3 sm:px-4 py-1.5 flex items-center justify-center">
           <button
             type="button"
@@ -98,8 +94,13 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
       </div>
 
-      {/* Primary Navigation & Brand Header Bar */}
-      <div className="max-w-6xl mx-auto px-3 sm:px-4 py-2 sm:py-3 flex flex-wrap items-center justify-between gap-2 sm:gap-3">
+      <header
+        id="portfolio-main-header"
+        ref={headerRef}
+        className="w-full shrink-0 border-b border-slate-800 bg-slate-950/95 backdrop-blur-md sticky top-0 z-40"
+      >
+        {/* Primary Navigation & Brand Header Bar */}
+        <div className="max-w-6xl mx-auto px-3 sm:px-4 py-2 sm:py-3 flex flex-wrap items-center justify-between gap-2 sm:gap-3">
         <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
           <div
             onClick={onOpenGallery}
@@ -306,6 +307,7 @@ export const Header: React.FC<HeaderProps> = ({
           </button>
         </div>
       </div>
-    </header>
+      </header>
+    </>
   );
 };
