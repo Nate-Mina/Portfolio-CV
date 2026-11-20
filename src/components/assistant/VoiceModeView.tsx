@@ -13,6 +13,7 @@ import { EscalationBanner } from './EscalationBanner';
 
 interface VoiceModeViewProps {
   onSwitchToChat: () => void;
+  autoStartNonce?: number;
 }
 
 interface LiveCaptionEntry {
@@ -77,17 +78,21 @@ function decodeBase64Pcm24k(base64: string): Float32Array {
   return float32;
 }
 
-export const VoiceModeView: React.FC<VoiceModeViewProps> = ({ onSwitchToChat }) => {
+export const VoiceModeView: React.FC<VoiceModeViewProps> = ({
+  onSwitchToChat,
+  autoStartNonce = 0,
+}) => {
   const [connectionState, setConnectionState] = useState<'idle' | 'connecting' | 'live' | 'error'>('idle');
   const [isMuted, setIsMuted] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [micWarning, setMicWarning] = useState<string | null>(null);
   const [textInput, setTextInput] = useState('');
   const [captions, setCaptions] = useState<LiveCaptionEntry[]>([
     {
       id: 'intro',
       role: 'assistant',
-      text: "Tap 'Start Live Voice' to talk hands-free with Nate AI (Gemini Live). Ask about PC troubleshooting, BSOD codes, liquid cooling thermals, custom builds, or Nate's work.",
+      text: "Connecting to Nate's AI Assistant Clone for Pure Computers...",
     },
   ]);
 
@@ -101,7 +106,14 @@ export const VoiceModeView: React.FC<VoiceModeViewProps> = ({ onSwitchToChat }) 
   const activeSourcesRef = useRef<Set<AudioBufferSourceNode>>(new Set());
   const isMutedRef = useRef<boolean>(false);
   const isMountedRef = useRef<boolean>(true);
+  const connectionStateRef = useRef<'idle' | 'connecting' | 'live' | 'error'>('idle');
+  const lastHandledNonceRef = useRef<number>(0);
+  const startLiveSessionRef = useRef<() => void>(() => {});
   const captionsEndRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    connectionStateRef.current = connectionState;
+  }, [connectionState]);
 
   useEffect(() => {
     captionsEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -243,58 +255,73 @@ export const VoiceModeView: React.FC<VoiceModeViewProps> = ({ onSwitchToChat }) 
   const startLiveSession = async () => {
     cleanupSession();
     setErrorMsg(null);
+    setMicWarning(null);
     setIsMuted(false);
     isMutedRef.current = false;
     setConnectionState('connecting');
-
-    if (!navigator.mediaDevices?.getUserMedia) {
-      setConnectionState('error');
-      setErrorMsg('Microphone capture is not supported in this browser. Please switch to Text Chat.');
-      return;
-    }
+    connectionStateRef.current = 'connecting';
 
     try {
       const AudioCtxClass =
         window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
 
-      let inputCtx: AudioContext;
-      try {
-        inputCtx = new AudioCtxClass({ sampleRate: 16000 });
-      } catch {
-        inputCtx = new AudioCtxClass();
-      }
       let outputCtx: AudioContext;
       try {
         outputCtx = new AudioCtxClass({ sampleRate: 24000 });
       } catch {
         outputCtx = new AudioCtxClass();
       }
-      await inputCtx.resume();
-      await outputCtx.resume();
-      inputAudioCtxRef.current = inputCtx;
+      await outputCtx.resume().catch(() => {});
       outputAudioCtxRef.current = outputCtx;
 
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: {
-          echoCancellation: true,
-          noiseSuppression: true,
-          autoGainControl: true,
-          channelCount: 1,
-        },
-      });
-
-      if (!isMountedRef.current) {
-        stream.getTracks().forEach((t) => t.stop());
-        return;
+      // Attempt microphone capture; if denied or unavailable, continue live session in listen + text mode
+      let stream: MediaStream | null = null;
+      let inputCtx: AudioContext | null = null;
+      if (navigator.mediaDevices?.getUserMedia) {
+        try {
+          stream = await navigator.mediaDevices.getUserMedia({
+            audio: {
+              echoCancellation: true,
+              noiseSuppression: true,
+              autoGainControl: true,
+              channelCount: 1,
+            },
+          });
+          if (!isMountedRef.current) {
+            stream.getTracks().forEach((t) => t.stop());
+            return;
+          }
+          try {
+            inputCtx = new AudioCtxClass({ sampleRate: 16000 });
+          } catch {
+            inputCtx = new AudioCtxClass();
+          }
+          await inputCtx.resume().catch(() => {});
+          inputAudioCtxRef.current = inputCtx;
+          mediaStreamRef.current = stream;
+        } catch (micErr: any) {
+          const denied =
+            micErr?.name === 'NotAllowedError' || micErr?.name === 'PermissionDeniedError';
+          setMicWarning(
+            denied
+              ? 'Mic access denied — listening via speaker. Allow mic or type below.'
+              : 'No microphone detected — listening via speaker. Type below anytime.'
+          );
+          setIsMuted(true);
+          isMutedRef.current = true;
+        }
+      } else {
+        setMicWarning('Microphone unavailable in this browser — listening via speaker. Type below anytime.');
+        setIsMuted(true);
+        isMutedRef.current = true;
       }
-      mediaStreamRef.current = stream;
 
       const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
       const ws = new WebSocket(`${protocol}//${window.location.host}/api/assistant/live`);
       wsRef.current = ws;
 
       ws.onopen = () => {
-        if (!isMountedRef.current) return;
+        if (!isMountedRef.current || !stream || !inputCtx) return;
         const source = inputCtx.createMediaStreamSource(stream);
         const processor = inputCtx.createScriptProcessor(4096, 1, 1);
         const silentGain = inputCtx.createGain();
@@ -321,15 +348,11 @@ export const VoiceModeView: React.FC<VoiceModeViewProps> = ({ onSwitchToChat }) 
           const msg = JSON.parse(event.data);
           if (msg.type === 'ready') {
             setConnectionState('live');
-            setCaptions([
-              {
-                id: `ready-${Date.now()}`,
-                role: 'assistant',
-                text: 'Live voice connected. Go ahead and speak—I am listening in real time.',
-              },
-            ]);
+            connectionStateRef.current = 'live';
+            setCaptions([]);
           } else if (msg.type === 'audio' && msg.audio) {
             setConnectionState('live');
+            connectionStateRef.current = 'live';
             scheduleAudioChunk(msg.audio);
           } else if (msg.type === 'inputTranscript' && msg.text) {
             appendTranscript('user', msg.text);
@@ -340,9 +363,11 @@ export const VoiceModeView: React.FC<VoiceModeViewProps> = ({ onSwitchToChat }) 
           } else if (msg.type === 'error') {
             setErrorMsg(msg.message || 'Live AI session failed.');
             setConnectionState('error');
+            connectionStateRef.current = 'error';
             cleanupSession();
           } else if (msg.type === 'closed') {
             setConnectionState('idle');
+            connectionStateRef.current = 'idle';
             cleanupSession();
           }
         } catch (parseErr) {
@@ -354,32 +379,45 @@ export const VoiceModeView: React.FC<VoiceModeViewProps> = ({ onSwitchToChat }) 
         if (!isMountedRef.current) return;
         setErrorMsg('Live voice WebSocket connection failed. Try Text Chat or retry.');
         setConnectionState('error');
+        connectionStateRef.current = 'error';
         cleanupSession();
       };
 
       ws.onclose = () => {
         if (!isMountedRef.current) return;
-        setConnectionState((prev) => (prev === 'error' ? 'error' : 'idle'));
+        setConnectionState((prev) => {
+          const next = prev === 'error' ? 'error' : 'idle';
+          connectionStateRef.current = next;
+          return next;
+        });
       };
     } catch (err: any) {
       cleanupSession();
       if (!isMountedRef.current) return;
-      const permissionDenied =
-        err?.name === 'NotAllowedError' || err?.name === 'PermissionDeniedError';
-      setErrorMsg(
-        permissionDenied
-          ? 'Microphone access was denied. Allow mic permissions or switch to Text Chat.'
-          : err?.message || 'Unable to start live audio session.'
-      );
+      setErrorMsg(err?.message || 'Unable to start live audio session.');
       setConnectionState('error');
+      connectionStateRef.current = 'error';
     }
   };
+
+  startLiveSessionRef.current = startLiveSession;
+
+  useEffect(() => {
+    if (autoStartNonce > 0 && autoStartNonce !== lastHandledNonceRef.current) {
+      lastHandledNonceRef.current = autoStartNonce;
+      if (connectionStateRef.current === 'idle' || connectionStateRef.current === 'error') {
+        startLiveSessionRef.current();
+      }
+    }
+  }, [autoStartNonce]);
 
   const endLiveSession = () => {
     cleanupSession();
     setConnectionState('idle');
+    connectionStateRef.current = 'idle';
     setIsMuted(false);
     isMutedRef.current = false;
+    setMicWarning(null);
   };
 
   const toggleMute = () => {
@@ -522,6 +560,13 @@ export const VoiceModeView: React.FC<VoiceModeViewProps> = ({ onSwitchToChat }) 
         </div>
       )}
 
+      {micWarning && !errorMsg && (
+        <div className="px-2.5 py-2 rounded-xl bg-amber-500/10 border border-amber-500/30 text-[11px] font-mono text-amber-300 flex items-center gap-2">
+          <MicOff className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+          <span className="leading-snug">{micWarning}</span>
+        </div>
+      )}
+
       {errorMsg && (
         <div className="p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-[11px] font-mono text-rose-300 flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 min-w-0">
@@ -541,7 +586,7 @@ export const VoiceModeView: React.FC<VoiceModeViewProps> = ({ onSwitchToChat }) 
       {/* Real-Time Captions Feed */}
       <div className="flex-1 min-h-0 p-3 rounded-2xl bg-slate-950/85 border border-slate-800/80 overflow-y-auto space-y-2">
         <div className="text-[10px] font-mono uppercase tracking-wider text-slate-500 font-bold flex items-center justify-between">
-          <span>Live Transcript · Gemini 3.8 Live</span>
+          <span>Nate&apos;s AI Clone · Live Transcript</span>
           {isSpeaking && (
             <span className="text-purple-400 flex items-center gap-1">
               <Volume2 className="w-3 h-3" /> Audio Output
@@ -560,7 +605,7 @@ export const VoiceModeView: React.FC<VoiceModeViewProps> = ({ onSwitchToChat }) 
               }`}
             >
               <span className="text-[10px] font-mono uppercase font-bold block mb-0.5 text-slate-400">
-                {entry.role === 'user' ? 'You' : 'Nate AI'}
+                {entry.role === 'user' ? 'You' : "Nate's AI Clone"}
               </span>
               {entry.text}
             </div>

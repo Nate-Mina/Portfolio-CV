@@ -7,7 +7,7 @@ import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 import { WebSocketServer, WebSocket } from 'ws';
 import { GoogleGenAI, LiveServerMessage, Modality } from '@google/genai';
-import { buildSystemInstruction } from './server/pcTroubleshootingKb';
+import { buildSystemInstruction } from './server/pcTroubleshootingKb.ts';
 
 dotenv.config();
 
@@ -159,7 +159,7 @@ app.post('/api/assistant/tts', async (req: Request, res: Response) => {
         responseModalities: ['AUDIO'],
         speechConfig: {
           voiceConfig: {
-            prebuiltVoiceConfig: { voiceName: 'Kore' },
+            prebuiltVoiceConfig: { voiceName: 'Charon' },
           },
         },
       },
@@ -695,7 +695,7 @@ wss.on('connection', (clientWs: WebSocket) => {
       config: {
         responseModalities: [Modality.AUDIO],
         speechConfig: {
-          voiceConfig: { prebuiltVoiceConfig: { voiceName: 'Zephyr' } },
+          voiceConfig: { prebuiltVoiceConfig: { voiceName: 'Charon' } },
         },
         inputAudioTranscription: {},
         outputAudioTranscription: {},
@@ -703,7 +703,7 @@ wss.on('connection', (clientWs: WebSocket) => {
       },
       callbacks: {
         onopen: () => {
-          sendSafe({ type: 'ready', model: 'gemini-3.8-live' });
+          // Wait until setupComplete resolves session before signaling ready & greeting
         },
         onmessage: (msg: LiveServerMessage) => {
           if (clientWs.readyState !== WebSocket.OPEN) return;
@@ -760,6 +760,24 @@ wss.on('connection', (clientWs: WebSocket) => {
           // Ignore close errors
         }
         return null;
+      }
+      sendSafe({ type: 'ready', model: 'gemini-3.8-live' });
+      try {
+        session.sendClientContent({
+          turns: [
+            {
+              role: 'user',
+              parts: [
+                {
+                  text: "Introduce yourself aloud right now using these exact words and nothing else: \"Thanks for choosing Pure Computers, I'm Nate's AI Assistant Clone here to assist you. How can I help you today?\"",
+                },
+              ],
+            },
+          ],
+          turnComplete: true,
+        });
+      } catch (greetErr) {
+        console.warn('Unable to send auto-greeting turn:', greetErr);
       }
       return session;
     })

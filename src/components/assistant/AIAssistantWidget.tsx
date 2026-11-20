@@ -1,10 +1,8 @@
-import React, { useState, useEffect, lazy, Suspense } from 'react';
+import React, { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { Bot, Mic, MessageSquare, X } from 'lucide-react';
 import { JekyllTheme } from '../../types';
+import { VoiceModeView } from './VoiceModeView';
 
-const VoiceModeView = lazy(() =>
-  import('./VoiceModeView').then((m) => ({ default: m.VoiceModeView }))
-);
 const ChatModeView = lazy(() =>
   import('./ChatModeView').then((m) => ({ default: m.ChatModeView }))
 );
@@ -12,19 +10,42 @@ const ChatModeView = lazy(() =>
 interface AIAssistantWidgetProps {
   currentTheme?: JekyllTheme;
   activeTab?: string;
+  pureCompLaunchNonce?: number;
 }
 
-export const AIAssistantWidget: React.FC<AIAssistantWidgetProps> = ({ currentTheme, activeTab }) => {
+export const AIAssistantWidget: React.FC<AIAssistantWidgetProps> = ({
+  activeTab,
+  pureCompLaunchNonce = 0,
+}) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [mode, setMode] = useState<'voice' | 'chat'>('voice'); // Voice is primary as requested
+  const [mode, setMode] = useState<'voice' | 'chat'>('voice');
+  const [autoStartNonce, setAutoStartNonce] = useState(0);
+  const prevPureCompNonceRef = useRef(pureCompLaunchNonce);
+  const prevTabRef = useRef(activeTab);
 
-  // Automatically expand assistant dialog when user clicks on Pure Computers tab
+  // Auto-launch Live Voice whenever user clicks the Pure Computers tab
   useEffect(() => {
-    if (activeTab === 'purecomp') {
+    const clickedPureComp =
+      pureCompLaunchNonce > 0 && pureCompLaunchNonce !== prevPureCompNonceRef.current;
+    const switchedToPureComp =
+      activeTab === 'purecomp' && prevTabRef.current !== 'purecomp';
+
+    prevPureCompNonceRef.current = pureCompLaunchNonce;
+    prevTabRef.current = activeTab;
+
+    if (clickedPureComp || switchedToPureComp) {
       setIsOpen(true);
-      setMode('chat');
+      setMode('voice');
+      setAutoStartNonce((n) => n + 1);
     }
-  }, [activeTab]);
+  }, [activeTab, pureCompLaunchNonce]);
+
+  // Auto-launch Live Voice when user clicks the bottom-right AI Help button
+  const handleLauncherClick = () => {
+    setIsOpen(true);
+    setMode('voice');
+    setAutoStartNonce((n) => n + 1);
+  };
 
   return (
     <>
@@ -46,9 +67,9 @@ export const AIAssistantWidget: React.FC<AIAssistantWidgetProps> = ({ currentThe
           </div>
 
           <button
-            onClick={() => setIsOpen(true)}
+            onClick={handleLauncherClick}
             className="px-4 py-3 rounded-2xl bg-gradient-to-r from-emerald-600 via-teal-600 to-sky-600 hover:from-emerald-500 hover:to-sky-500 text-white font-mono text-xs font-bold shadow-2xl flex items-center gap-2.5 transition-all transform hover:-translate-y-0.5 cursor-pointer ring-4 ring-emerald-500/20 active:scale-95"
-            aria-label="Open Nate Mina AI Assistant"
+            aria-label="Open Nate's AI Assistant Clone"
           >
             <div className="relative">
               <Mic className="w-4 h-4 text-white" />
@@ -63,7 +84,7 @@ export const AIAssistantWidget: React.FC<AIAssistantWidgetProps> = ({ currentThe
       {isOpen && (
         <div
           role="dialog"
-          aria-label="Nate Mina AI Voice & Chat Assistant"
+          aria-label="Nate's AI Assistant Clone — Pure Computers"
           className="fixed bottom-4 right-4 z-50 w-[95vw] sm:w-[430px] rounded-3xl bg-slate-900/95 backdrop-blur-2xl border border-slate-800 shadow-2xl shadow-slate-950 overflow-hidden flex flex-col animate-in fade-in slide-in-from-bottom-5 duration-200"
         >
           {/* Header */}
@@ -74,11 +95,11 @@ export const AIAssistantWidget: React.FC<AIAssistantWidgetProps> = ({ currentThe
               </div>
               <div>
                 <h3 className="text-xs font-mono font-bold text-slate-100 flex items-center gap-1.5">
-                  <span>Nate Mina AI Assistant</span>
+                  <span>Nate&apos;s AI Clone</span>
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                 </h3>
                 <p className="text-[10px] font-mono text-slate-400">
-                  Tech Support · Quotes · 15m Consult
+                  Pure Computers · Tech Support &amp; Quotes
                 </p>
               </div>
             </div>
@@ -125,19 +146,22 @@ export const AIAssistantWidget: React.FC<AIAssistantWidgetProps> = ({ currentThe
 
           {/* Active Mode View */}
           <div className="bg-slate-900/60 flex-1 overflow-hidden">
-            <Suspense
-              fallback={
-                <div className="h-[520px] max-h-[80vh] flex items-center justify-center text-xs font-mono text-slate-400">
-                  Loading assistant...
-                </div>
-              }
-            >
-              {mode === 'voice' ? (
-                <VoiceModeView onSwitchToChat={() => setMode('chat')} />
-              ) : (
+            {mode === 'voice' ? (
+              <VoiceModeView
+                autoStartNonce={autoStartNonce}
+                onSwitchToChat={() => setMode('chat')}
+              />
+            ) : (
+              <Suspense
+                fallback={
+                  <div className="h-[520px] max-h-[80vh] flex items-center justify-center text-xs font-mono text-slate-400">
+                    Loading chat...
+                  </div>
+                }
+              >
                 <ChatModeView />
-              )}
-            </Suspense>
+              </Suspense>
+            )}
           </div>
         </div>
       )}

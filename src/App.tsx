@@ -85,9 +85,13 @@ export default function App() {
     isOpen: false,
   });
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
+  const [assistantLaunchNonce, setAssistantLaunchNonce] = useState(0);
 
   const setActiveTab = useCallback((tab: PortfolioTabId) => {
     setActiveTabState(tab);
+    if (tab === 'purecomp') {
+      setAssistantLaunchNonce((n) => n + 1);
+    }
     if (typeof window !== 'undefined') {
       const targetHash = tab === 'links' ? '' : `#${tab}`;
       if (window.location.hash !== targetHash) {
@@ -277,7 +281,11 @@ export default function App() {
 
         {/* Nate Mina AI Voice & Chatbot Assistant */}
         <Suspense fallback={null}>
-          <AIAssistantWidget currentTheme={currentTheme} activeTab={activeTab} />
+          <AIAssistantWidget
+            currentTheme={currentTheme}
+            activeTab={activeTab}
+            pureCompLaunchNonce={assistantLaunchNonce}
+          />
         </Suspense>
 
         {/* Global Toast Container */}
